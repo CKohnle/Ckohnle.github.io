@@ -26,7 +26,11 @@ main {
     padding: 2em;
 }
 
-h1, h2 {
+h1 {
+    color: #fff;
+}
+
+h2 {
     color: #333;
 }
 
