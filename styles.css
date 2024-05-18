@@ -44,3 +44,8 @@ large-text {
     font-size: 24px;
     font-weight: bold;
 }
+
+.indent {
+    padding-left: 40px; /* Adjust the value as needed */
+}
+
