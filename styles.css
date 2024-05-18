@@ -3,6 +3,7 @@ body {
     margin: 0;
     padding: 0;
     background-color: #f4f4f4;
+    overflow: hidden;
 }
 
 header {
@@ -49,3 +50,18 @@ large-text {
     padding-left: 40px; /* Adjust the value as needed */
 }
 
+.content {
+    text-align: center;
+    margin-top: 100px;
+}
+
+#duck {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: auto;
+    cursor: pointer;
+    transition: top 0.3s, left 0.3s;
+}
