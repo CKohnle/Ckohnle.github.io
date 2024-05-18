@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const duck = document.createElement('img');
     duck.id = 'duck';
-    duck.src = 'https://www.pngall.com/wp-content/uploads/10/Mallard-PNG-Pic.png'; // Ensure this path is correct or use a URL
+    duck.src = 'duck.png'; // Ensure this path is correct or use a URL
     duck.alt = 'Duck';
     document.body.appendChild(duck);
 
