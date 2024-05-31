@@ -5,6 +5,12 @@ document.addEventListener('DOMContentLoaded', function() {
     duck.alt = 'Duck';
     document.body.appendChild(duck);
 
+    const quackSound = document.getElementById('quack-sound');
+
+    duck.addEventListener('click', function() {
+        quackSound.play();
+    });
+
     const moveDuckAway = (event) => {
         const duckRect = duck.getBoundingClientRect();
         const cursorX = event.clientX;
@@ -24,10 +30,26 @@ document.addEventListener('DOMContentLoaded', function() {
             if (newLeft + duckRect.width > window.innerWidth - edgeBuffer) newLeft = window.innerWidth - duckRect.width - edgeBuffer;
             if (newTop + duckRect.height > window.innerHeight - edgeBuffer) newTop = window.innerHeight - duckRect.height - edgeBuffer;
 
+            // Adjust for scroll position
+            newLeft = Math.min(Math.max(newLeft, 0), document.documentElement.scrollWidth - duckRect.width);
+            newTop = Math.min(Math.max(newTop, 0), document.documentElement.scrollHeight - duckRect.height);
+
             duck.style.left = newLeft + 'px';
             duck.style.top = newTop + 'px';
         }
     };
 
     document.addEventListener('mousemove', moveDuckAway);
+});
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const likeButton = document.getElementById('like-button');
+    const likeCount = document.getElementById('like-count');
+    let count = 0;
+
+    likeButton.addEventListener('click', function() {
+        count++;
+        likeCount.textContent = count;
+    });
 });
