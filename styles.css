@@ -94,3 +94,8 @@ large-text {
     font-size: 16px;
     color: #333;
 }
+
+#like-checkmark {
+    color: green;
+    margin-left: 10px;
+}
