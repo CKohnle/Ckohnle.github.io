@@ -46,10 +46,20 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
     const likeButton = document.getElementById('like-button');
     const likeCount = document.getElementById('like-count');
+    const likeCheckmark = document.getElementById('like-checkmark');
+    let isLiked = false;
     let count = 0;
 
     likeButton.addEventListener('click', function() {
-        count++;
+        if (isLiked) {
+            count--;
+            likeCheckmark.style.display = 'none';
+        } else {
+            count++;
+            likeCheckmark.style.display = 'inline';
+        }
+        isLiked = !isLiked;
         likeCount.textContent = count;
     });
 });
+
