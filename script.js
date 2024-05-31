@@ -40,12 +40,24 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Like button code (this part runs on all pages)
+    // Like button code
     const likeButton = document.getElementById('like-button');
     const likeCount = document.getElementById('like-count');
     const likeCheckmark = document.getElementById('like-checkmark');
-    let isLiked = false;
+    let isLiked = localStorage.getItem('isLiked') === 'true';
     let count = parseInt(likeCount.textContent);
+
+    if (isLiked) {
+        likeCheckmark.style.display = 'inline';
+    }
+
+    // Fetch the initial like count from the server
+    fetch('https://your-server-url/get-like-count') // Replace with your server URL
+        .then(response => response.json())
+        .then(data => {
+            count = data.likeCount;
+            likeCount.textContent = count;
+        });
 
     if (likeButton) {
         likeButton.addEventListener('click', function() {
@@ -57,7 +69,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 likeCheckmark.style.display = 'inline';
             }
             isLiked = !isLiked;
+            localStorage.setItem('isLiked', isLiked);
             likeCount.textContent = count;
+
+            // Update the like count on the server
+            fetch('https://your-server-url/update-like-count', { // Replace with your server URL
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ likeCount: count })
+            });
         });
     }
 });
