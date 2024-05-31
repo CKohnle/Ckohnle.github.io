@@ -1,65 +1,63 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const duck = document.createElement('img');
-    duck.id = 'duck';
-    duck.src = 'duck.png'; // Ensure this path is correct or use a URL
-    duck.alt = 'Duck';
-    document.body.appendChild(duck);
+    // Check if the current page is the index page
+    if (document.body.classList.contains('index-page')) {
+        const duck = document.createElement('img');
+        duck.src = 'duck.png'; // Path to your duck image
+        duck.alt = 'Duck';
+        duck.id = 'duck';
+        document.body.appendChild(duck);
 
-    const quackSound = document.getElementById('quack-sound');
+        const quackSound = document.getElementById('quack-sound');
+        let duckPosX = window.innerWidth / 2 - 25;
+        let duckPosY = window.innerHeight - 60;
+        duck.style.left = `${duckPosX}px`;
+        duck.style.top = `${duckPosY}px`;
 
-    duck.addEventListener('click', function() {
-        quackSound.play();
-    });
+        function moveDuck(event) {
+            const mouseX = event.clientX;
+            const mouseY = event.clientY;
 
-    const moveDuckAway = (event) => {
-        const duckRect = duck.getBoundingClientRect();
-        const cursorX = event.clientX;
-        const cursorY = event.clientY;
-        const buffer = 50; // Distance the duck will move away
-        const edgeBuffer = 50; // Minimum distance from the edges
+            if (mouseX < duckPosX) {
+                duckPosX += 10;
+            } else {
+                duckPosX -= 10;
+            }
 
-        if (cursorX > duckRect.left - buffer && cursorX < duckRect.right + buffer &&
-            cursorY > duckRect.top - buffer && cursorY < duckRect.bottom + buffer) {
+            if (mouseY < duckPosY) {
+                duckPosY += 10;
+            } else {
+                duckPosY -= 10;
+            }
 
-            let newLeft = duckRect.left + (duckRect.left - cursorX);
-            let newTop = duckRect.top + (duckRect.top - cursorY);
-
-            // Ensure the duck stays within the viewport with an edge buffer
-            if (newLeft < edgeBuffer) newLeft = edgeBuffer;
-            if (newTop < edgeBuffer) newTop = edgeBuffer;
-            if (newLeft + duckRect.width > window.innerWidth - edgeBuffer) newLeft = window.innerWidth - duckRect.width - edgeBuffer;
-            if (newTop + duckRect.height > window.innerHeight - edgeBuffer) newTop = window.innerHeight - duckRect.height - edgeBuffer;
-
-            // Adjust for scroll position
-            newLeft = Math.min(Math.max(newLeft, 0), document.documentElement.scrollWidth - duckRect.width);
-            newTop = Math.min(Math.max(newTop, 0), document.documentElement.scrollHeight - duckRect.height);
-
-            duck.style.left = newLeft + 'px';
-            duck.style.top = newTop + 'px';
+            duck.style.left = `${duckPosX}px`;
+            duck.style.top = `${duckPosY}px`;
         }
-    };
 
-    document.addEventListener('mousemove', moveDuckAway);
-});
+        document.addEventListener('mousemove', moveDuck);
 
+        duck.addEventListener('click', function() {
+            quackSound.play();
+        });
+    }
 
-document.addEventListener('DOMContentLoaded', function() {
+    // Like button code (this part runs on all pages)
     const likeButton = document.getElementById('like-button');
     const likeCount = document.getElementById('like-count');
     const likeCheckmark = document.getElementById('like-checkmark');
     let isLiked = false;
-    let count = 0;
+    let count = parseInt(likeCount.textContent);
 
-    likeButton.addEventListener('click', function() {
-        if (isLiked) {
-            count--;
-            likeCheckmark.style.display = 'none';
-        } else {
-            count++;
-            likeCheckmark.style.display = 'inline';
-        }
-        isLiked = !isLiked;
-        likeCount.textContent = count;
-    });
+    if (likeButton) {
+        likeButton.addEventListener('click', function() {
+            if (isLiked) {
+                count--;
+                likeCheckmark.style.display = 'none';
+            } else {
+                count++;
+                likeCheckmark.style.display = 'inline';
+            }
+            isLiked = !isLiked;
+            likeCount.textContent = count;
+        });
+    }
 });
-
