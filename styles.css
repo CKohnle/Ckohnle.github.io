@@ -68,3 +68,29 @@ large-text {
     cursor: pointer;
     transition: top 0.3s, left 0.3s;
 }
+
+.like-button-container {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+}
+
+#like-button {
+    background-color: #008CBA;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+#like-button:hover {
+    background-color: #005f73;
+}
+
+#like-count {
+    font-size: 16px;
+    color: #333;
+}
