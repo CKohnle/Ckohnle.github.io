@@ -40,14 +40,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-document.addEventListener('DOMContentLoaded', function() {
     // Like button code
     const likeButtons = document.querySelectorAll('.like-button');
     
     likeButtons.forEach(function(button) {
         const likeCount = button.nextElementSibling;
         const likeCheckmark = button.querySelector('.like-checkmark');
-        let isLiked = localStorage.getItem(button.id) === 'true';
+        let isLiked = localStorage.getItem(button.getAttribute('data-id')) === 'true';
         let count = parseInt(likeCount.textContent);
 
         if (isLiked) {
@@ -63,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 likeCheckmark.style.display = 'inline';
             }
             isLiked = !isLiked;
-            localStorage.setItem(button.id, isLiked);
+            localStorage.setItem(button.getAttribute('data-id'), isLiked);
             likeCount.textContent = count;
 
             // Update the like count on the server
@@ -72,9 +71,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ likeCount: count })
+                body: JSON.stringify({ id: button.getAttribute('data-id'), likeCount: count })
             });
         });
     });
 });
-
