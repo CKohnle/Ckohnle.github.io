@@ -37,10 +37,14 @@
             text-decoration: line-through;
             color: #aaa;
         }
+        .progress-container {
+            margin-top: 20px;
+        }
         .progress-bar {
             width: 100%;
             background-color: #f3f3f3;
-            margin-top: 20px;
+            border: 1px solid #000;
+            margin-top: 10px;
         }
         .progress {
             width: 0;
@@ -92,13 +96,14 @@
                     <tr>
                         <th>Task</th>
                         <th>Significance</th>
+                        <th>Category</th>
                         <th>Points Gained</th>
                         <th>Complete</th>
                     </tr>
                 </table>
 
-                <div class="progress-bar">
-                    <div id="progress" class="progress">0%</div>
+                <div class="progress-container" id="progress-container">
+                    <!-- Progress bars for categories will be dynamically generated here -->
                 </div>
 
                 <div class="reward-wheel">
@@ -113,8 +118,12 @@
                         <option value="daily">Daily</option>
                         <option value="minor">Minor</option>
                         <option value="major">Major</option>
+                        <option value="massive">Massive</option>
                     </select>
-                    <input type="number" id="new-task-points" placeholder="Points">
+                    <select id="new-task-category">
+                        <option value="General">General</option>
+                        <!-- Categories will be dynamically added here -->
+                    </select>
                     <button onclick="addTask()">Add Task</button>
                 </div>
 
@@ -139,13 +148,51 @@
     <script>
         document.getElementById('date-today').textContent = new Date().toDateString();
 
-        const tasks = JSON.parse(localStorage.getItem('tasks')) || [
-            { description: 'submit grant proposal', significance: 'Major', points: 3, completed: false },
-            { description: 'working out', significance: 'daily', points: 1, completed: false }
-        ];
+        const taskSignificancePoints = {
+            daily: 1,
+            minor: 5,
+            major: 10,
+            massive: 25
+        };
 
-        let totalPoints = 0;
-        const progressBar = document.getElementById('progress');
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        let categories = JSON.parse(localStorage.getItem('categories')) || ['General'];
+
+        let categoryPoints = {};
+        let progressBars = {};
+
+        categories.forEach(category => {
+            categoryPoints[category] = 0;
+        });
+
+        const progressBarContainer = document.getElementById('progress-container');
+
+        function renderProgressBars() {
+            progressBarContainer.innerHTML = '';
+            categories.forEach(category => {
+                const progressBarWrapper = document.createElement('div');
+                progressBarWrapper.innerHTML = `
+                    <div>${category} Progress:</div>
+                    <div class="progress-bar" id="progress-bar-${category}">
+                        <div class="progress" id="progress-${category}">0%</div>
+                    </div>
+                `;
+                progressBarContainer.appendChild(progressBarWrapper);
+                progressBars[category] = document.getElementById(`progress-${category}`);
+            });
+            updateProgressBars();
+        }
+
+        function renderCategoryOptions() {
+            const categorySelect = document.getElementById('new-task-category');
+            categorySelect.innerHTML = '';
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categorySelect.appendChild(option);
+            });
+        }
 
         function renderTasks() {
             const taskTable = document.getElementById('task-table');
@@ -153,6 +200,7 @@
                 <tr>
                     <th>Task</th>
                     <th>Significance</th>
+                    <th>Category</th>
                     <th>Points Gained</th>
                     <th>Complete</th>
                 </tr>
@@ -162,7 +210,8 @@
                 row.innerHTML = `
                     <td class="${task.completed ? 'task-completed' : ''}">${task.description}</td>
                     <td>${task.significance}</td>
-                    <td>${task.points}</td>
+                    <td>${task.category}</td>
+                    <td>${taskSignificancePoints[task.significance]}</td>
                     <td><input type="checkbox" ${task.completed ? 'checked' : ''} onclick="completeTask(${index})"></td>
                 `;
                 taskTable.appendChild(row);
@@ -171,52 +220,76 @@
         }
 
         function completeTask(index) {
-            tasks[index].completed = !tasks[index].completed;
-            updateTotalPoints();
+            const task = tasks[index];
+            const points = taskSignificancePoints[task.significance];
+            task.completed = !task.completed;
+            if (task.completed) {
+                addPoints(task.category, points);
+                if (task.category !== 'General') {
+                    addPoints('General', points);
+                }
+            } else {
+                subtractPoints(task.category, points);
+                if (task.category !== 'General') {
+                    subtractPoints('General', points);
+                }
+            }
             renderTasks();
             saveTasks();
         }
 
-        function updateTotalPoints() {
-            totalPoints = tasks.reduce((sum, task) => sum + (task.completed ? task.points : 0), 0);
-            updateProgressBar();
-        }
-
-        function updateProgressBar() {
-            const progress = (totalPoints / 100) * 100;
-            progressBar.style.width = progress + '%';
-            progressBar.textContent = progress + '%';
-            if (progress >= 100) {
-                alert('Congratulations! You have reached 100%!');
-                spinRewardWheel();
-                totalPoints = 0;
-                tasks.forEach(task => task.completed = false); // Reset tasks
-                updateProgressBar();
-                saveTasks();
+        function addPoints(category, points) {
+            categoryPoints[category] += points;
+            if (categoryPoints[category] >= 100) {
+                categoryPoints[category] -= 100;
+                alert(`Congratulations! You have reached 100% in the ${category} category!`);
+                spinRewardWheel(category);
             }
+            updateProgressBars();
         }
 
-        function spinRewardWheel() {
+        function subtractPoints(category, points) {
+            categoryPoints[category] -= points;
+            if (categoryPoints[category] < 0) {
+                categoryPoints[category] = 0;
+            }
+            updateProgressBars();
+        }
+
+        function updateProgressBars() {
+            categories.forEach(category => {
+                const progress = (categoryPoints[category] / 100) * 100;
+                progressBars[category].style.width = progress + '%';
+                progressBars[category].textContent = progress + '%';
+            });
+        }
+
+        function spinRewardWheel(category) {
             const rewards = ['Reward1', 'Reward2', 'Reward3'];
             const reward = rewards[Math.floor(Math.random() * rewards.length)];
-            document.getElementById('reward-result').textContent = `You won: ${reward}`;
+            document.getElementById('reward-result').textContent = `You won: ${reward} in ${category}`;
         }
 
         function addTask() {
             const description = document.getElementById('new-task').value;
             const significance = document.getElementById('new-task-significance').value;
-            const points = parseInt(document.getElementById('new-task-points').value);
-            if (description && significance && points) {
-                tasks.push({ description, significance, points, completed: false });
+            const category = document.getElementById('new-task-category').value;
+            if (description && significance && category) {
+                tasks.push({ description, significance, category, completed: false });
                 renderTasks();
                 saveTasks();
             }
         }
 
         function addCategory() {
-            // This function can be expanded to allow adding new categories
             const category = document.getElementById('new-category').value;
-            alert(`New category "${category}" added!`);
+            if (category && !categories.includes(category)) {
+                categories.push(category);
+                categoryPoints[category] = 0;
+                renderProgressBars();
+                renderCategoryOptions();
+                saveCategories();
+            }
         }
 
         function showTasks() {
@@ -225,6 +298,8 @@
                 document.getElementById('home-section').classList.add('hidden');
                 document.getElementById('tasks-section').classList.remove('hidden');
                 renderTasks();
+                renderProgressBars();
+                renderCategoryOptions();
             } else {
                 alert("Incorrect password!");
             }
@@ -234,6 +309,12 @@
             localStorage.setItem('tasks', JSON.stringify(tasks));
         }
 
+        function saveCategories() {
+            localStorage.setItem('categories', JSON.stringify(categories));
+        }
+
+        renderProgressBars();
+        renderCategoryOptions();
         renderTasks();
     </script>
 </body>
