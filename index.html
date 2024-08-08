@@ -5,6 +5,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Academic Website - Home</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+        }
+        .date {
+            text-align: center;
+            font-size: 24px;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .task-completed {
+            text-decoration: line-through;
+            color: #aaa;
+        }
+        .progress-bar {
+            width: 100%;
+            background-color: #f3f3f3;
+            margin-top: 20px;
+        }
+        .progress {
+            width: 0;
+            height: 30px;
+            background-color: #4caf50;
+            text-align: center;
+            line-height: 30px;
+            color: white;
+        }
+        .reward-wheel {
+            width: 100%;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .add-task-form, .add-category-form {
+            margin-top: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body class="index-page">
     <header>
@@ -15,15 +72,59 @@
             <a href="blog.html">Blog</a>
             <a href="personal.html">Personal</a>
             <a href="cv.html">CV</a>
+            <a href="#" onclick="showTasks()">Tasks</a>
         </nav>
     </header>
     <main>
-        <h2>Hello, and welcome to my website! </h2>
-        <p>My name is Christian Kohnle. I am a Mathematics and Physics Undergraduate Student at Boston University.</p>
-        <p>Here you can find information about my research, blog posts, and personal information. If you are looking to employ me, or are just curious, my CV can be downloaded here as well.</p>
-        <p>In addition, you can find links to my LinkedIn, Youtube, Github, and other ways to connect with me.</p>
-        
-        <audio id="quack-sound" src="quack.mp3"></audio>
+        <div id="home-section">
+            <h2>Hello, and welcome to my website!</h2>
+            <p>My name is Christian Kohnle. I am a Mathematics and Physics Undergraduate Student at Boston University.</p>
+            <p>Here you can find information about my research, blog posts, and personal information. If you are looking to employ me, or are just curious, my CV can be downloaded here as well.</p>
+            <p>In addition, you can find links to my LinkedIn, Youtube, Github, and other ways to connect with me.</p>
+            <audio id="quack-sound" src="quack.mp3"></audio>
+        </div>
+
+        <div id="tasks-section" class="hidden">
+            <div class="container">
+                <div class="date">Date Today: <span id="date-today"></span></div>
+                
+                <table id="task-table">
+                    <tr>
+                        <th>Task</th>
+                        <th>Significance</th>
+                        <th>Points Gained</th>
+                        <th>Complete</th>
+                    </tr>
+                </table>
+
+                <div class="progress-bar">
+                    <div id="progress" class="progress">0%</div>
+                </div>
+
+                <div class="reward-wheel">
+                    <button onclick="spinRewardWheel()">Spin Reward Wheel</button>
+                    <div id="reward-result"></div>
+                </div>
+
+                <div class="add-task-form">
+                    <h3>Add New Task</h3>
+                    <input type="text" id="new-task" placeholder="Task description">
+                    <select id="new-task-significance">
+                        <option value="daily">Daily</option>
+                        <option value="minor">Minor</option>
+                        <option value="major">Major</option>
+                    </select>
+                    <input type="number" id="new-task-points" placeholder="Points">
+                    <button onclick="addTask()">Add Task</button>
+                </div>
+
+                <div class="add-category-form">
+                    <h3>Add New Category</h3>
+                    <input type="text" id="new-category" placeholder="Category name">
+                    <button onclick="addCategory()">Add Category</button>
+                </div>
+            </div>
+        </div>
     </main>
     <footer>
         <a href="https://www.linkedin.com/in/christian-kohnle-phys/" target="_blank" rel="noopener noreferrer">
@@ -35,6 +136,105 @@
         <p>&copy; 2024 Christian Kohnle. All rights reserved.</p>
     </footer>
 
-    <script src="script.js"></script>
+    <script>
+        document.getElementById('date-today').textContent = new Date().toDateString();
+
+        const tasks = JSON.parse(localStorage.getItem('tasks')) || [
+            { description: 'submit grant proposal', significance: 'Major', points: 3, completed: false },
+            { description: 'working out', significance: 'daily', points: 1, completed: false }
+        ];
+
+        let totalPoints = 0;
+        const progressBar = document.getElementById('progress');
+
+        function renderTasks() {
+            const taskTable = document.getElementById('task-table');
+            taskTable.innerHTML = `
+                <tr>
+                    <th>Task</th>
+                    <th>Significance</th>
+                    <th>Points Gained</th>
+                    <th>Complete</th>
+                </tr>
+            `;
+            tasks.forEach((task, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="${task.completed ? 'task-completed' : ''}">${task.description}</td>
+                    <td>${task.significance}</td>
+                    <td>${task.points}</td>
+                    <td><input type="checkbox" ${task.completed ? 'checked' : ''} onclick="completeTask(${index})"></td>
+                `;
+                taskTable.appendChild(row);
+            });
+            updateTotalPoints();
+        }
+
+        function completeTask(index) {
+            tasks[index].completed = !tasks[index].completed;
+            updateTotalPoints();
+            renderTasks();
+            saveTasks();
+        }
+
+        function updateTotalPoints() {
+            totalPoints = tasks.reduce((sum, task) => sum + (task.completed ? task.points : 0), 0);
+            updateProgressBar();
+        }
+
+        function updateProgressBar() {
+            const progress = (totalPoints / 100) * 100;
+            progressBar.style.width = progress + '%';
+            progressBar.textContent = progress + '%';
+            if (progress >= 100) {
+                alert('Congratulations! You have reached 100%!');
+                spinRewardWheel();
+                totalPoints = 0;
+                tasks.forEach(task => task.completed = false); // Reset tasks
+                updateProgressBar();
+                saveTasks();
+            }
+        }
+
+        function spinRewardWheel() {
+            const rewards = ['Reward1', 'Reward2', 'Reward3'];
+            const reward = rewards[Math.floor(Math.random() * rewards.length)];
+            document.getElementById('reward-result').textContent = `You won: ${reward}`;
+        }
+
+        function addTask() {
+            const description = document.getElementById('new-task').value;
+            const significance = document.getElementById('new-task-significance').value;
+            const points = parseInt(document.getElementById('new-task-points').value);
+            if (description && significance && points) {
+                tasks.push({ description, significance, points, completed: false });
+                renderTasks();
+                saveTasks();
+            }
+        }
+
+        function addCategory() {
+            // This function can be expanded to allow adding new categories
+            const category = document.getElementById('new-category').value;
+            alert(`New category "${category}" added!`);
+        }
+
+        function showTasks() {
+            const password = prompt("Enter password to access tasks:");
+            if (password === "yourpassword") {
+                document.getElementById('home-section').classList.add('hidden');
+                document.getElementById('tasks-section').classList.remove('hidden');
+                renderTasks();
+            } else {
+                alert("Incorrect password!");
+            }
+        }
+
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        renderTasks();
+    </script>
 </body>
 </html>
