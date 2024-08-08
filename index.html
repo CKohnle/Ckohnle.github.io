@@ -65,6 +65,35 @@
         .hidden {
             display: none;
         }
+        .calendar {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .calendar table {
+            border-collapse: collapse;
+        }
+        .calendar th, .calendar td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        .calendar th {
+            background-color: #f2f2f2;
+        }
+        .calendar td {
+            cursor: pointer;
+        }
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #f8f8f8;
+            padding: 10px;
+            text-align: center;
+            border-top: 1px solid #ddd;
+            transition: transform 0.3s ease-in-out;
+        }
     </style>
 </head>
 <body class="index-page">
@@ -90,6 +119,7 @@
 
         <div id="tasks-section" class="hidden">
             <div class="container">
+                <div class="calendar" id="calendar"></div>
                 <div class="date">Date Today: <span id="date-today"></span></div>
                 
                 <table id="task-table">
@@ -99,6 +129,7 @@
                         <th>Category</th>
                         <th>Points Gained</th>
                         <th>Complete</th>
+                        <th>Remove</th>
                     </tr>
                 </table>
 
@@ -135,7 +166,7 @@
             </div>
         </div>
     </main>
-    <footer>
+    <footer id="footer">
         <a href="https://www.linkedin.com/in/christian-kohnle-phys/" target="_blank" rel="noopener noreferrer">
             <img src="LinkedIn_logo.png" alt="LinkedIn" width="32" height="32">
         </a>
@@ -155,9 +186,10 @@
             massive: 25
         };
 
-        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || {};
         let categories = JSON.parse(localStorage.getItem('categories')) || ['General'];
 
+        let selectedDate = new Date().toISOString().split('T')[0]; // Default to today's date
         let categoryPoints = {};
         let progressBars = {};
 
@@ -203,24 +235,28 @@
                     <th>Category</th>
                     <th>Points Gained</th>
                     <th>Complete</th>
+                    <th>Remove</th>
                 </tr>
             `;
-            tasks.forEach((task, index) => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td class="${task.completed ? 'task-completed' : ''}">${task.description}</td>
-                    <td>${task.significance}</td>
-                    <td>${task.category}</td>
-                    <td>${taskSignificancePoints[task.significance]}</td>
-                    <td><input type="checkbox" ${task.completed ? 'checked' : ''} onclick="completeTask(${index})"></td>
-                `;
-                taskTable.appendChild(row);
-            });
+            if (tasks[selectedDate]) {
+                tasks[selectedDate].forEach((task, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="${task.completed ? 'task-completed' : ''}">${task.description}</td>
+                        <td>${task.significance}</td>
+                        <td>${task.category}</td>
+                        <td>${taskSignificancePoints[task.significance]}</td>
+                        <td><input type="checkbox" ${task.completed ? 'checked' : ''} onclick="completeTask(${index})"></td>
+                        <td><button onclick="removeTask(${index})">Remove</button></td>
+                    `;
+                    taskTable.appendChild(row);
+                });
+            }
             updateTotalPoints();
         }
 
         function completeTask(index) {
-            const task = tasks[index];
+            const task = tasks[selectedDate][index];
             const points = taskSignificancePoints[task.significance];
             task.completed = !task.completed;
             if (task.completed) {
@@ -234,6 +270,12 @@
                     subtractPoints('General', points);
                 }
             }
+            renderTasks();
+            saveTasks();
+        }
+
+        function removeTask(index) {
+            tasks[selectedDate].splice(index, 1);
             renderTasks();
             saveTasks();
         }
@@ -275,7 +317,10 @@
             const significance = document.getElementById('new-task-significance').value;
             const category = document.getElementById('new-task-category').value;
             if (description && significance && category) {
-                tasks.push({ description, significance, category, completed: false });
+                if (!tasks[selectedDate]) {
+                    tasks[selectedDate] = [];
+                }
+                tasks[selectedDate].push({ description, significance, category, completed: false });
                 renderTasks();
                 saveTasks();
             }
@@ -297,6 +342,7 @@
             if (password === "yourpassword") {
                 document.getElementById('home-section').classList.add('hidden');
                 document.getElementById('tasks-section').classList.remove('hidden');
+                renderCalendar();
                 renderTasks();
                 renderProgressBars();
                 renderCategoryOptions();
@@ -313,8 +359,66 @@
             localStorage.setItem('categories', JSON.stringify(categories));
         }
 
+        function renderCalendar() {
+            const calendarElement = document.getElementById('calendar');
+            const currentDate = new Date();
+            const currentMonth = currentDate.getMonth();
+            const currentYear = currentDate.getFullYear();
+
+            calendarElement.innerHTML = generateCalendar(currentMonth, currentYear);
+            document.getElementById('date-today').textContent = new Date().toDateString();
+        }
+
+        function generateCalendar(month, year) {
+            const firstDay = new Date(year, month).getDay();
+            const daysInMonth = 32 - new Date(year, month, 32).getDate();
+
+            let calendar = `<table>
+                <tr>
+                    <th>Su</th>
+                    <th>Mo</th>
+                    <th>Tu</th>
+                    <th>We</th>
+                    <th>Th</th>
+                    <th>Fr</th>
+                    <th>Sa</th>
+                </tr><tr>`;
+
+            for (let i = 0; i < firstDay; i++) {
+                calendar += "<td></td>";
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                if ((firstDay + day - 1) % 7 === 0 && day !== 1) {
+                    calendar += "</tr><tr>";
+                }
+
+                calendar += `<td onclick="selectDate(${year}, ${month}, ${day})">${day}</td>`;
+            }
+
+            calendar += "</tr></table>";
+
+            return calendar;
+        }
+
+        function selectDate(year, month, day) {
+            selectedDate = new Date(year, month, day).toISOString().split('T')[0];
+            document.getElementById('date-today').textContent = new Date(selectedDate).toDateString();
+            renderTasks();
+        }
+
+        window.addEventListener('scroll', () => {
+            const footer = document.getElementById('footer');
+            if (window.scrollY > 50) {
+                footer.style.transform = 'translateY(100%)';
+            } else {
+                footer.style.transform = 'translateY(0)';
+            }
+        });
+
         renderProgressBars();
         renderCategoryOptions();
+        renderCalendar();
         renderTasks();
     </script>
 </body>
