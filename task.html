@@ -235,14 +235,22 @@
             categories.forEach(category => {
                 const progressWrapper = document.createElement('div');
                 progressWrapper.className = 'progress-wrapper';
-
+        
                 // Fill Count Tracker
                 const fillCount = document.createElement('div');
                 fillCount.className = 'progress-tracker';
                 fillCount.id = `fill-count-${category.name}`;
                 fillCount.textContent = categoryFillCounts[category.name] || 0;
                 progressWrapper.appendChild(fillCount);
-
+        
+                // Category Label
+                const categoryLabel = document.createElement('div');
+                categoryLabel.className = 'progress-tracker';
+                categoryLabel.style.minWidth = '100px';
+                categoryLabel.style.textAlign = 'center';
+                categoryLabel.textContent = `${category.name} Progress:`;
+                progressWrapper.appendChild(categoryLabel);
+        
                 // Progress Bar
                 const progressBar = document.createElement('div');
                 progressBar.className = 'progress-bar';
@@ -258,7 +266,7 @@
                 progressBar.appendChild(progressFill);
                 progressBar.appendChild(progressText);
                 progressWrapper.appendChild(progressBar);
-
+        
                 // Reward Wheel Button
                 const rewardButton = document.createElement('button');
                 rewardButton.className = 'reward-button';
@@ -269,19 +277,20 @@
                     rewardButton.style.display = 'none';
                 }
                 progressWrapper.appendChild(rewardButton);
-
+        
                 // Manage Rewards Button
                 const manageRewardsButton = document.createElement('button');
                 manageRewardsButton.className = 'reward-button';
                 manageRewardsButton.textContent = 'Manage Rewards';
                 manageRewardsButton.onclick = () => manageRewards(category.name);
                 progressWrapper.appendChild(manageRewardsButton);
-
+        
                 progressContainer.appendChild(progressWrapper);
             });
             renderCategoryOptions();
         }
 
+        
         function updateProgressBar(categoryName) {
             const progressFill = document.getElementById(`progress-fill-${categoryName}`);
             const progressText = document.getElementById(`progress-text-${categoryName}`);
