@@ -217,6 +217,9 @@
         let tasks = JSON.parse(localStorage.getItem('tasks')) || {};
         let categories = JSON.parse(localStorage.getItem('categories')) || [{ name: 'General', rewards: [] }];
 
+        // Filter out undefined or invalid categories
+        categories = categories.filter(category => category && category.name);
+
         let selectedDate = new Date().toISOString().split('T')[0]; // Default to today's date
         let currentMonth = new Date().getMonth();
         let currentYear = new Date().getFullYear();
