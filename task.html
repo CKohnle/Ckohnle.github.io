@@ -218,9 +218,16 @@
             }
         });
 
-        let selectedDate = new Date().toISOString().split('T')[0]; // Default to today's date
+        let selectedDate = getFormattedDate(new Date()); // Default to today's date in MM-DD-YYYY format
         let currentMonth = new Date().getMonth();
         let currentYear = new Date().getFullYear();
+
+        function getFormattedDate(date) {
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            const year = date.getFullYear();
+            return `${month}-${day}-${year}`;
+        }
 
         function renderProgressBars() {
             const progressContainer = document.getElementById('progress-container');
@@ -518,7 +525,7 @@
                 if ((firstDay + day - 1) % 7 === 0 && day !== 1) {
                     calendarHTML += `</tr><tr>`;
                 }
-                const fullDate = new Date(currentYear, currentMonth, day).toISOString().split('T')[0];
+                const fullDate = getFormattedDate(new Date(currentYear, currentMonth, day));
                 calendarHTML += `<td onclick="selectDate('${fullDate}')">${day}</td>`;
             }
 
@@ -533,10 +540,7 @@
         }
 
         function formatDate(dateString) {
-            const date = new Date(dateString);
-            const month = date.getMonth() + 1;
-            const day = date.getDate();
-            const year = date.getFullYear();
+            const [month, day, year] = dateString.split('-');
             return `${month}-${day}-${year}`;
         }
 
