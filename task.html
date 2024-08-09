@@ -536,9 +536,28 @@
                 }
         
                 const fullDate = getFormattedDate(new Date(currentYear, currentMonth, day));
-                const isSelected = selectedDate === fullDate ? 'style="background-color: blue; color: white;"' : '';
+                let isSelected = "";
+                let isToday = "";
+                let style = "";
         
-                calendarHTML += `<td ${isSelected} onclick="selectDate('${fullDate}')">${day}</td>`;
+                if (selectedDate === fullDate) {
+                    isSelected = "selected";
+                    style = "background-color: red; color: white;";
+                }
+                
+                if (getFormattedDate(new Date()) === fullDate) {
+                    isToday = "today";
+                    style = "background-color: blue; color: white;";
+                }
+                
+                if (isToday && isSelected) {
+                    style = `
+                        background: linear-gradient(to bottom right, blue 50%, red 50%);
+                        color: white;
+                    `;
+                }
+        
+                calendarHTML += `<td style="${style}" onclick="selectDate('${fullDate}')">${day}</td>`;
             }
         
             calendarHTML += `</tr></table>`;
