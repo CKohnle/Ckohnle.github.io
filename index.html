@@ -6,106 +6,113 @@
     <title>Academic Website - Home</title>
     <link rel="stylesheet" href="styles.css">
     <style>
+        /* General Styles */
         body {
             font-family: Arial, sans-serif;
         }
-        .container {
+        header, main, footer {
             width: 80%;
             margin: 0 auto;
         }
-        .date {
-            text-align: center;
-            font-size: 24px;
-            margin-top: 20px;
+        header nav a {
+            margin: 0 10px;
+            text-decoration: none;
+            color: #333;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        table, th, td {
-            border: 1px solid #ddd;
-        }
-        th, td {
-            padding: 15px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .task-completed {
-            text-decoration: line-through;
-            color: #aaa;
-        }
-        .progress-container {
-            margin-top: 20px;
-        }
-        .progress-bar {
-            width: 100%;
-            background-color: #f3f3f3;
-            border: 1px solid #000;
-            margin-top: 10px;
-        }
-        .progress {
-            width: 0;
-            height: 30px;
-            background-color: #4caf50;
-            text-align: center;
-            line-height: 30px;
-            color: white;
-        }
-        .reward-wheel {
-            margin-top: 20px;
-            text-align: center;
-            display: none; /* Hidden until progress bar is filled */
-        }
-        .add-task-form, .add-category-form, .reward-management-form {
-            margin-top: 20px;
-        }
+        /* Task Section Styles */
         .hidden {
             display: none;
         }
-        .calendar {
-            display: flex;
-            justify-content: center;
+        .container {
             margin-top: 20px;
-        }
-        .calendar table {
-            border-collapse: collapse;
-        }
-        .calendar th, .calendar td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: center;
-        }
-        .calendar th {
-            background-color: #f2f2f2;
-        }
-        .calendar td {
-            cursor: pointer;
         }
         .calendar-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
-            font-size: 18px;
         }
         .calendar-header button {
-            background-color: #f2f2f2;
-            border: 1px solid #ddd;
-            padding: 5px;
-            cursor: pointer;
+            padding: 5px 10px;
         }
-        footer {
-            position: fixed;
-            bottom: 0;
+        .calendar table {
             width: 100%;
-            background-color: #f8f8f8;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .calendar th, .calendar td {
+            border: 1px solid #ccc;
             padding: 10px;
             text-align: center;
-            border-top: 1px solid #ddd;
-            transition: transform 0.3s ease-in-out;
+        }
+        .calendar td:hover {
+            background-color: #f0f0f0;
+            cursor: pointer;
+        }
+        #task-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        #task-table th, #task-table td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+        .task-completed {
+            text-decoration: line-through;
+            color: #999;
+        }
+        .progress-container {
+            margin-top: 20px;
+        }
+        .progress-wrapper {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .progress-tracker {
+            width: 50px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .progress-bar {
+            flex: 1;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 0 10px;
+            position: relative;
+            height: 25px;
+        }
+        .progress-fill {
+            background-color: #76c7c0;
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease-in-out;
+        }
+        .progress-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            line-height: 25px;
+            color: #fff;
+            font-weight: bold;
+        }
+        .reward-button {
+            padding: 5px 10px;
+            margin-left: 10px;
+        }
+        .add-task-form, .add-category-form, .reward-management-form, .remove-category-form, .clear-data-form {
+            margin-top: 20px;
+        }
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            padding: 10px 0;
+            border-top: 1px solid #ccc;
+        }
+        footer img {
+            margin: 0 5px;
         }
     </style>
 </head>
@@ -132,29 +139,33 @@
 
         <div id="tasks-section" class="hidden">
             <div class="container">
+                <!-- Calendar -->
                 <div class="calendar-header">
                     <button onclick="changeMonth(-1)">&#8249;</button>
-                    <span id="calendar-month-year"></span>
+                    <h3 id="calendar-month-year"></h3>
                     <button onclick="changeMonth(1)">&#8250;</button>
                 </div>
                 <div class="calendar" id="calendar"></div>
-                <div class="date">Date: <span id="date-today"></span></div>
-                
+                <h4>Date: <span id="date-today"></span></h4>
+
+                <!-- Task Table -->
                 <table id="task-table">
                     <tr>
                         <th>Task</th>
                         <th>Significance</th>
                         <th>Category</th>
-                        <th>Points Gained</th>
+                        <th>Points</th>
                         <th>Complete</th>
                         <th>Remove</th>
                     </tr>
                 </table>
 
+                <!-- Progress Bars -->
                 <div class="progress-container" id="progress-container">
-                    <!-- Progress bars for categories will be dynamically generated here -->
+                    <!-- Dynamically generated -->
                 </div>
 
+                <!-- Add Task Form -->
                 <div class="add-task-form">
                     <h3>Add New Task</h3>
                     <input type="text" id="new-task" placeholder="Task description">
@@ -165,33 +176,40 @@
                         <option value="massive">Massive</option>
                     </select>
                     <select id="new-task-category">
-                        <option value="General">General</option>
-                        <!-- Categories will be dynamically added here -->
+                        <!-- Dynamically generated -->
                     </select>
                     <button onclick="addTask()">Add Task</button>
                 </div>
 
+                <!-- Add Category Form -->
                 <div class="add-category-form">
                     <h3>Add New Category</h3>
                     <input type="text" id="new-category" placeholder="Category name">
                     <button onclick="addCategory()">Add Category</button>
                 </div>
 
+                <!-- Remove Category Form -->
+                <div class="remove-category-form">
+                    <h3>Remove Category</h3>
+                    <select id="remove-category-select">
+                        <!-- Dynamically generated -->
+                    </select>
+                    <button onclick="removeCategory()">Remove Category</button>
+                </div>
+
+                <!-- Reward Management Form -->
                 <div class="reward-management-form hidden" id="reward-management-form">
                     <h3>Manage Rewards for <span id="reward-category-name"></span></h3>
                     <input type="text" id="new-reward" placeholder="Reward description">
                     <button onclick="addReward()">Add Reward</button>
                     <div id="reward-list">
-                        <!-- Rewards will be dynamically listed here -->
+                        <!-- Dynamically generated -->
                     </div>
                 </div>
 
-                <div class="remove-category-form">
-                    <h3>Remove Category</h3>
-                    <select id="remove-category-select">
-                        <!-- Categories will be dynamically added here -->
-                    </select>
-                    <button onclick="removeCategory()">Remove Category</button>
+                <!-- Clear Data Button -->
+                <div class="clear-data-form">
+                    <button onclick="clearAllData()">Clear All Data</button>
                 </div>
             </div>
         </div>
@@ -216,69 +234,101 @@
 
         let tasks = JSON.parse(localStorage.getItem('tasks')) || {};
         let categories = JSON.parse(localStorage.getItem('categories')) || [{ name: 'General', rewards: [] }];
+        let categoryPoints = JSON.parse(localStorage.getItem('categoryPoints')) || {};
+        let categoryFillCounts = JSON.parse(localStorage.getItem('categoryFillCounts')) || {};
 
-        // Filter out undefined or invalid categories
-        categories = categories.filter(category => category && category.name);
+        // Initialize categories if not present
+        categories = categories.filter(cat => cat && cat.name);
+        categories.forEach(cat => {
+            if (!(cat.name in categoryPoints)) {
+                categoryPoints[cat.name] = 0;
+            }
+            if (!(cat.name in categoryFillCounts)) {
+                categoryFillCounts[cat.name] = 0;
+            }
+        });
 
         let selectedDate = new Date().toISOString().split('T')[0]; // Default to today's date
         let currentMonth = new Date().getMonth();
         let currentYear = new Date().getFullYear();
-        let categoryPoints = {};
-        let progressBars = {};
-
-        categories.forEach(category => {
-            categoryPoints[category.name] = 0;
-        });
-
-        const progressBarContainer = document.getElementById('progress-container');
 
         function renderProgressBars() {
-            progressBarContainer.innerHTML = '';
+            const progressContainer = document.getElementById('progress-container');
+            progressContainer.innerHTML = '';
             categories.forEach(category => {
-                const progressBarWrapper = document.createElement('div');
-                progressBarWrapper.innerHTML = `
-                    <div>${category.name} Progress:</div>
-                    <div class="progress-bar" id="progress-bar-${category.name}">
-                        <div class="progress" id="progress-${category.name}">0%</div>
-                    </div>
-                    <div class="reward-wheel" id="reward-wheel-${category.name}">
-                        <button onclick="spinRewardWheel('${category.name}')">Spin ${category.name} Reward Wheel</button>
-                        <div id="reward-result-${category.name}"></div>
-                        <button onclick="manageRewards('${category.name}')">Manage ${category.name} Rewards</button>
-                    </div>
-                `;
-                progressBarContainer.appendChild(progressBarWrapper);
-                progressBars[category.name] = document.getElementById(`progress-${category.name}`);
-                updateProgressBarVisibility(category.name);
+                const progressWrapper = document.createElement('div');
+                progressWrapper.className = 'progress-wrapper';
+
+                // Fill Count Tracker
+                const fillCount = document.createElement('div');
+                fillCount.className = 'progress-tracker';
+                fillCount.id = `fill-count-${category.name}`;
+                fillCount.textContent = categoryFillCounts[category.name] || 0;
+                progressWrapper.appendChild(fillCount);
+
+                // Progress Bar
+                const progressBar = document.createElement('div');
+                progressBar.className = 'progress-bar';
+                progressBar.id = `progress-bar-${category.name}`;
+                const progressFill = document.createElement('div');
+                progressFill.className = 'progress-fill';
+                progressFill.style.width = `${categoryPoints[category.name]}%`;
+                progressFill.id = `progress-fill-${category.name}`;
+                const progressText = document.createElement('div');
+                progressText.className = 'progress-text';
+                progressText.id = `progress-text-${category.name}`;
+                progressText.textContent = `${categoryPoints[category.name]}%`;
+                progressBar.appendChild(progressFill);
+                progressBar.appendChild(progressText);
+                progressWrapper.appendChild(progressBar);
+
+                // Reward Wheel Button
+                const rewardButton = document.createElement('button');
+                rewardButton.className = 'reward-button';
+                rewardButton.id = `reward-button-${category.name}`;
+                rewardButton.textContent = 'Spin Reward Wheel';
+                rewardButton.onclick = () => spinRewardWheel(category.name);
+                if (categoryPoints[category.name] < 100) {
+                    rewardButton.style.display = 'none';
+                }
+                progressWrapper.appendChild(rewardButton);
+
+                // Manage Rewards Button
+                const manageRewardsButton = document.createElement('button');
+                manageRewardsButton.className = 'reward-button';
+                manageRewardsButton.textContent = 'Manage Rewards';
+                manageRewardsButton.onclick = () => manageRewards(category.name);
+                progressWrapper.appendChild(manageRewardsButton);
+
+                progressContainer.appendChild(progressWrapper);
             });
-            updateProgressBars();
-            renderCategoryOptions(); // Update category options in remove category dropdown
+            renderCategoryOptions();
         }
 
-        function updateProgressBarVisibility(categoryName) {
-            const rewardWheel = document.getElementById(`reward-wheel-${categoryName}`);
+        function updateProgressBar(categoryName) {
+            const progressFill = document.getElementById(`progress-fill-${categoryName}`);
+            const progressText = document.getElementById(`progress-text-${categoryName}`);
+            const rewardButton = document.getElementById(`reward-button-${categoryName}`);
+            progressFill.style.width = `${categoryPoints[categoryName]}%`;
+            progressText.textContent = `${categoryPoints[categoryName]}%`;
+
             if (categoryPoints[categoryName] >= 100) {
-                rewardWheel.style.display = 'block';
+                rewardButton.style.display = 'inline-block';
             } else {
-                rewardWheel.style.display = 'none';
+                rewardButton.style.display = 'none';
             }
         }
 
         function renderCategoryOptions() {
-            const categorySelect = document.getElementById('new-task-category');
-            const removeCategorySelect = document.getElementById('remove-category-select');
-            categorySelect.innerHTML = '';
-            removeCategorySelect.innerHTML = '';
-            categories.forEach(category => {
-                const option = document.createElement('option');
-                option.value = category.name;
-                option.textContent = category.name;
-                categorySelect.appendChild(option);
-
-                const removeOption = document.createElement('option');
-                removeOption.value = category.name;
-                removeOption.textContent = category.name;
-                removeCategorySelect.appendChild(removeOption);
+            const categorySelects = [document.getElementById('new-task-category'), document.getElementById('remove-category-select')];
+            categorySelects.forEach(select => {
+                select.innerHTML = '';
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.name;
+                    option.textContent = category.name;
+                    select.appendChild(option);
+                });
             });
         }
 
@@ -289,7 +339,7 @@
                     <th>Task</th>
                     <th>Significance</th>
                     <th>Category</th>
-                    <th>Points Gained</th>
+                    <th>Points</th>
                     <th>Complete</th>
                     <th>Remove</th>
                 </tr>
@@ -302,91 +352,130 @@
                         <td>${task.significance}</td>
                         <td>${task.category}</td>
                         <td>${taskSignificancePoints[task.significance]}</td>
-                        <td><input type="checkbox" ${task.completed ? 'checked' : ''} onclick="completeTask(${index})"></td>
+                        <td><input type="checkbox" ${task.completed ? 'checked' : ''} onclick="toggleTaskCompletion(${index})"></td>
                         <td><button onclick="removeTask(${index})">Remove</button></td>
                     `;
                     taskTable.appendChild(row);
                 });
             }
-            updateTotalPoints();
         }
 
-        function completeTask(index) {
+        function toggleTaskCompletion(index) {
             const task = tasks[selectedDate][index];
-            const points = taskSignificancePoints[task.significance];
             task.completed = !task.completed;
             if (task.completed) {
-                addPoints(task.category, points);
-                if (task.category !== 'General') {
-                    addPoints('General', points);
-                }
+                incrementCategoryPoints(task.category, taskSignificancePoints[task.significance]);
             } else {
-                subtractPoints(task.category, points);
-                if (task.category !== 'General') {
-                    subtractPoints('General', points);
-                }
+                decrementCategoryPoints(task.category, taskSignificancePoints[task.significance]);
             }
             renderTasks();
-            saveTasks();
+            saveData();
+        }
+
+        function incrementCategoryPoints(categoryName, points) {
+            categoryPoints[categoryName] += points;
+            if (categoryPoints[categoryName] >= 100) {
+                categoryPoints[categoryName] = 100;
+                alert(`Congratulations! You've filled the progress bar for ${categoryName}. You can now spin the reward wheel.`);
+            }
+            updateProgressBar(categoryName);
+        }
+
+        function decrementCategoryPoints(categoryName, points) {
+            categoryPoints[categoryName] -= points;
+            if (categoryPoints[categoryName] < 0) {
+                categoryPoints[categoryName] = 0;
+            }
+            updateProgressBar(categoryName);
         }
 
         function removeTask(index) {
             tasks[selectedDate].splice(index, 1);
             renderTasks();
-            saveTasks();
+            saveData();
         }
 
-        function addPoints(category, points) {
-            categoryPoints[category] += points;
-            if (categoryPoints[category] >= 100) {
-                categoryPoints[category] -= 100;
-                alert(`Congratulations! You have reached 100% in the ${category} category!`);
+        function addTask() {
+            const description = document.getElementById('new-task').value.trim();
+            const significance = document.getElementById('new-task-significance').value;
+            const category = document.getElementById('new-task-category').value;
+            if (description && significance && category) {
+                if (!tasks[selectedDate]) {
+                    tasks[selectedDate] = [];
+                }
+                tasks[selectedDate].push({ description, significance, category, completed: false });
+                renderTasks();
+                saveData();
+                document.getElementById('new-task').value = '';
+            } else {
+                alert('Please fill in all fields to add a task.');
             }
-            updateProgressBars();
-            updateProgressBarVisibility(category);
         }
 
-        function subtractPoints(category, points) {
-            categoryPoints[category] -= points;
-            if (categoryPoints[category] < 0) {
-                categoryPoints[category] = 0;
+        function addCategory() {
+            const categoryName = document.getElementById('new-category').value.trim();
+            if (categoryName && !categories.some(cat => cat.name === categoryName)) {
+                categories.push({ name: categoryName, rewards: [] });
+                categoryPoints[categoryName] = 0;
+                categoryFillCounts[categoryName] = 0;
+                renderProgressBars();
+                saveData();
+                document.getElementById('new-category').value = '';
+            } else {
+                alert('Category name is either empty or already exists.');
             }
-            updateProgressBars();
         }
 
-        function updateProgressBars() {
-            categories.forEach(category => {
-                const progress = (categoryPoints[category.name] / 100) * 100;
-                progressBars[category.name].style.width = progress + '%';
-                progressBars[category.name].textContent = progress + '%';
-                updateProgressBarVisibility(category.name);
-            });
+        function removeCategory() {
+            const categoryName = document.getElementById('remove-category-select').value;
+            if (categoryName === 'General') {
+                alert('Cannot remove the General category.');
+                return;
+            }
+            if (confirm(`Are you sure you want to remove the category "${categoryName}"? This will also remove all associated tasks.`)) {
+                categories = categories.filter(cat => cat.name !== categoryName);
+                delete categoryPoints[categoryName];
+                delete categoryFillCounts[categoryName];
+
+                // Remove tasks associated with the category
+                Object.keys(tasks).forEach(date => {
+                    tasks[date] = tasks[date].filter(task => task.category !== categoryName);
+                    if (tasks[date].length === 0) {
+                        delete tasks[date];
+                    }
+                });
+
+                renderProgressBars();
+                renderTasks();
+                saveData();
+            }
         }
 
         function spinRewardWheel(categoryName) {
-            const category = categories.find(c => c.name === categoryName);
-            if (category && category.rewards.length > 0) {
-                const reward = category.rewards[Math.floor(Math.random() * category.rewards.length)];
-                document.getElementById(`reward-result-${categoryName}`).textContent = `You won: ${reward}`;
-                // Hide the wheel spin button after use
-                document.getElementById(`reward-wheel-${categoryName}`).style.display = 'none';
-            } else {
-                alert(`No rewards available for ${categoryName}`);
+            const category = categories.find(cat => cat.name === categoryName);
+            if (category.rewards.length === 0) {
+                alert(`No rewards available for ${categoryName}. Please add rewards first.`);
+                return;
             }
+            const randomReward = category.rewards[Math.floor(Math.random() * category.rewards.length)];
+            alert(`You won: ${randomReward}`);
+            categoryPoints[categoryName] = 0;
+            categoryFillCounts[categoryName] += 1;
+            document.getElementById(`fill-count-${categoryName}`).textContent = categoryFillCounts[categoryName];
+            updateProgressBar(categoryName);
+            saveData();
         }
 
         function manageRewards(categoryName) {
             const rewardManagementForm = document.getElementById('reward-management-form');
-            const rewardCategoryName = document.getElementById('reward-category-name');
-            rewardCategoryName.textContent = categoryName;
+            document.getElementById('reward-category-name').textContent = categoryName;
             rewardManagementForm.classList.remove('hidden');
-
             renderRewardList(categoryName);
         }
 
         function renderRewardList(categoryName) {
             const rewardList = document.getElementById('reward-list');
-            const category = categories.find(c => c.name === categoryName);
+            const category = categories.find(cat => cat.name === categoryName);
             rewardList.innerHTML = '';
             category.rewards.forEach((reward, index) => {
                 const rewardItem = document.createElement('div');
@@ -400,60 +489,36 @@
         }
 
         function addReward() {
-            const rewardDescription = document.getElementById('new-reward').value;
+            const rewardDescription = document.getElementById('new-reward').value.trim();
             const categoryName = document.getElementById('reward-category-name').textContent;
-            const category = categories.find(c => c.name === categoryName);
-
-            if (rewardDescription && category) {
+            const category = categories.find(cat => cat.name === categoryName);
+            if (rewardDescription) {
                 category.rewards.push(rewardDescription);
                 renderRewardList(categoryName);
-                saveCategories();
+                saveData();
+                document.getElementById('new-reward').value = '';
+            } else {
+                alert('Please enter a reward description.');
             }
         }
 
         function removeReward(categoryName, index) {
-            const category = categories.find(c => c.name === categoryName);
-            if (category) {
-                category.rewards.splice(index, 1);
-                renderRewardList(categoryName);
-                saveCategories();
-            }
+            const category = categories.find(cat => cat.name === categoryName);
+            category.rewards.splice(index, 1);
+            renderRewardList(categoryName);
+            saveData();
         }
 
-        function addTask() {
-            const description = document.getElementById('new-task').value;
-            const significance = document.getElementById('new-task-significance').value;
-            const category = document.getElementById('new-task-category').value;
-            if (description && significance && category) {
-                if (!tasks[selectedDate]) {
-                    tasks[selectedDate] = [];
-                }
-                tasks[selectedDate].push({ description, significance, category, completed: false });
+        function clearAllData() {
+            if (confirm('Are you sure you want to clear all existing data? This action cannot be undone.')) {
+                localStorage.clear();
+                tasks = {};
+                categories = [{ name: 'General', rewards: [] }];
+                categoryPoints = { 'General': 0 };
+                categoryFillCounts = { 'General': 0 };
+                renderProgressBars();
                 renderTasks();
-                saveTasks();
-            }
-        }
-
-        function addCategory() {
-            const categoryName = document.getElementById('new-category').value;
-            if (categoryName && !categories.some(c => c.name === categoryName)) {
-                categories.push({ name: categoryName, rewards: [] });
-                categoryPoints[categoryName] = 0;
-                renderProgressBars();
-                saveCategories();
-            }
-        }
-
-        function removeCategory() {
-            const categoryName = document.getElementById('remove-category-select').value;
-            if (categoryName && categories.length > 1) { // Prevent removing all categories
-                categories = categories.filter(c => c.name !== categoryName);
-                delete categoryPoints[categoryName];
-                renderProgressBars();
-                renderCategoryOptions(); // Refresh the dropdowns
-                saveCategories();
-            } else {
-                alert("Cannot remove the last category.");
+                alert('All data has been cleared.');
             }
         }
 
@@ -465,69 +530,61 @@
                 renderCalendar();
                 renderTasks();
                 renderProgressBars();
-                renderCategoryOptions();
             } else {
                 alert("Incorrect password!");
             }
         }
 
-        function saveTasks() {
-            localStorage.setItem('tasks', JSON.stringify(tasks));
-        }
-
-        function saveCategories() {
-            localStorage.setItem('categories', JSON.stringify(categories));
-        }
-
         function renderCalendar() {
             const calendarElement = document.getElementById('calendar');
-            document.getElementById('calendar-month-year').textContent = `${new Date(currentYear, currentMonth).toLocaleString('default', { month: 'long' })} ${currentYear}`;
-            calendarElement.innerHTML = generateCalendar(currentMonth, currentYear);
-            document.getElementById('date-today').textContent = new Date(selectedDate).toDateString();
-        }
+            const monthYearElement = document.getElementById('calendar-month-year');
+            const dateTodayElement = document.getElementById('date-today');
 
-        function generateCalendar(month, year) {
-            const firstDay = new Date(year, month, 1).getDay();
-            const daysInMonth = 32 - new Date(year, month, 32).getDate();
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
-            let calendar = `<table>
-                <tr>
-                    <th>Su</th>
-                    <th>Mo</th>
-                    <th>Tu</th>
-                    <th>We</th>
-                    <th>Th</th>
-                    <th>Fr</th>
-                    <th>Sa</th>
-                </tr><tr>`;
+            monthYearElement.textContent = `${new Date(currentYear, currentMonth).toLocaleString('default', { month: 'long' })} ${currentYear}`;
+            dateTodayElement.textContent = formatDate(selectedDate);
+
+            let calendarHTML = `<table><tr>`;
+            const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            daysOfWeek.forEach(day => {
+                calendarHTML += `<th>${day}</th>`;
+            });
+            calendarHTML += `</tr><tr>`;
 
             for (let i = 0; i < firstDay; i++) {
-                calendar += "<td></td>";
+                calendarHTML += `<td></td>`;
             }
 
             for (let day = 1; day <= daysInMonth; day++) {
-                if ((firstDay + day - 1) % 7 === 0 && day !== 1) {
-                    calendar += "</tr><tr>";
+                if ((firstDay + day -1) % 7 === 0 && day !== 1) {
+                    calendarHTML += `</tr><tr>`;
                 }
-
-                calendar += `<td onclick="selectDate(${year}, ${month}, ${day})">${day}</td>`;
+                const fullDate = new Date(currentYear, currentMonth, day).toISOString().split('T')[0];
+                calendarHTML += `<td onclick="selectDate('${fullDate}')">${day}</td>`;
             }
 
-            calendar += "</tr></table>";
-
-            return calendar;
+            calendarHTML += `</tr></table>`;
+            calendarElement.innerHTML = calendarHTML;
         }
 
-        function selectDate(year, month, day) {
-            // Fix the calendar date issue by using correct month and day parameters
-            selectedDate = new Date(year, month, day).toISOString().split('T')[0];
-            document.getElementById('date-today').textContent = new Date(selectedDate).toDateString();
+        function selectDate(dateString) {
+            selectedDate = dateString;
+            document.getElementById('date-today').textContent = formatDate(selectedDate);
             renderTasks();
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const year = date.getFullYear();
+            return `${month}-${day}-${year}`;
         }
 
         function changeMonth(offset) {
             currentMonth += offset;
-
             if (currentMonth < 0) {
                 currentMonth = 11;
                 currentYear -= 1;
@@ -535,23 +592,21 @@
                 currentMonth = 0;
                 currentYear += 1;
             }
-
             renderCalendar();
         }
 
-        window.addEventListener('scroll', () => {
-            const footer = document.getElementById('footer');
-            if (window.scrollY > 50) {
-                footer.style.transform = 'translateY(100%)';
-            } else {
-                footer.style.transform = 'translateY(0)';
-            }
-        });
+        function saveData() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            localStorage.setItem('categories', JSON.stringify(categories));
+            localStorage.setItem('categoryPoints', JSON.stringify(categoryPoints));
+            localStorage.setItem('categoryFillCounts', JSON.stringify(categoryFillCounts));
+        }
 
-        renderProgressBars();
-        renderCategoryOptions();
-        renderCalendar();
-        renderTasks();
+        window.onload = () => {
+            renderProgressBars();
+            renderCalendar();
+            renderTasks();
+        };
     </script>
 </body>
 </html>
