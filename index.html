@@ -6,7 +6,6 @@
     <title>Academic Website - Home</title>
     <link rel="stylesheet" href="styles.css">
     <style>
-        /* General Styles */
         body {
             font-family: Arial, sans-serif;
         }
@@ -558,7 +557,7 @@
             }
 
             for (let day = 1; day <= daysInMonth; day++) {
-                if ((firstDay + day -1) % 7 === 0 && day !== 1) {
+                if ((firstDay + day - 1) % 7 === 0 && day !== 1) {
                     calendarHTML += `</tr><tr>`;
                 }
                 const fullDate = new Date(currentYear, currentMonth, day).toISOString().split('T')[0];
