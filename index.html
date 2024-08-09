@@ -84,10 +84,18 @@
         .calendar td {
             cursor: pointer;
         }
-        .calendar-nav {
+        .calendar-header {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             margin-bottom: 10px;
+            font-size: 18px;
+        }
+        .calendar-header button {
+            background-color: #f2f2f2;
+            border: 1px solid #ddd;
+            padding: 5px;
+            cursor: pointer;
         }
         footer {
             position: fixed;
@@ -124,6 +132,11 @@
 
         <div id="tasks-section" class="hidden">
             <div class="container">
+                <div class="calendar-header">
+                    <button onclick="changeMonth(-1)">&#8249;</button>
+                    <span id="calendar-month-year"></span>
+                    <button onclick="changeMonth(1)">&#8250;</button>
+                </div>
                 <div class="calendar" id="calendar"></div>
                 <div class="date">Date: <span id="date-today"></span></div>
                 
@@ -171,6 +184,14 @@
                     <div id="reward-list">
                         <!-- Rewards will be dynamically listed here -->
                     </div>
+                </div>
+
+                <div class="remove-category-form">
+                    <h3>Remove Category</h3>
+                    <select id="remove-category-select">
+                        <!-- Categories will be dynamically added here -->
+                    </select>
+                    <button onclick="removeCategory()">Remove Category</button>
                 </div>
             </div>
         </div>
@@ -228,6 +249,7 @@
                 updateProgressBarVisibility(category.name);
             });
             updateProgressBars();
+            renderCategoryOptions(); // Update category options in remove category dropdown
         }
 
         function updateProgressBarVisibility(categoryName) {
@@ -241,12 +263,19 @@
 
         function renderCategoryOptions() {
             const categorySelect = document.getElementById('new-task-category');
+            const removeCategorySelect = document.getElementById('remove-category-select');
             categorySelect.innerHTML = '';
+            removeCategorySelect.innerHTML = '';
             categories.forEach(category => {
                 const option = document.createElement('option');
                 option.value = category.name;
                 option.textContent = category.name;
                 categorySelect.appendChild(option);
+
+                const removeOption = document.createElement('option');
+                removeOption.value = category.name;
+                removeOption.textContent = category.name;
+                removeCategorySelect.appendChild(removeOption);
             });
         }
 
@@ -336,6 +365,8 @@
             if (category && category.rewards.length > 0) {
                 const reward = category.rewards[Math.floor(Math.random() * category.rewards.length)];
                 document.getElementById(`reward-result-${categoryName}`).textContent = `You won: ${reward}`;
+                // Hide the wheel spin button after use
+                document.getElementById(`reward-wheel-${categoryName}`).style.display = 'none';
             } else {
                 alert(`No rewards available for ${categoryName}`);
             }
@@ -406,8 +437,20 @@
                 categories.push({ name: categoryName, rewards: [] });
                 categoryPoints[categoryName] = 0;
                 renderProgressBars();
-                renderCategoryOptions();
                 saveCategories();
+            }
+        }
+
+        function removeCategory() {
+            const categoryName = document.getElementById('remove-category-select').value;
+            if (categoryName && categories.length > 1) { // Prevent removing all categories
+                categories = categories.filter(c => c.name !== categoryName);
+                delete categoryPoints[categoryName];
+                renderProgressBars();
+                renderCategoryOptions(); // Refresh the dropdowns
+                saveCategories();
+            } else {
+                alert("Cannot remove the last category.");
             }
         }
 
@@ -435,6 +478,7 @@
 
         function renderCalendar() {
             const calendarElement = document.getElementById('calendar');
+            document.getElementById('calendar-month-year').textContent = `${new Date(currentYear, currentMonth).toLocaleString('default', { month: 'long' })} ${currentYear}`;
             calendarElement.innerHTML = generateCalendar(currentMonth, currentYear);
             document.getElementById('date-today').textContent = new Date(selectedDate).toDateString();
         }
@@ -443,13 +487,7 @@
             const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = 32 - new Date(year, month, 32).getDate();
 
-            let calendar = `
-                <div class="calendar-nav">
-                    <button onclick="changeMonth(-1)">&#8249; Previous</button>
-                    <span>${year} - ${month + 1}</span>
-                    <button onclick="changeMonth(1)">Next &#8250;</button>
-                </div>
-                <table>
+            let calendar = `<table>
                 <tr>
                     <th>Su</th>
                     <th>Mo</th>
