@@ -5,6 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Academic Website - Home</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        header, main, footer {
+            width: 80%;
+            margin: 0 auto;
+        }
+        header nav a {
+            margin: 0 10px;
+            text-decoration: none;
+            color: #333;
+        }
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            padding: 10px 0;
+            border-top: 1px solid #ccc;
+        }
+        footer img {
+            margin: 0 5px;
+        }
+    </style>
 </head>
 <body class="index-page">
     <header>
@@ -15,17 +38,19 @@
             <a href="blog.html">Blog</a>
             <a href="personal.html">Personal</a>
             <a href="cv.html">CV</a>
-            <a href="#" onclick="accessTasks()">Tasks</a>
+            <a href="#" onclick="showTaskPage()">Tasks</a>
         </nav>
     </header>
     <main>
-        <h2>Hello, and welcome to my website!</h2>
-        <p>My name is Christian Kohnle. I am a Mathematics and Physics Undergraduate Student at Boston University.</p>
-        <p>Here you can find information about my research, blog posts, and personal information. If you are looking to employ me, or are just curious, my CV can be downloaded here as well.</p>
-        <p>In addition, you can find links to my LinkedIn, Youtube, Github, and other ways to connect with me.</p>
-        <audio id="quack-sound" src="quack.mp3"></audio>
+        <div id="home-section">
+            <h2>Hello, and welcome to my website!</h2>
+            <p>My name is Christian Kohnle. I am a Mathematics and Physics Undergraduate Student at Boston University.</p>
+            <p>Here you can find information about my research, blog posts, and personal information. If you are looking to employ me, or are just curious, my CV can be downloaded here as well.</p>
+            <p>In addition, you can find links to my LinkedIn, Youtube, Github, and other ways to connect with me.</p>
+            <audio id="quack-sound" src="quack.mp3"></audio>
+        </div>
     </main>
-    <footer>
+    <footer id="footer">
         <a href="https://www.linkedin.com/in/christian-kohnle-phys/" target="_blank" rel="noopener noreferrer">
             <img src="LinkedIn_logo.png" alt="LinkedIn" width="32" height="32">
         </a>
@@ -36,10 +61,15 @@
     </footer>
 
     <script>
-        function accessTasks() {
-            const password = prompt("Enter password to access tasks:");
-            if (password === "yourpassword") {
-                window.location.href = "task.html";
+        // A simple obfuscation method by using a base64 encoded password
+        const encodedPassword = 'Q0FLNGNhcnM='; // This is the base64 encoded version of "yourpassword"
+
+        function showTaskPage() {
+            const userInput = prompt("Enter password to access tasks:");
+            const decodedPassword = atob(encodedPassword);
+
+            if (userInput === decodedPassword) {
+                window.location.href = 'task.html';
             } else {
                 alert("Incorrect password!");
             }
