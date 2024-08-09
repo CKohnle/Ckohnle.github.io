@@ -512,35 +512,39 @@
             const calendarElement = document.getElementById('calendar');
             const monthYearElement = document.getElementById('calendar-month-year');
             const dateTodayElement = document.getElementById('date-today');
-
+        
             const firstDay = new Date(currentYear, currentMonth, 1).getDay();
             const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-
+        
             monthYearElement.textContent = `${new Date(currentYear, currentMonth).toLocaleString('default', { month: 'long' })} ${currentYear}`;
             dateTodayElement.textContent = formatDate(selectedDate);
-
+        
             let calendarHTML = `<table><tr>`;
             const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             daysOfWeek.forEach(day => {
                 calendarHTML += `<th>${day}</th>`;
             });
             calendarHTML += `</tr><tr>`;
-
+        
             for (let i = 0; i < firstDay; i++) {
                 calendarHTML += `<td></td>`;
             }
-
+        
             for (let day = 1; day <= daysInMonth; day++) {
                 if ((firstDay + day - 1) % 7 === 0 && day !== 1) {
                     calendarHTML += `</tr><tr>`;
                 }
+        
                 const fullDate = getFormattedDate(new Date(currentYear, currentMonth, day));
-                calendarHTML += `<td onclick="selectDate('${fullDate}')">${day}</td>`;
+                const isSelected = selectedDate === fullDate ? 'style="background-color: blue; color: white;"' : '';
+        
+                calendarHTML += `<td ${isSelected} onclick="selectDate('${fullDate}')">${day}</td>`;
             }
-
+        
             calendarHTML += `</tr></table>`;
             calendarElement.innerHTML = calendarHTML;
         }
+
 
         function selectDate(dateString) {
             selectedDate = dateString;
