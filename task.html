@@ -133,14 +133,14 @@
 
         #pointer {
             position: absolute;
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: 50%;
+            right: -20px;
+            transform: translateY(-50%);
             width: 0;
             height: 0;
-            border-left: 20px solid transparent;
-            border-right: 20px solid transparent;
-            border-bottom: 30px solid red;
+            border-top: 20px solid transparent;
+            border-bottom: 20px solid transparent;
+            border-left: 30px solid red;
         }
 
         #confetti-canvas {
@@ -276,6 +276,7 @@
         let categories = JSON.parse(localStorage.getItem('categories')) || [{ name: 'General', rewards: [] }];
         let categoryPoints = JSON.parse(localStorage.getItem('categoryPoints')) || {};
         let categoryFillCounts = JSON.parse(localStorage.getItem('categoryFillCounts')) || {};
+        let categoryCredits = JSON.parse(localStorage.getItem('categoryCredits')) || {};
 
         // Initialize categories if not present
         categories = categories.filter(cat => cat && cat.name);
@@ -285,6 +286,9 @@
             }
             if (!(cat.name in categoryFillCounts)) {
                 categoryFillCounts[cat.name] = 0;
+            }
+            if (!(cat.name in categoryCredits)) {
+                categoryCredits[cat.name] = 0;
             }
         });
 
@@ -337,16 +341,22 @@
                 progressBar.appendChild(progressText);
                 progressWrapper.appendChild(progressBar);
 
-                // Reward Wheel Button
-                const rewardButton = document.createElement('button');
-                rewardButton.className = 'reward-button';
-                rewardButton.id = `reward-button-${category.name}`;
-                rewardButton.textContent = 'Spin Reward Wheel';
-                rewardButton.onclick = () => spinRewardWheel(category.name);
+                // Reward Credit Tracker
+                const creditTracker = document.createElement('div');
+                creditTracker.className = 'progress-tracker';
+                creditTracker.id = `credit-count-${category.name}`;
+                creditTracker.textContent = categoryCredits[category.name] || 0;
+                progressWrapper.appendChild(creditTracker);
+
+                // Claim Reward Spin Button
+                const claimButton = document.createElement('button');
+                claimButton.className = 'reward-button';
+                claimButton.textContent = 'Claim Reward Spin';
+                claimButton.onclick = () => claimRewardSpin(category.name);
                 if (categoryPoints[category.name] < 100) {
-                    rewardButton.style.display = 'none';
+                    claimButton.style.display = 'none';
                 }
-                progressWrapper.appendChild(rewardButton);
+                progressWrapper.appendChild(claimButton);
 
                 // Manage Rewards Button
                 const manageRewardsButton = document.createElement('button');
@@ -354,6 +364,17 @@
                 manageRewardsButton.textContent = 'Manage Rewards';
                 manageRewardsButton.onclick = () => manageRewards(category.name);
                 progressWrapper.appendChild(manageRewardsButton);
+
+                // Spin Reward Wheel Button
+                const rewardButton = document.createElement('button');
+                rewardButton.className = 'reward-button';
+                rewardButton.id = `reward-button-${category.name}`;
+                rewardButton.textContent = 'Spin Reward Wheel';
+                rewardButton.onclick = () => spinRewardWheel(category.name);
+                if (categoryCredits[category.name] <= 0) {
+                    rewardButton.style.display = 'none';
+                }
+                progressWrapper.appendChild(rewardButton);
 
                 progressContainer.appendChild(progressWrapper);
             });
@@ -364,14 +385,25 @@
             const progressFill = document.getElementById(`progress-fill-${categoryName}`);
             const progressText = document.getElementById(`progress-text-${categoryName}`);
             const rewardButton = document.getElementById(`reward-button-${categoryName}`);
+            const claimButton = document.getElementById(`reward-button-${categoryName}`);
+            const creditTracker = document.getElementById(`credit-count-${categoryName}`);
+
             progressFill.style.width = `${categoryPoints[categoryName]}%`;
             progressText.textContent = `${categoryPoints[categoryName]}%`;
 
             if (categoryPoints[categoryName] >= 100) {
+                claimButton.style.display = 'inline-block';
+            } else {
+                claimButton.style.display = 'none';
+            }
+
+            if (categoryCredits[categoryName] > 0) {
                 rewardButton.style.display = 'inline-block';
             } else {
                 rewardButton.style.display = 'none';
             }
+
+            creditTracker.textContent = categoryCredits[categoryName];
         }
 
         function renderCategoryOptions() {
@@ -429,10 +461,6 @@
 
         function incrementCategoryPoints(categoryName, points) {
             categoryPoints[categoryName] += points;
-            if (categoryPoints[categoryName] >= 100) {
-                categoryPoints[categoryName] = 100;
-                alert(`Congratulations! You've filled the progress bar for ${categoryName}. You can now spin the reward wheel.`);
-            }
             updateProgressBar(categoryName);
         }
 
@@ -473,6 +501,7 @@
                 categories.push({ name: categoryName, rewards: [] });
                 categoryPoints[categoryName] = 0;
                 categoryFillCounts[categoryName] = 0;
+                categoryCredits[categoryName] = 0;
                 renderProgressBars();
                 saveData();
                 document.getElementById('new-category').value = '';
@@ -491,6 +520,7 @@
                 categories = categories.filter(cat => cat.name !== categoryName);
                 delete categoryPoints[categoryName];
                 delete categoryFillCounts[categoryName];
+                delete categoryCredits[categoryName];
 
                 // Remove tasks associated with the category
                 Object.keys(tasks).forEach(date => {
@@ -506,15 +536,34 @@
             }
         }
 
+        function claimRewardSpin(categoryName) {
+            if (categoryPoints[categoryName] >= 100) {
+                categoryPoints[categoryName] -= 100;
+                categoryCredits[categoryName] += 1;
+                updateProgressBar(categoryName);
+                saveData();
+            }
+        }
+
         function spinRewardWheel(categoryName) {
             const category = categories.find(cat => cat.name === categoryName);
+            if (categoryCredits[categoryName] <= 0) {
+                alert(`You don't have any reward credits for ${categoryName}.`);
+                return;
+            }
             if (category.rewards.length === 0) {
                 alert(`No rewards available for ${categoryName}. Please add rewards first.`);
                 return;
             }
 
-            // Show the wheel
+            // Subtract one reward credit
+            categoryCredits[categoryName] -= 1;
+            updateProgressBar(categoryName);
+            saveData();
+
+            // Show the wheel and scroll down to it
             document.getElementById('wheel-container').style.display = 'block';
+            document.getElementById('wheel-container').scrollIntoView({ behavior: 'smooth' });
 
             const prizes = category.rewards;
             const canvas = document.getElementById('wheel');
@@ -528,11 +577,19 @@
 
             function drawWheel() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
+                let lastColor = '';
                 for (let i = 0; i < prizes.length; i++) {
                     ctx.beginPath();
                     ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, i * arcSize, (i + 1) * arcSize);
                     ctx.lineTo(canvas.width / 2, canvas.height / 2);
-                    ctx.fillStyle = i % 2 === 0 ? '#FFD700' : '#FF4500';
+
+                    let fillColor;
+                    do {
+                        fillColor = i % 2 === 0 ? '#FFD700' : '#FF4500'; // Alternate colors
+                    } while (fillColor === lastColor);
+                    lastColor = fillColor;
+
+                    ctx.fillStyle = fillColor;
                     ctx.fill();
 
                     ctx.save();
@@ -637,6 +694,7 @@
                 categories = [{ name: 'General', rewards: [] }];
                 categoryPoints = { 'General': 0 };
                 categoryFillCounts = { 'General': 0 };
+                categoryCredits = { 'General': 0 };
                 renderProgressBars();
                 renderTasks();
                 alert('All data has been cleared.');
@@ -725,6 +783,7 @@
             localStorage.setItem('categories', JSON.stringify(categories));
             localStorage.setItem('categoryPoints', JSON.stringify(categoryPoints));
             localStorage.setItem('categoryFillCounts', JSON.stringify(categoryFillCounts));
+            localStorage.setItem('categoryCredits', JSON.stringify(categoryCredits));
         }
 
         window.onload = () => {
