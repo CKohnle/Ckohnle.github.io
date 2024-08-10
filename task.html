@@ -648,63 +648,62 @@
             const calendarElement = document.getElementById('calendar');
             const monthYearElement = document.getElementById('calendar-month-year');
             const dateTodayElement = document.getElementById('date-today');
-
+        
             const firstDay = new Date(currentYear, currentMonth, 1).getDay();
             const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-
+        
             monthYearElement.textContent = `${new Date(currentYear, currentMonth).toLocaleString('default', { month: 'long' })} ${currentYear}`;
             dateTodayElement.textContent = formatDate(selectedDate);
-
+        
             let calendarHTML = `<table><tr>`;
             const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             daysOfWeek.forEach(day => {
                 calendarHTML += `<th>${day}</th>`;
             });
             calendarHTML += `</tr><tr>`;
-
+        
             for (let i = 0; i < firstDay; i++) {
                 calendarHTML += `<td></td>`;
             }
-
+        
+            const today = getFormattedDate(new Date());
+        
             for (let day = 1; day <= daysInMonth; day++) {
                 if ((firstDay + day - 1) % 7 === 0 && day !== 1) {
                     calendarHTML += `</tr><tr>`;
                 }
-
+        
                 const fullDate = getFormattedDate(new Date(currentYear, currentMonth, day));
-                let isSelected = "";
-                let isToday = "";
                 let style = "";
-
-                if (selectedDate === fullDate) {
-                    isSelected = "selected";
-                    style = "background-color: red; color: white;";
-                }
-                
-                if (getFormattedDate(new Date()) === fullDate) {
-                    isToday = "today";
-                    style = "background-color: blue; color: white;";
-                }
-                
-                if (isToday && isSelected) {
+        
+                if (fullDate === today && fullDate === selectedDate) {
+                    // Today's date is selected
                     style = `
                         background: linear-gradient(to bottom right, blue 50%, red 50%);
                         color: white;
                     `;
+                } else if (fullDate === today) {
+                    // Just today's date
+                    style = "background-color: blue; color: white;";
+                } else if (fullDate === selectedDate) {
+                    // Selected date (not today)
+                    style = "background-color: red; color: white;";
                 }
-
+        
                 calendarHTML += `<td style="${style}" onclick="selectDate('${fullDate}')">${day}</td>`;
             }
-
+        
             calendarHTML += `</tr></table>`;
             calendarElement.innerHTML = calendarHTML;
         }
-
+        
         function selectDate(dateString) {
             selectedDate = dateString;
             document.getElementById('date-today').textContent = formatDate(selectedDate);
             renderTasks();
+            renderCalendar(); // Re-render the calendar to update highlighting
         }
+
 
         function formatDate(dateString) {
             const [month, day, year] = dateString.split('-');
