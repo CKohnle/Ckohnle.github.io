@@ -8,63 +8,83 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #f0f0f0;
+            overflow: hidden;
         }
+
         header, main, footer {
             width: 80%;
             margin: 0 auto;
         }
+
         .container {
             margin-top: 20px;
         }
+
         .calendar-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
+
         .calendar-header button {
             padding: 5px 10px;
         }
+
         .calendar table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
         }
+
         .calendar th, .calendar td {
             border: 1px solid #ccc;
             padding: 10px;
             text-align: center;
         }
+
         .calendar td:hover {
             background-color: #f0f0f0;
             cursor: pointer;
         }
+
         #task-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
         }
+
         #task-table th, #task-table td {
             border: 1px solid #ccc;
             padding: 10px;
             text-align: center;
         }
+
         .task-completed {
             text-decoration: line-through;
             color: #999;
         }
+
         .progress-container {
             margin-top: 20px;
         }
+
         .progress-wrapper {
             display: flex;
             align-items: center;
             margin-bottom: 10px;
         }
+
         .progress-tracker {
             width: 50px;
             text-align: center;
             font-weight: bold;
         }
+
         .progress-bar {
             flex: 1;
             background-color: #e0e0e0;
@@ -74,12 +94,14 @@
             position: relative;
             height: 25px;
         }
+
         .progress-fill {
             background-color: #76c7c0;
             height: 100%;
             width: 0%;
             transition: width 0.3s ease-in-out;
         }
+
         .progress-text {
             position: absolute;
             width: 100%;
@@ -88,19 +110,60 @@
             color: #fff;
             font-weight: bold;
         }
+
         .reward-button {
             padding: 5px 10px;
             margin-left: 10px;
         }
+
+        #wheel-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            display: none;
+            margin: 20px auto;
+        }
+
+        #wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 5px solid #333;
+            transition: transform 4s ease-out;
+        }
+
+        #pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-bottom: 30px solid red;
+        }
+
+        #confetti-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
         .add-task-form, .add-category-form, .reward-management-form, .remove-category-form, .clear-data-form {
             margin-top: 20px;
         }
+
         footer {
             margin-top: 40px;
             text-align: center;
             padding: 10px 0;
             border-top: 1px solid #ccc;
         }
+
         footer img {
             margin: 0 5px;
         }
@@ -188,12 +251,20 @@
             <div class="clear-data-form">
                 <button onclick="clearAllData()">Clear All Data</button>
             </div>
+
+            <!-- Prize Wheel -->
+            <div id="wheel-container">
+                <canvas id="confetti-canvas"></canvas>
+                <div id="pointer"></div>
+                <canvas id="wheel"></canvas>
+            </div>
         </div>
     </main>
     <footer id="footer">
         <a href="index.html">Back to Home</a>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/confetti-js@0.0.17/dist/index.min.js"></script>
     <script>
         const taskSignificancePoints = {
             daily: 1,
@@ -235,14 +306,14 @@
             categories.forEach(category => {
                 const progressWrapper = document.createElement('div');
                 progressWrapper.className = 'progress-wrapper';
-        
+
                 // Fill Count Tracker
                 const fillCount = document.createElement('div');
                 fillCount.className = 'progress-tracker';
                 fillCount.id = `fill-count-${category.name}`;
                 fillCount.textContent = categoryFillCounts[category.name] || 0;
                 progressWrapper.appendChild(fillCount);
-        
+
                 // Category Label
                 const categoryLabel = document.createElement('div');
                 categoryLabel.className = 'progress-tracker';
@@ -250,7 +321,7 @@
                 categoryLabel.style.textAlign = 'center';
                 categoryLabel.textContent = `${category.name} Progress:`;
                 progressWrapper.appendChild(categoryLabel);
-        
+
                 // Progress Bar
                 const progressBar = document.createElement('div');
                 progressBar.className = 'progress-bar';
@@ -266,7 +337,7 @@
                 progressBar.appendChild(progressFill);
                 progressBar.appendChild(progressText);
                 progressWrapper.appendChild(progressBar);
-        
+
                 // Reward Wheel Button
                 const rewardButton = document.createElement('button');
                 rewardButton.className = 'reward-button';
@@ -277,20 +348,19 @@
                     rewardButton.style.display = 'none';
                 }
                 progressWrapper.appendChild(rewardButton);
-        
+
                 // Manage Rewards Button
                 const manageRewardsButton = document.createElement('button');
                 manageRewardsButton.className = 'reward-button';
                 manageRewardsButton.textContent = 'Manage Rewards';
                 manageRewardsButton.onclick = () => manageRewards(category.name);
                 progressWrapper.appendChild(manageRewardsButton);
-        
+
                 progressContainer.appendChild(progressWrapper);
             });
             renderCategoryOptions();
         }
 
-        
         function updateProgressBar(categoryName) {
             const progressFill = document.getElementById(`progress-fill-${categoryName}`);
             const progressText = document.getElementById(`progress-text-${categoryName}`);
@@ -443,13 +513,79 @@
                 alert(`No rewards available for ${categoryName}. Please add rewards first.`);
                 return;
             }
-            const randomReward = category.rewards[Math.floor(Math.random() * category.rewards.length)];
-            alert(`You won: ${randomReward}`);
-            categoryPoints[categoryName] = 0;
-            categoryFillCounts[categoryName] += 1;
-            document.getElementById(`fill-count-${categoryName}`).textContent = categoryFillCounts[categoryName];
-            updateProgressBar(categoryName);
-            saveData();
+
+            // Show the wheel
+            document.getElementById('wheel-container').style.display = 'block';
+
+            const prizes = category.rewards;
+            const canvas = document.getElementById('wheel');
+            const ctx = canvas.getContext('2d');
+            const confettiCanvas = document.getElementById('confetti-canvas');
+            const arcSize = (2 * Math.PI) / prizes.length;
+            let rotation = 0;
+
+            canvas.width = 300;
+            canvas.height = 300;
+
+            function drawWheel() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (let i = 0; i < prizes.length; i++) {
+                    ctx.beginPath();
+                    ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, i * arcSize, (i + 1) * arcSize);
+                    ctx.lineTo(canvas.width / 2, canvas.height / 2);
+                    ctx.fillStyle = i % 2 === 0 ? '#FFD700' : '#FF4500';
+                    ctx.fill();
+
+                    ctx.save();
+                    ctx.translate(canvas.width / 2, canvas.height / 2);
+                    ctx.rotate((i + 0.5) * arcSize);
+                    ctx.textAlign = "center";
+                    ctx.fillStyle = "#fff";
+                    ctx.font = "16px Arial";
+                    ctx.fillText(prizes[i], canvas.width / 4, 10);
+                    ctx.restore();
+                }
+            }
+
+            function triggerConfetti() {
+                const confetti = new ConfettiGenerator({
+                    target: 'confetti-canvas',
+                    max: 100,
+                    size: 1,
+                    animate: true,
+                    props: ['circle', 'square'],
+                    colors: [[165, 104, 246], [230, 61, 135], [0, 199, 228], [253, 214, 126]],
+                    clock: 25,
+                    rotate: true,
+                    start_from_edge: false,
+                    respawn: true
+                });
+                confetti.render();
+
+                setTimeout(() => {
+                    confetti.clear();
+                }, 3000); // Stop confetti after 3 seconds
+            }
+
+            function spinWheel() {
+                const spins = Math.floor(Math.random() * 5) + 5; // Random spins between 5 and 9
+                const selectedPrizeIndex = Math.floor(Math.random() * prizes.length);
+                const selectedPrizeAngle = selectedPrizeIndex * arcSize + arcSize / 2;
+                const endRotation = (spins * 2 * Math.PI) - selectedPrizeAngle;
+
+                rotation += endRotation;
+                canvas.style.transform = `rotate(${rotation}rad)`;
+
+                setTimeout(() => {
+                    alert(`You won: ${prizes[selectedPrizeIndex]}!`);
+                    triggerConfetti();
+                    // Hide the wheel after selection
+                    document.getElementById('wheel-container').style.display = 'none';
+                }, 4000);
+            }
+
+            drawWheel();
+            spinWheel();
         }
 
         function manageRewards(categoryName) {
@@ -512,34 +648,34 @@
             const calendarElement = document.getElementById('calendar');
             const monthYearElement = document.getElementById('calendar-month-year');
             const dateTodayElement = document.getElementById('date-today');
-        
+
             const firstDay = new Date(currentYear, currentMonth, 1).getDay();
             const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-        
+
             monthYearElement.textContent = `${new Date(currentYear, currentMonth).toLocaleString('default', { month: 'long' })} ${currentYear}`;
             dateTodayElement.textContent = formatDate(selectedDate);
-        
+
             let calendarHTML = `<table><tr>`;
             const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             daysOfWeek.forEach(day => {
                 calendarHTML += `<th>${day}</th>`;
             });
             calendarHTML += `</tr><tr>`;
-        
+
             for (let i = 0; i < firstDay; i++) {
                 calendarHTML += `<td></td>`;
             }
-        
+
             for (let day = 1; day <= daysInMonth; day++) {
                 if ((firstDay + day - 1) % 7 === 0 && day !== 1) {
                     calendarHTML += `</tr><tr>`;
                 }
-        
+
                 const fullDate = getFormattedDate(new Date(currentYear, currentMonth, day));
                 let isSelected = "";
                 let isToday = "";
                 let style = "";
-        
+
                 if (selectedDate === fullDate) {
                     isSelected = "selected";
                     style = "background-color: red; color: white;";
@@ -556,14 +692,13 @@
                         color: white;
                     `;
                 }
-        
+
                 calendarHTML += `<td style="${style}" onclick="selectDate('${fullDate}')">${day}</td>`;
             }
-        
+
             calendarHTML += `</tr></table>`;
             calendarElement.innerHTML = calendarHTML;
         }
-
 
         function selectDate(dateString) {
             selectedDate = dateString;
