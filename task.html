@@ -733,6 +733,11 @@
                 const fullDate = getFormattedDate(new Date(currentYear, currentMonth, day));
                 let style = "";
 
+                // Highlight unfinished tasks
+                if (tasks[fullDate] && tasks[fullDate].some(task => !task.completed)) {
+                    style = "background-color: lightyellow;";
+                }
+
                 if (fullDate === today && fullDate === selectedDate) {
                     // Today's date is selected
                     style = `
