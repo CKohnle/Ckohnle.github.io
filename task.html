@@ -166,6 +166,16 @@
         footer img {
             margin: 0 5px;
         }
+
+        .outcome-section {
+            display: none;
+        }
+
+        .outcome-section textarea {
+            width: 90%;
+            margin-top: 10px;
+        }
+
     </style>
 </head>
 <body>
@@ -196,6 +206,7 @@
                     <th>Points</th>
                     <th>Complete</th>
                     <th>Remove</th>
+                    <th>Outcomes</th> <!-- New column for Outcomes -->
                 </tr>
             </table>
 
@@ -429,6 +440,7 @@
                     <th>Points</th>
                     <th>Complete</th>
                     <th>Remove</th>
+                    <th>Outcomes</th> <!-- Header for the new outcomes column -->
                 </tr>
             `;
             if (tasks[selectedDate]) {
@@ -441,8 +453,16 @@
                         <td>${taskSignificancePoints[task.significance]}</td>
                         <td><input type="checkbox" ${task.completed ? 'checked' : ''} onclick="toggleTaskCompletion(${index})"></td>
                         <td><button onclick="removeTask(${index})">Remove</button></td>
+                        <td>
+                            <div class="outcome-section" id="outcome-section-${index}">
+                                <textarea placeholder="Enter outcomes here">${task.outcome || ''}</textarea>
+                            </div>
+                        </td>
                     `;
                     taskTable.appendChild(row);
+                    if (task.completed) {
+                        document.getElementById(`outcome-section-${index}`).style.display = 'block';
+                    }
                 });
             }
         }
@@ -451,25 +471,12 @@
             const task = tasks[selectedDate][index];
             task.completed = !task.completed;
             if (task.completed) {
-                incrementCategoryPoints(task.category, taskSignificancePoints[task.significance]);
+                document.getElementById(`outcome-section-${index}`).style.display = 'block';
             } else {
-                decrementCategoryPoints(task.category, taskSignificancePoints[task.significance]);
+                document.getElementById(`outcome-section-${index}`).style.display = 'none';
             }
             renderTasks();
             saveData();
-        }
-
-        function incrementCategoryPoints(categoryName, points) {
-            categoryPoints[categoryName] += points;
-            updateProgressBar(categoryName);
-        }
-
-        function decrementCategoryPoints(categoryName, points) {
-            categoryPoints[categoryName] -= points;
-            if (categoryPoints[categoryName] < 0) {
-                categoryPoints[categoryName] = 0;
-            }
-            updateProgressBar(categoryName);
         }
 
         function removeTask(index) {
