@@ -455,7 +455,7 @@
                         <td><button onclick="removeTask(${index})">Remove</button></td>
                         <td>
                             <div class="outcome-section" id="outcome-section-${index}">
-                                <textarea placeholder="Enter outcomes here">${task.outcome || ''}</textarea>
+                                <textarea placeholder="Enter outcomes here" oninput="updateOutcome(${index}, this.value)">${task.outcome || ''}</textarea>
                             </div>
                         </td>
                     `;
@@ -475,7 +475,12 @@
             } else {
                 document.getElementById(`outcome-section-${index}`).style.display = 'none';
             }
+            saveData();
             renderTasks();
+        }
+
+        function updateOutcome(index, value) {
+            tasks[selectedDate][index].outcome = value;
             saveData();
         }
 
@@ -493,7 +498,7 @@
                 if (!tasks[selectedDate]) {
                     tasks[selectedDate] = [];
                 }
-                tasks[selectedDate].push({ description, significance, category, completed: false });
+                tasks[selectedDate].push({ description, significance, category, completed: false, outcome: '' });
                 renderTasks();
                 saveData();
                 document.getElementById('new-task').value = '';
