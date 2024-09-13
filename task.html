@@ -156,6 +156,17 @@
             margin-top: 20px;
         }
 
+        .manage-routines-form {
+            display: none;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 20px;
+        }
+
+        .days-checkboxes label {
+            margin-right: 10px;
+        }
+
         footer {
             margin-top: 40px;
             text-align: center;
@@ -206,13 +217,31 @@
                     <th>Points</th>
                     <th>Complete</th>
                     <th>Remove</th>
-                    <th>Outcomes</th> <!-- New column for Outcomes -->
+                    <th>Outcomes</th>
                 </tr>
             </table>
 
-            <!-- Progress Bars -->
-            <div class="progress-container" id="progress-container">
-                <!-- Dynamically generated -->
+            <!-- Manage Routines Button -->
+            <button onclick="toggleRoutineForm()">Manage Routines</button>
+
+            <!-- Manage Routines Form -->
+            <div class="manage-routines-form" id="manage-routines-form">
+                <h3>Create a New Routine</h3>
+                <input type="text" id="routine-name" placeholder="Routine name">
+                <input type="text" id="routine-category" placeholder="Category">
+                <div class="days-checkboxes">
+                    <label><input type="checkbox" value="0"> Sunday</label>
+                    <label><input type="checkbox" value="1"> Monday</label>
+                    <label><input type="checkbox" value="2"> Tuesday</label>
+                    <label><input type="checkbox" value="3"> Wednesday</label>
+                    <label><input type="checkbox" value="4"> Thursday</label>
+                    <label><input type="checkbox" value="5"> Friday</label>
+                    <label><input type="checkbox" value="6"> Saturday</label>
+                </div>
+                <button onclick="createRoutine()">Create Routine</button>
+                
+                <h3>Existing Routines</h3>
+                <div id="routines-list"></div>
             </div>
 
             <!-- Add Task Form -->
@@ -288,6 +317,7 @@
         let categoryPoints = JSON.parse(localStorage.getItem('categoryPoints')) || {};
         let categoryFillCounts = JSON.parse(localStorage.getItem('categoryFillCounts')) || {};
         let categoryCredits = JSON.parse(localStorage.getItem('categoryCredits')) || {};
+        let routines = JSON.parse(localStorage.getItem('routines')) || [];
 
         // Initialize categories if not present
         categories = categories.filter(cat => cat && cat.name);
@@ -392,29 +422,74 @@
             renderCategoryOptions();
         }
 
-        function updateProgressBar(categoryName) {
-            const progressFill = document.getElementById(`progress-fill-${categoryName}`);
-            const progressText = document.getElementById(`progress-text-${categoryName}`);
-            const rewardButton = document.getElementById(`reward-button-${categoryName}`);
-            const claimButton = document.getElementById(`reward-button-${categoryName}`);
-            const creditTracker = document.getElementById(`credit-count-${categoryName}`);
+        function toggleRoutineForm() {
+            const routineForm = document.getElementById('manage-routines-form');
+            routineForm.style.display = routineForm.style.display === 'none' ? 'block' : 'none';
+        }
 
-            progressFill.style.width = `${categoryPoints[categoryName]}%`;
-            progressText.textContent = `${categoryPoints[categoryName]}%`;
+        function createRoutine() {
+            const name = document.getElementById('routine-name').value.trim();
+            const category = document.getElementById('routine-category').value.trim();
+            const days = [...document.querySelectorAll('.days-checkboxes input:checked')].map(input => parseInt(input.value));
 
-            if (categoryPoints[categoryName] >= 100) {
-                claimButton.style.display = 'inline-block';
-            } else {
-                claimButton.style.display = 'none';
+            if (!name || !category || days.length === 0) {
+                alert('Please fill in all fields and select at least one day.');
+                return;
             }
 
-            if (categoryCredits[categoryName] > 0) {
-                rewardButton.style.display = 'inline-block';
-            } else {
-                rewardButton.style.display = 'none';
-            }
+            const routine = { name, category, days };
+            routines.push(routine);
+            populateRoutineTasks(routine);
+            renderRoutines();
+            saveData();
+        }
 
-            creditTracker.textContent = categoryCredits[categoryName];
+        function populateRoutineTasks(routine) {
+            const today = new Date();
+            const ninetyDaysFromToday = new Date();
+            ninetyDaysFromToday.setDate(today.getDate() + 90);
+
+            for (let day = today; day <= ninetyDaysFromToday; day.setDate(day.getDate() + 1)) {
+                const dayOfWeek = day.getDay();
+                if (routine.days.includes(dayOfWeek)) {
+                    const formattedDate = getFormattedDate(day);
+                    if (!tasks[formattedDate]) {
+                        tasks[formattedDate] = [];
+                    }
+                    tasks[formattedDate].push({ description: routine.name, significance: 'daily', category: routine.category, completed: false });
+                }
+            }
+        }
+
+        function renderRoutines() {
+            const routinesList = document.getElementById('routines-list');
+            routinesList.innerHTML = '';
+            routines.forEach((routine, index) => {
+                const routineItem = document.createElement('div');
+                routineItem.innerHTML = `${routine.name} (${routine.category}) - Days: ${routine.days.map(day => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][day]).join(', ')}
+                    <button onclick="deleteRoutine(${index})">Delete</button>`;
+                routinesList.appendChild(routineItem);
+            });
+        }
+
+        function deleteRoutine(index) {
+            const routine = routines[index];
+            const today = new Date();
+            const todayFormatted = getFormattedDate(today);
+
+            Object.keys(tasks).forEach(date => {
+                if (date > todayFormatted) {
+                    tasks[date] = tasks[date].filter(task => task.description !== routine.name);
+                    if (!tasks[date].length) {
+                        delete tasks[date];
+                    }
+                }
+            });
+
+            routines.splice(index, 1);
+            saveData();
+            renderRoutines();
+            alert('Routine and future tasks deleted!');
         }
 
         function renderCategoryOptions() {
@@ -440,7 +515,7 @@
                     <th>Points</th>
                     <th>Complete</th>
                     <th>Remove</th>
-                    <th>Outcomes</th> <!-- Header for the new outcomes column -->
+                    <th>Outcomes</th>
                 </tr>
             `;
             if (tasks[selectedDate]) {
@@ -656,157 +731,20 @@
             spinWheel();
         }
 
-        function manageRewards(categoryName) {
-            const rewardManagementForm = document.getElementById('reward-management-form');
-            document.getElementById('reward-category-name').textContent = categoryName;
-            rewardManagementForm.classList.remove('hidden');
-            renderRewardList(categoryName);
-        }
-
-        function renderRewardList(categoryName) {
-            const rewardList = document.getElementById('reward-list');
-            const category = categories.find(cat => cat.name === categoryName);
-            rewardList.innerHTML = '';
-            category.rewards.forEach((reward, index) => {
-                const rewardItem = document.createElement('div');
-                rewardItem.textContent = reward;
-                const removeButton = document.createElement('button');
-                removeButton.textContent = 'Remove';
-                removeButton.onclick = () => removeReward(categoryName, index);
-                rewardItem.appendChild(removeButton);
-                rewardList.appendChild(rewardItem);
-            });
-        }
-
-        function addReward() {
-            const rewardDescription = document.getElementById('new-reward').value.trim();
-            const categoryName = document.getElementById('reward-category-name').textContent;
-            const category = categories.find(cat => cat.name === categoryName);
-            if (rewardDescription) {
-                category.rewards.push(rewardDescription);
-                renderRewardList(categoryName);
-                saveData();
-                document.getElementById('new-reward').value = '';
-            } else {
-                alert('Please enter a reward description.');
-            }
-        }
-
-        function removeReward(categoryName, index) {
-            const category = categories.find(cat => cat.name === categoryName);
-            category.rewards.splice(index, 1);
-            renderRewardList(categoryName);
-            saveData();
-        }
-
-        function clearAllData() {
-            if (confirm('Are you sure you want to clear all existing data? This action cannot be undone.')) {
-                localStorage.clear();
-                tasks = {};
-                categories = [{ name: 'General', rewards: [] }];
-                categoryPoints = { 'General': 0 };
-                categoryFillCounts = { 'General': 0 };
-                categoryCredits = { 'General': 0 };
-                renderProgressBars();
-                renderTasks();
-                alert('All data has been cleared.');
-            }
-        }
-
-        function renderCalendar() {
-            const calendarElement = document.getElementById('calendar');
-            const monthYearElement = document.getElementById('calendar-month-year');
-            const dateTodayElement = document.getElementById('date-today');
-
-            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-
-            monthYearElement.textContent = `${new Date(currentYear, currentMonth).toLocaleString('default', { month: 'long' })} ${currentYear}`;
-            dateTodayElement.textContent = formatDate(selectedDate);
-
-            let calendarHTML = `<table><tr>`;
-            const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-            daysOfWeek.forEach(day => {
-                calendarHTML += `<th>${day}</th>`;
-            });
-            calendarHTML += `</tr><tr>`;
-
-            for (let i = 0; i < firstDay; i++) {
-                calendarHTML += `<td></td>`;
-            }
-
-            const today = getFormattedDate(new Date());
-
-            for (let day = 1; day <= daysInMonth; day++) {
-                if ((firstDay + day - 1) % 7 === 0 && day !== 1) {
-                    calendarHTML += `</tr><tr>`;
-                }
-
-                const fullDate = getFormattedDate(new Date(currentYear, currentMonth, day));
-                let style = "";
-
-                // Highlight unfinished tasks
-                if (tasks[fullDate] && tasks[fullDate].some(task => !task.completed)) {
-                    style = "background-color: lightyellow;";
-                }
-
-                if (fullDate === today && fullDate === selectedDate) {
-                    // Today's date is selected
-                    style = `
-                        background: linear-gradient(to bottom right, blue 50%, red 50%);
-                        color: white;
-                    `;
-                } else if (fullDate === today) {
-                    // Just today's date
-                    style = "background-color: blue; color: white;";
-                } else if (fullDate === selectedDate) {
-                    // Selected date (not today)
-                    style = "background-color: red; color: white;";
-                }
-
-                calendarHTML += `<td style="${style}" onclick="selectDate('${fullDate}')">${day}</td>`;
-            }
-
-            calendarHTML += `</tr></table>`;
-            calendarElement.innerHTML = calendarHTML;
-        }
-
-        function selectDate(dateString) {
-            selectedDate = dateString;
-            document.getElementById('date-today').textContent = formatDate(selectedDate);
-            renderTasks();
-            renderCalendar(); // Re-render the calendar to update highlighting
-        }
-
-        function formatDate(dateString) {
-            const [month, day, year] = dateString.split('-');
-            return `${month}-${day}-${year}`;
-        }
-
-        function changeMonth(offset) {
-            currentMonth += offset;
-            if (currentMonth < 0) {
-                currentMonth = 11;
-                currentYear -= 1;
-            } else if (currentMonth > 11) {
-                currentMonth = 0;
-                currentYear += 1;
-            }
-            renderCalendar();
-        }
-
         function saveData() {
             localStorage.setItem('tasks', JSON.stringify(tasks));
             localStorage.setItem('categories', JSON.stringify(categories));
             localStorage.setItem('categoryPoints', JSON.stringify(categoryPoints));
             localStorage.setItem('categoryFillCounts', JSON.stringify(categoryFillCounts));
             localStorage.setItem('categoryCredits', JSON.stringify(categoryCredits));
+            localStorage.setItem('routines', JSON.stringify(routines));
         }
 
         window.onload = () => {
             renderProgressBars();
             renderCalendar();
             renderTasks();
+            renderRoutines();
         };
     </script>
 </body>
