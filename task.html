@@ -11,8 +11,9 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             background-color: #f0f0f0;
+            min-height: 100vh;
         }
 
         header, main, footer {
@@ -32,6 +33,7 @@
 
         .calendar-header button {
             padding: 5px 10px;
+            cursor: pointer;
         }
 
         .calendar table {
@@ -44,17 +46,19 @@
             border: 1px solid #ccc;
             padding: 10px;
             text-align: center;
+            cursor: pointer;
+            position: relative;
         }
 
         .calendar td:hover {
-            background-color: #f0f0f0;
-            cursor: pointer;
+            background-color: #e0e0e0;
         }
 
         #task-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            background-color: #fff;
         }
 
         #task-table th, #task-table td {
@@ -113,6 +117,7 @@
         .reward-button {
             padding: 5px 10px;
             margin-left: 10px;
+            cursor: pointer;
         }
 
         #wheel-container {
@@ -154,15 +159,14 @@
 
         .add-task-form, .add-category-form, .reward-management-form, .remove-category-form, .clear-data-form, .manage-routines-form {
             margin-top: 20px;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-
+        
         .manage-routines-form {
             display: none;
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin-top: 20px;
-            background-color: #fff;
-            border-radius: 5px;
         }
 
         .days-checkboxes label {
@@ -187,15 +191,44 @@
         .outcome-section textarea {
             width: 90%;
             margin-top: 10px;
+            padding: 5px;
+            resize: vertical;
+        }
+
+        /* Category Legend */
+        .category-legend {
+            margin-top: 20px;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            width: 100%;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .category-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .category-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            border-radius: 3px;
+            border: 1px solid #ccc;
         }
 
         /* Additional styling for better visuals */
         button {
             cursor: pointer;
+            background-color: #76c7c0;
+            border: none;
+            color: #fff;
+            border-radius: 3px;
+            transition: background-color 0.2s;
         }
 
         button:hover {
-            opacity: 0.8;
+            background-color: #5aa9a4;
         }
 
         input, select, textarea {
@@ -203,6 +236,8 @@
             margin: 5px 0;
             width: 100%;
             box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 3px;
         }
 
         .routine-item {
@@ -216,7 +251,6 @@
         .routine-item:last-child {
             border-bottom: none;
         }
-
     </style>
 </head>
 <body>
@@ -238,6 +272,12 @@
             <div class="calendar" id="calendar"></div>
             <h4>Date: <span id="date-today"></span></h4>
 
+            <!-- Category Legend -->
+            <div class="category-legend" id="category-legend">
+                <h3>Category Legend</h3>
+                <!-- Dynamically generated -->
+            </div>
+
             <!-- Task Table -->
             <table id="task-table">
                 <tr>
@@ -258,7 +298,9 @@
             <div class="manage-routines-form" id="manage-routines-form">
                 <h3>Create a New Routine</h3>
                 <input type="text" id="routine-name" placeholder="Routine name">
-                <input type="text" id="routine-category" placeholder="Category">
+                <select id="routine-category">
+                    <!-- Dynamically generated -->
+                </select>
                 <div class="days-checkboxes">
                     <label><input type="checkbox" value="0"> Sunday</label>
                     <label><input type="checkbox" value="1"> Monday</label>
@@ -296,6 +338,7 @@
             <div class="add-category-form">
                 <h3>Add New Category</h3>
                 <input type="text" id="new-category" placeholder="Category name">
+                <input type="color" id="category-color" value="#ff0000" title="Choose category color">
                 <button onclick="addCategory()">Add Category</button>
             </div>
 
@@ -345,14 +388,14 @@
         };
 
         let tasks = JSON.parse(localStorage.getItem('tasks')) || {};
-        let categories = JSON.parse(localStorage.getItem('categories')) || [{ name: 'General', rewards: [] }];
+        let categories = JSON.parse(localStorage.getItem('categories')) || [{ name: 'General', color: '#ff0000', rewards: [] }];
         let categoryPoints = JSON.parse(localStorage.getItem('categoryPoints')) || {};
         let categoryFillCounts = JSON.parse(localStorage.getItem('categoryFillCounts')) || {};
         let categoryCredits = JSON.parse(localStorage.getItem('categoryCredits')) || {};
         let routines = JSON.parse(localStorage.getItem('routines')) || [];
 
         // Initialize categories if not present
-        categories = categories.filter(cat => cat && cat.name);
+        categories = categories.filter(cat => cat && cat.name && cat.color);
         categories.forEach(cat => {
             if (!(cat.name in categoryPoints)) {
                 categoryPoints[cat.name] = 0;
@@ -452,6 +495,24 @@
                 progressContainer.appendChild(progressWrapper);
             });
             renderCategoryOptions();
+            renderCategoryLegend();
+        }
+
+        function renderCategoryLegend() {
+            const legend = document.getElementById('category-legend');
+            legend.innerHTML = '<h3>Category Legend</h3>';
+            categories.forEach(category => {
+                const item = document.createElement('div');
+                item.className = 'category-item';
+                const colorBox = document.createElement('div');
+                colorBox.className = 'category-color';
+                colorBox.style.backgroundColor = category.color;
+                item.appendChild(colorBox);
+                const label = document.createElement('span');
+                label.textContent = category.name;
+                item.appendChild(label);
+                legend.appendChild(item);
+            });
         }
 
         function toggleRoutineForm() {
@@ -462,7 +523,7 @@
 
         function createRoutine() {
             const name = document.getElementById('routine-name').value.trim();
-            const category = document.getElementById('routine-category').value.trim();
+            const category = document.getElementById('routine-category').value;
             const days = [...document.querySelectorAll('.days-checkboxes input:checked')].map(input => parseInt(input.value));
 
             if (!name || !category || days.length === 0) {
@@ -471,7 +532,8 @@
             }
 
             // Check if category exists
-            if (!categories.some(cat => cat.name.toLowerCase() === category.toLowerCase())) {
+            const categoryObj = categories.find(cat => cat.name === category);
+            if (!categoryObj) {
                 alert(`Category "${category}" does not exist. Please add it first.`);
                 return;
             }
@@ -560,7 +622,11 @@
         }
 
         function renderCategoryOptions() {
-            const categorySelects = [document.getElementById('new-task-category'), document.getElementById('remove-category-select'), document.getElementById('routine-category')];
+            const categorySelects = [
+                document.getElementById('new-task-category'),
+                document.getElementById('remove-category-select'),
+                document.getElementById('routine-category')
+            ];
             categorySelects.forEach(select => {
                 select.innerHTML = '<option value="">Select Category</option>';
                 categories.forEach(category => {
@@ -588,9 +654,16 @@
             if (tasks[selectedDate]) {
                 tasks[selectedDate].forEach((task, index) => {
                     const row = document.createElement('tr');
+
+                    // Get category color
+                    const categoryObj = categories.find(cat => cat.name === task.category);
+                    const categoryColor = categoryObj ? categoryObj.color : '#000';
+
                     row.innerHTML = `
-                        <td class="${task.completed ? 'task-completed' : ''}">${task.description}</td>
-                        <td>${task.significance}</td>
+                        <td class="${task.completed ? 'task-completed' : ''}">
+                            <span style="color: ${categoryColor}; font-weight: bold;">&#9679;</span> ${task.description}
+                        </td>
+                        <td>${task.significance.charAt(0).toUpperCase() + task.significance.slice(1)}</td>
                         <td>${task.category}</td>
                         <td>${taskSignificancePoints[task.significance]}</td>
                         <td><input type="checkbox" ${task.completed ? 'checked' : ''} onclick="toggleTaskCompletion(${index})"></td>
@@ -614,8 +687,20 @@
             task.completed = !task.completed;
             if (task.completed) {
                 document.getElementById(`outcome-section-${index}`).style.display = 'block';
+                // Optionally, add points to category
+                categoryPoints[task.category] += taskSignificancePoints[task.significance];
+                categoryFillCounts[task.category] += 1;
+                // Reset category points if needed
+                if (categoryPoints[task.category] >= 100) {
+                    // Points are already handled in claimRewardSpin
+                }
+                updateProgressBar(task.category);
             } else {
                 document.getElementById(`outcome-section-${index}`).style.display = 'none';
+                // Optionally, subtract points if task is unchecked
+                categoryPoints[task.category] -= taskSignificancePoints[task.significance];
+                categoryFillCounts[task.category] = Math.max(0, categoryFillCounts[task.category] - 1);
+                updateProgressBar(task.category);
             }
             saveData();
             renderTasks();
@@ -628,7 +713,7 @@
 
         function removeTask(index) {
             const task = tasks[selectedDate][index];
-            // If the task is part of a routine, consider whether to remove only this instance or the entire routine
+            // If the task is part of a routine, you might want to handle it differently
             tasks[selectedDate].splice(index, 1);
             renderTasks();
             saveData();
@@ -653,13 +738,15 @@
 
         function addCategory() {
             const categoryName = document.getElementById('new-category').value.trim();
+            const categoryColor = document.getElementById('category-color').value;
             if (categoryName && !categories.some(cat => cat.name.toLowerCase() === categoryName.toLowerCase())) {
-                categories.push({ name: categoryName, rewards: [] });
+                categories.push({ name: categoryName, color: categoryColor, rewards: [] });
                 categoryPoints[categoryName] = 0;
                 categoryFillCounts[categoryName] = 0;
                 categoryCredits[categoryName] = 0;
                 renderProgressBars();
                 renderCategoryOptions();
+                renderCategoryLegend();
                 saveData();
                 document.getElementById('new-category').value = '';
             } else {
@@ -693,6 +780,7 @@
 
                 renderProgressBars();
                 renderCategoryOptions();
+                renderCategoryLegend();
                 renderTasks();
                 saveData();
             }
@@ -745,15 +833,17 @@
                     ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, i * arcSize, (i + 1) * arcSize);
                     ctx.lineTo(canvas.width / 2, canvas.height / 2);
 
-                    let fillColor;
-                    do {
-                        fillColor = i % 2 === 0 ? '#FFD700' : '#FF4500'; // Alternate colors
-                    } while (fillColor === lastColor);
+                    let fillColor = getRandomColor();
+                    // Ensure color is not the same as last segment
+                    while (fillColor === lastColor) {
+                        fillColor = getRandomColor();
+                    }
                     lastColor = fillColor;
 
                     ctx.fillStyle = fillColor;
                     ctx.fill();
 
+                    // Draw prize text
                     ctx.save();
                     ctx.translate(canvas.width / 2, canvas.height / 2);
                     ctx.rotate((i + 0.5) * arcSize);
@@ -763,6 +853,15 @@
                     ctx.fillText(prizes[i], canvas.width / 4, 10);
                     ctx.restore();
                 }
+            }
+
+            function getRandomColor() {
+                const letters = '0123456789ABCDEF';
+                let color = '#';
+                for (let j = 0; j < 6; j++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
             }
 
             function triggerConfetti() {
@@ -857,13 +956,14 @@
             if (confirm('Are you sure you want to clear all existing data? This action cannot be undone.')) {
                 localStorage.clear();
                 tasks = {};
-                categories = [{ name: 'General', rewards: [] }];
+                categories = [{ name: 'General', color: '#ff0000', rewards: [] }];
                 categoryPoints = { 'General': 0 };
                 categoryFillCounts = { 'General': 0 };
                 categoryCredits = { 'General': 0 };
                 routines = [];
                 renderProgressBars();
                 renderCategoryOptions();
+                renderCategoryLegend();
                 renderTasks();
                 renderRoutines();
                 alert('All data has been cleared.');
@@ -964,6 +1064,7 @@
         window.onload = () => {
             renderProgressBars();
             renderCategoryOptions();
+            renderCategoryLegend();
             renderCalendar();
             renderTasks();
             renderRoutines();
