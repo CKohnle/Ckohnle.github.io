@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Tracker with Routines</title>
+    <title>Task Tracker</title>
     <link rel="stylesheet" href="styles.css">
     <style>
         body {
@@ -11,9 +11,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: center;
             background-color: #f0f0f0;
-            min-height: 100vh;
         }
 
         header, main, footer {
@@ -33,7 +32,6 @@
 
         .calendar-header button {
             padding: 5px 10px;
-            cursor: pointer;
         }
 
         .calendar table {
@@ -46,19 +44,17 @@
             border: 1px solid #ccc;
             padding: 10px;
             text-align: center;
-            cursor: pointer;
-            position: relative;
         }
 
         .calendar td:hover {
-            background-color: #e0e0e0;
+            background-color: #f0f0f0;
+            cursor: pointer;
         }
 
         #task-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
-            background-color: #fff;
         }
 
         #task-table th, #task-table td {
@@ -117,7 +113,6 @@
         .reward-button {
             padding: 5px 10px;
             margin-left: 10px;
-            cursor: pointer;
         }
 
         #wheel-container {
@@ -157,20 +152,8 @@
             pointer-events: none;
         }
 
-        .add-task-form, .add-category-form, .reward-management-form, .remove-category-form, .clear-data-form, .manage-routines-form {
+        .add-task-form, .add-category-form, .reward-management-form, .remove-category-form, .clear-data-form {
             margin-top: 20px;
-            background-color: #fff;
-            padding: 15px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        .manage-routines-form {
-            display: none;
-        }
-
-        .days-checkboxes label {
-            margin-right: 10px;
         }
 
         footer {
@@ -191,66 +174,8 @@
         .outcome-section textarea {
             width: 90%;
             margin-top: 10px;
-            padding: 5px;
-            resize: vertical;
         }
 
-        /* Category Legend */
-        .category-legend {
-            margin-top: 20px;
-            background-color: #fff;
-            padding: 10px;
-            border-radius: 5px;
-            width: 100%;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .category-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 5px;
-        }
-        .category-color {
-            width: 20px;
-            height: 20px;
-            margin-right: 10px;
-            border-radius: 3px;
-            border: 1px solid #ccc;
-        }
-
-        /* Additional styling for better visuals */
-        button {
-            cursor: pointer;
-            background-color: #76c7c0;
-            border: none;
-            color: #fff;
-            border-radius: 3px;
-            transition: background-color 0.2s;
-        }
-
-        button:hover {
-            background-color: #5aa9a4;
-        }
-
-        input, select, textarea {
-            padding: 5px;
-            margin: 5px 0;
-            width: 100%;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-        }
-
-        .routine-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 5px 0;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .routine-item:last-child {
-            border-bottom: none;
-        }
     </style>
 </head>
 <body>
@@ -272,12 +197,6 @@
             <div class="calendar" id="calendar"></div>
             <h4>Date: <span id="date-today"></span></h4>
 
-            <!-- Category Legend -->
-            <div class="category-legend" id="category-legend">
-                <h3>Category Legend</h3>
-                <!-- Dynamically generated -->
-            </div>
-
             <!-- Task Table -->
             <table id="task-table">
                 <tr>
@@ -287,35 +206,13 @@
                     <th>Points</th>
                     <th>Complete</th>
                     <th>Remove</th>
-                    <th>Outcomes</th>
+                    <th>Outcomes</th> <!-- New column for Outcomes -->
                 </tr>
             </table>
 
-            <!-- Manage Routines Button -->
-            <button onclick="toggleRoutineForm()">Manage Routines</button>
-
-            <!-- Manage Routines Form -->
-            <div class="manage-routines-form" id="manage-routines-form">
-                <h3>Create a New Routine</h3>
-                <input type="text" id="routine-name" placeholder="Routine name">
-                <select id="routine-category">
-                    <!-- Dynamically generated -->
-                </select>
-                <div class="days-checkboxes">
-                    <label><input type="checkbox" value="0"> Sunday</label>
-                    <label><input type="checkbox" value="1"> Monday</label>
-                    <label><input type="checkbox" value="2"> Tuesday</label>
-                    <label><input type="checkbox" value="3"> Wednesday</label>
-                    <label><input type="checkbox" value="4"> Thursday</label>
-                    <label><input type="checkbox" value="5"> Friday</label>
-                    <label><input type="checkbox" value="6"> Saturday</label>
-                </div>
-                <button onclick="createRoutine()">Create Routine</button>
-                
-                <h3>Existing Routines</h3>
-                <div id="routines-list">
-                    <!-- Dynamically generated -->
-                </div>
+            <!-- Progress Bars -->
+            <div class="progress-container" id="progress-container">
+                <!-- Dynamically generated -->
             </div>
 
             <!-- Add Task Form -->
@@ -338,7 +235,6 @@
             <div class="add-category-form">
                 <h3>Add New Category</h3>
                 <input type="text" id="new-category" placeholder="Category name">
-                <input type="color" id="category-color" value="#ff0000" title="Choose category color">
                 <button onclick="addCategory()">Add Category</button>
             </div>
 
@@ -388,17 +284,13 @@
         };
 
         let tasks = JSON.parse(localStorage.getItem('tasks')) || {};
-        let categories = JSON.parse(localStorage.getItem('categories')) || [];
-        if (categories.length === 0) {
-            categories.push({ name: 'General', color: '#ff0000', rewards: [] });
-        }
+        let categories = JSON.parse(localStorage.getItem('categories')) || [{ name: 'General', rewards: [] }];
         let categoryPoints = JSON.parse(localStorage.getItem('categoryPoints')) || {};
         let categoryFillCounts = JSON.parse(localStorage.getItem('categoryFillCounts')) || {};
         let categoryCredits = JSON.parse(localStorage.getItem('categoryCredits')) || {};
-        let routines = JSON.parse(localStorage.getItem('routines')) || [];
 
         // Initialize categories if not present
-        categories = categories.filter(cat => cat && cat.name && cat.color);
+        categories = categories.filter(cat => cat && cat.name);
         categories.forEach(cat => {
             if (!(cat.name in categoryPoints)) {
                 categoryPoints[cat.name] = 0;
@@ -498,145 +390,37 @@
                 progressContainer.appendChild(progressWrapper);
             });
             renderCategoryOptions();
-            renderCategoryLegend();
         }
 
-        function renderCategoryLegend() {
-            const legend = document.getElementById('category-legend');
-            legend.innerHTML = '<h3>Category Legend</h3>';
-            categories.forEach(category => {
-                const item = document.createElement('div');
-                item.className = 'category-item';
-                const colorBox = document.createElement('div');
-                colorBox.className = 'category-color';
-                colorBox.style.backgroundColor = category.color;
-                item.appendChild(colorBox);
-                const label = document.createElement('span');
-                label.textContent = category.name;
-                item.appendChild(label);
-                legend.appendChild(item);
-            });
-        }
+        function updateProgressBar(categoryName) {
+            const progressFill = document.getElementById(`progress-fill-${categoryName}`);
+            const progressText = document.getElementById(`progress-text-${categoryName}`);
+            const rewardButton = document.getElementById(`reward-button-${categoryName}`);
+            const claimButton = document.getElementById(`reward-button-${categoryName}`);
+            const creditTracker = document.getElementById(`credit-count-${categoryName}`);
 
-        function toggleRoutineForm() {
-            const routineForm = document.getElementById('manage-routines-form');
-            routineForm.style.display = routineForm.style.display === 'none' ? 'block' : 'none';
-            renderRoutines();
-        }
+            progressFill.style.width = `${categoryPoints[categoryName]}%`;
+            progressText.textContent = `${categoryPoints[categoryName]}%`;
 
-        function createRoutine() {
-            const name = document.getElementById('routine-name').value.trim();
-            const category = document.getElementById('routine-category').value;
-            const days = [...document.querySelectorAll('.days-checkboxes input:checked')].map(input => parseInt(input.value));
-
-            if (!name || !category || days.length === 0) {
-                alert('Please fill in all fields and select at least one day.');
-                return;
+            if (categoryPoints[categoryName] >= 100) {
+                claimButton.style.display = 'inline-block';
+            } else {
+                claimButton.style.display = 'none';
             }
 
-            // Check if category exists
-            const categoryObj = categories.find(cat => cat.name === category);
-            if (!categoryObj) {
-                alert(`Category "${category}" does not exist. Please add it first.`);
-                return;
+            if (categoryCredits[categoryName] > 0) {
+                rewardButton.style.display = 'inline-block';
+            } else {
+                rewardButton.style.display = 'none';
             }
 
-            const routine = { id: Date.now(), name, category, days };
-            routines.push(routine);
-            populateRoutineTasks(routine);
-            renderRoutines();
-            saveData();
-            alert('Routine created and tasks scheduled!');
-            // Clear the form
-            document.getElementById('routine-name').value = '';
-            document.getElementById('routine-category').value = '';
-            document.querySelectorAll('.days-checkboxes input').forEach(cb => cb.checked = false);
-        }
-
-        function populateRoutineTasks(routine) {
-            const today = new Date();
-            const ninetyDaysFromToday = new Date();
-            ninetyDaysFromToday.setDate(today.getDate() + 90);
-
-            for (let day = new Date(today); day <= ninetyDaysFromToday; day.setDate(day.getDate() + 1)) {
-                const dayOfWeek = day.getDay();
-                if (routine.days.includes(dayOfWeek)) {
-                    const formattedDate = getFormattedDate(new Date(day));
-                    if (!tasks[formattedDate]) {
-                        tasks[formattedDate] = [];
-                    }
-                    // Check if task already exists to prevent duplicates
-                    if (!tasks[formattedDate].some(task => task.description === routine.name && task.routineId === routine.id)) {
-                        tasks[formattedDate].push({
-                            description: routine.name,
-                            significance: 'daily',
-                            category: routine.category,
-                            completed: false,
-                            routineId: routine.id
-                        });
-                    }
-                }
-            }
-        }
-
-        function renderRoutines() {
-            const routinesList = document.getElementById('routines-list');
-            routinesList.innerHTML = '';
-            if (routines.length === 0) {
-                routinesList.innerHTML = '<p>No routines available.</p>';
-                return;
-            }
-            routines.forEach((routine, index) => {
-                const routineItem = document.createElement('div');
-                routineItem.className = 'routine-item';
-                routineItem.innerHTML = `
-                    <span><strong>${routine.name}</strong> (${routine.category}) - Days: ${routine.days.map(day => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][day]).join(', ')}</span>
-                    <button onclick="deleteRoutine(${routine.id})">Delete</button>
-                `;
-                routinesList.appendChild(routineItem);
-            });
-        }
-
-        function deleteRoutine(routineId) {
-            const routineIndex = routines.findIndex(r => r.id === routineId);
-            if (routineIndex === -1) {
-                alert('Routine not found.');
-                return;
-            }
-            const routine = routines[routineIndex];
-            const today = getFormattedDate(new Date());
-
-            // Remove tasks associated with this routine from future dates
-            Object.keys(tasks).forEach(date => {
-                if (date > today) {
-                    tasks[date] = tasks[date].filter(task => task.routineId !== routineId);
-                    if (tasks[date].length === 0) {
-                        delete tasks[date];
-                    }
-                }
-            });
-
-            // Remove the routine from the list
-            routines.splice(routineIndex, 1);
-            saveData();
-            renderRoutines();
-            renderTasks();
-            alert('Routine and future tasks deleted!');
+            creditTracker.textContent = categoryCredits[categoryName];
         }
 
         function renderCategoryOptions() {
-            const categorySelects = [
-                document.getElementById('new-task-category'),
-                document.getElementById('remove-category-select'),
-                document.getElementById('routine-category')
-            ];
+            const categorySelects = [document.getElementById('new-task-category'), document.getElementById('remove-category-select')];
             categorySelects.forEach(select => {
-                if (!select) return; // Ensure the dropdown exists
-                select.innerHTML = ''; // Clear existing options
-                const defaultOption = document.createElement('option');
-                defaultOption.value = '';
-                defaultOption.textContent = 'Select Category';
-                select.appendChild(defaultOption);
+                select.innerHTML = '';
                 categories.forEach(category => {
                     const option = document.createElement('option');
                     option.value = category.name;
@@ -645,7 +429,6 @@
                 });
             });
         }
-
 
         function renderTasks() {
             const taskTable = document.getElementById('task-table');
@@ -657,22 +440,15 @@
                     <th>Points</th>
                     <th>Complete</th>
                     <th>Remove</th>
-                    <th>Outcomes</th>
+                    <th>Outcomes</th> <!-- Header for the new outcomes column -->
                 </tr>
             `;
             if (tasks[selectedDate]) {
                 tasks[selectedDate].forEach((task, index) => {
                     const row = document.createElement('tr');
-
-                    // Get category color
-                    const categoryObj = categories.find(cat => cat.name === task.category);
-                    const categoryColor = categoryObj ? categoryObj.color : '#000';
-
                     row.innerHTML = `
-                        <td class="${task.completed ? 'task-completed' : ''}">
-                            <span style="color: ${categoryColor}; font-weight: bold;">&#9679;</span> ${task.description}
-                        </td>
-                        <td>${task.significance.charAt(0).toUpperCase() + task.significance.slice(1)}</td>
+                        <td class="${task.completed ? 'task-completed' : ''}">${task.description}</td>
+                        <td>${task.significance}</td>
                         <td>${task.category}</td>
                         <td>${taskSignificancePoints[task.significance]}</td>
                         <td><input type="checkbox" ${task.completed ? 'checked' : ''} onclick="toggleTaskCompletion(${index})"></td>
@@ -696,20 +472,8 @@
             task.completed = !task.completed;
             if (task.completed) {
                 document.getElementById(`outcome-section-${index}`).style.display = 'block';
-                // Optionally, add points to category
-                categoryPoints[task.category] += taskSignificancePoints[task.significance];
-                categoryFillCounts[task.category] += 1;
-                // Reset category points if needed
-                if (categoryPoints[task.category] >= 100) {
-                    // Points are already handled in claimRewardSpin
-                }
-                updateProgressBar(task.category);
             } else {
                 document.getElementById(`outcome-section-${index}`).style.display = 'none';
-                // Optionally, subtract points if task is unchecked
-                categoryPoints[task.category] -= taskSignificancePoints[task.significance];
-                categoryFillCounts[task.category] = Math.max(0, categoryFillCounts[task.category] - 1);
-                updateProgressBar(task.category);
             }
             saveData();
             renderTasks();
@@ -721,8 +485,6 @@
         }
 
         function removeTask(index) {
-            const task = tasks[selectedDate][index];
-            // If the task is part of a routine, you might want to handle it differently
             tasks[selectedDate].splice(index, 1);
             renderTasks();
             saveData();
@@ -736,7 +498,7 @@
                 if (!tasks[selectedDate]) {
                     tasks[selectedDate] = [];
                 }
-                tasks[selectedDate].push({ description, significance, category, completed: false });
+                tasks[selectedDate].push({ description, significance, category, completed: false, outcome: '' });
                 renderTasks();
                 saveData();
                 document.getElementById('new-task').value = '';
@@ -747,15 +509,12 @@
 
         function addCategory() {
             const categoryName = document.getElementById('new-category').value.trim();
-            const categoryColor = document.getElementById('category-color').value;
-            if (categoryName && !categories.some(cat => cat.name.toLowerCase() === categoryName.toLowerCase())) {
-                categories.push({ name: categoryName, color: categoryColor, rewards: [] });
+            if (categoryName && !categories.some(cat => cat.name === categoryName)) {
+                categories.push({ name: categoryName, rewards: [] });
                 categoryPoints[categoryName] = 0;
                 categoryFillCounts[categoryName] = 0;
                 categoryCredits[categoryName] = 0;
                 renderProgressBars();
-                renderCategoryOptions();
-                renderCategoryLegend();
                 saveData();
                 document.getElementById('new-category').value = '';
             } else {
@@ -765,10 +524,6 @@
 
         function removeCategory() {
             const categoryName = document.getElementById('remove-category-select').value;
-            if (!categoryName) {
-                alert('Please select a category to remove.');
-                return;
-            }
             if (categoryName === 'General') {
                 alert('Cannot remove the General category.');
                 return;
@@ -788,8 +543,6 @@
                 });
 
                 renderProgressBars();
-                renderCategoryOptions();
-                renderCategoryLegend();
                 renderTasks();
                 saveData();
             }
@@ -842,17 +595,15 @@
                     ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, i * arcSize, (i + 1) * arcSize);
                     ctx.lineTo(canvas.width / 2, canvas.height / 2);
 
-                    let fillColor = getRandomColor();
-                    // Ensure color is not the same as last segment
-                    while (fillColor === lastColor) {
-                        fillColor = getRandomColor();
-                    }
+                    let fillColor;
+                    do {
+                        fillColor = i % 2 === 0 ? '#FFD700' : '#FF4500'; // Alternate colors
+                    } while (fillColor === lastColor);
                     lastColor = fillColor;
 
                     ctx.fillStyle = fillColor;
                     ctx.fill();
 
-                    // Draw prize text
                     ctx.save();
                     ctx.translate(canvas.width / 2, canvas.height / 2);
                     ctx.rotate((i + 0.5) * arcSize);
@@ -862,15 +613,6 @@
                     ctx.fillText(prizes[i], canvas.width / 4, 10);
                     ctx.restore();
                 }
-            }
-
-            function getRandomColor() {
-                const letters = '0123456789ABCDEF';
-                let color = '#';
-                for (let j = 0; j < 6; j++) {
-                    color += letters[Math.floor(Math.random() * 16)];
-                }
-                return color;
             }
 
             function triggerConfetti() {
@@ -925,17 +667,13 @@
             const rewardList = document.getElementById('reward-list');
             const category = categories.find(cat => cat.name === categoryName);
             rewardList.innerHTML = '';
-            if (!category || category.rewards.length === 0) {
-                rewardList.innerHTML = '<p>No rewards available.</p>';
-                return;
-            }
             category.rewards.forEach((reward, index) => {
                 const rewardItem = document.createElement('div');
-                rewardItem.className = 'routine-item';
-                rewardItem.innerHTML = `
-                    <span>${reward}</span>
-                    <button onclick="removeReward('${categoryName}', ${index})">Remove</button>
-                `;
+                rewardItem.textContent = reward;
+                const removeButton = document.createElement('button');
+                removeButton.textContent = 'Remove';
+                removeButton.onclick = () => removeReward(categoryName, index);
+                rewardItem.appendChild(removeButton);
                 rewardList.appendChild(rewardItem);
             });
         }
@@ -965,16 +703,12 @@
             if (confirm('Are you sure you want to clear all existing data? This action cannot be undone.')) {
                 localStorage.clear();
                 tasks = {};
-                categories = [{ name: 'General', color: '#ff0000', rewards: [] }];
+                categories = [{ name: 'General', rewards: [] }];
                 categoryPoints = { 'General': 0 };
                 categoryFillCounts = { 'General': 0 };
                 categoryCredits = { 'General': 0 };
-                routines = [];
                 renderProgressBars();
-                renderCategoryOptions();
-                renderCategoryLegend();
                 renderTasks();
-                renderRoutines();
                 alert('All data has been cleared.');
             }
         }
@@ -1067,16 +801,12 @@
             localStorage.setItem('categoryPoints', JSON.stringify(categoryPoints));
             localStorage.setItem('categoryFillCounts', JSON.stringify(categoryFillCounts));
             localStorage.setItem('categoryCredits', JSON.stringify(categoryCredits));
-            localStorage.setItem('routines', JSON.stringify(routines));
         }
 
         window.onload = () => {
             renderProgressBars();
-            renderCategoryOptions();
-            renderCategoryLegend();
             renderCalendar();
             renderTasks();
-            renderRoutines();
         };
     </script>
 </body>
