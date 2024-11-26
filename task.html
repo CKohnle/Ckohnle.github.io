@@ -388,7 +388,10 @@
         };
 
         let tasks = JSON.parse(localStorage.getItem('tasks')) || {};
-        let categories = JSON.parse(localStorage.getItem('categories')) || [{ name: 'General', color: '#ff0000', rewards: [] }];
+        let categories = JSON.parse(localStorage.getItem('categories')) || [];
+        if (categories.length === 0) {
+            categories.push({ name: 'General', color: '#ff0000', rewards: [] });
+        }
         let categoryPoints = JSON.parse(localStorage.getItem('categoryPoints')) || {};
         let categoryFillCounts = JSON.parse(localStorage.getItem('categoryFillCounts')) || {};
         let categoryCredits = JSON.parse(localStorage.getItem('categoryCredits')) || {};
@@ -628,7 +631,12 @@
                 document.getElementById('routine-category')
             ];
             categorySelects.forEach(select => {
-                select.innerHTML = '<option value="">Select Category</option>';
+                if (!select) return; // Ensure the dropdown exists
+                select.innerHTML = ''; // Clear existing options
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Select Category';
+                select.appendChild(defaultOption);
                 categories.forEach(category => {
                     const option = document.createElement('option');
                     option.value = category.name;
@@ -637,6 +645,7 @@
                 });
             });
         }
+
 
         function renderTasks() {
             const taskTable = document.getElementById('task-table');
