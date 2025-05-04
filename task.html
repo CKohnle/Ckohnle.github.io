@@ -359,7 +359,25 @@ function loadBackup(e){
 /* ---------- INIT ---------- */
 function selectDate(d){selDate=d;document.getElementById('date-today').textContent=d;renderCalendar();renderTaskTable();updateTokenBar();}
 function changeMonth(off){calMonth+=off;if(calMonth<0){calMonth=11;calYear--;} if(calMonth>11){calMonth=0;calYear++;} renderCalendar();}
-function clearAllData(){if(!confirm('Delete ALL local data?'))return;localStorage.clear();location.reload();}
+function clearAllData() {
+  if (!confirm('Delete ALL local data?')) return;
+
+  // Clear localStorage
+  localStorage.clear();
+
+  // Reset in-memory data too
+  settings = { weeklyTokens: 80 };
+  pointsData = { current: 0, totalEarned: 0, totalSpent: 0 };
+  tasks = {};
+  tokenUsage = {};
+  categories = [{ name: 'General', points: 0, credits: 0, rewards: [] }];
+
+  // Save fresh base state
+  save();
+
+  // Reload clean
+  location.reload();
+}
 /* ---------- BOOT ---------- */
 window.onload=()=>{
   document.getElementById('weekly-tokens-input').value=settings.weeklyTokens;
