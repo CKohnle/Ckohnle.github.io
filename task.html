@@ -1,813 +1,324 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Tracker</title>
-    <link rel="stylesheet" href="styles.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background-color: #f0f0f0;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task‑Tracker with Time Tokens</title>
+<style>
+/* ---------- BASIC LAYOUT ---------- */
+body{font-family:Arial,Helvetica,sans-serif;margin:0;background:#f0f0f0;color:#222}
+header,main,footer{max-width:1100px;margin:auto;padding:10px}
+h1,h2,h3{margin:4px 0}
+nav a{margin-right:10px}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{border:1px solid #ccc;padding:6px;text-align:center}
+td.task-completed{text-decoration:line-through;color:#888}
+input[type=text],select{padding:4px}
+button{padding:5px 8px;margin:2px;cursor:pointer}
+.hidden{display:none}
 
-        header, main, footer {
-            width: 80%;
-            margin: 0 auto;
-        }
+/* ---------- WEEKLY TOKEN BAR ---------- */
+#token-week-wrapper{display:flex;align-items:center;margin-top:14px}
+#token-week-text{min-width:160px;font-weight:bold}
+.token-week-bar{flex:1;height:24px;background:#ddd;border-radius:6px;overflow:hidden;position:relative}
+.token-week-fill{height:100%;background:#76c7c0;width:0%;transition:width .3s}
+.token-week-fill.over{background:#d9534f}
+.token-week-label{position:absolute;width:100%;text-align:center;line-height:24px;font-weight:bold;color:#fff}
 
-        .container {
-            margin-top: 20px;
-        }
+/* ---------- PROGRESS BARS ---------- */
+.progress-wrapper{display:flex;align-items:center;margin:8px 0}
+.progress-label{min-width:90px;text-align:right;padding-right:6px;font-weight:bold}
+.progress-bar{flex:1;height:20px;background:#e0e0e0;border-radius:5px;position:relative}
+.progress-fill{background:#4287f5;height:100%;width:0%;transition:width .3s}
+.progress-text{position:absolute;width:100%;text-align:center;line-height:20px;color:#fff;font-weight:bold}
+.credit-badge{min-width:60px;text-align:center;font-weight:bold}
 
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+/* ---------- FORMS ---------- */
+.form-block{margin-top:20px;border:1px solid #bbb;background:#fff;padding:10px;border-radius:8px}
+.form-block h3{margin-top:0}
 
-        .calendar-header button {
-            padding: 5px 10px;
-        }
-
-        .calendar table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        .calendar th, .calendar td {
-            border: 1px solid #ccc;
-            padding: 10px;
-            text-align: center;
-        }
-
-        .calendar td:hover {
-            background-color: #f0f0f0;
-            cursor: pointer;
-        }
-
-        #task-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        #task-table th, #task-table td {
-            border: 1px solid #ccc;
-            padding: 10px;
-            text-align: center;
-        }
-
-        .task-completed {
-            text-decoration: line-through;
-            color: #999;
-        }
-
-        .progress-container {
-            margin-top: 20px;
-        }
-
-        .progress-wrapper {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .progress-tracker {
-            width: 50px;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        .progress-bar {
-            flex: 1;
-            background-color: #e0e0e0;
-            border-radius: 5px;
-            overflow: hidden;
-            margin: 0 10px;
-            position: relative;
-            height: 25px;
-        }
-
-        .progress-fill {
-            background-color: #76c7c0;
-            height: 100%;
-            width: 0%;
-            transition: width 0.3s ease-in-out;
-        }
-
-        .progress-text {
-            position: absolute;
-            width: 100%;
-            text-align: center;
-            line-height: 25px;
-            color: #fff;
-            font-weight: bold;
-        }
-
-        .reward-button {
-            padding: 5px 10px;
-            margin-left: 10px;
-        }
-
-        #wheel-container {
-            position: relative;
-            width: 300px;
-            height: 300px;
-            display: none;
-            margin: 20px auto;
-        }
-
-        #wheel {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 5px solid #333;
-            transition: transform 4s ease-out;
-        }
-
-        #pointer {
-            position: absolute;
-            top: 50%;
-            right: -20px;
-            transform: translateY(-50%);
-            width: 0;
-            height: 0;
-            border-top: 20px solid transparent;
-            border-bottom: 20px solid transparent;
-            border-left: 30px solid red;
-        }
-
-        #confetti-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-        }
-
-        .add-task-form, .add-category-form, .reward-management-form, .remove-category-form, .clear-data-form {
-            margin-top: 20px;
-        }
-
-        footer {
-            margin-top: 40px;
-            text-align: center;
-            padding: 10px 0;
-            border-top: 1px solid #ccc;
-        }
-
-        footer img {
-            margin: 0 5px;
-        }
-
-        .outcome-section {
-            display: none;
-        }
-
-        .outcome-section textarea {
-            width: 90%;
-            margin-top: 10px;
-        }
-
-    </style>
+/* ---------- UTILITY ---------- */
+.flex{display:flex;align-items:center}
+.mt10{margin-top:10px}
+</style>
 </head>
 <body>
-    <header>
-        <h1>Task Tracker</h1>
-        <nav>
-            <a href="index.html">Home</a>
-            <a href="task.html">Tasks</a>
-        </nav>
-    </header>
-    <main>
-        <div class="container">
-            <!-- Calendar -->
-            <div class="calendar-header">
-                <button onclick="changeMonth(-1)">&#8249;</button>
-                <h3 id="calendar-month-year"></h3>
-                <button onclick="changeMonth(1)">&#8250;</button>
-            </div>
-            <div class="calendar" id="calendar"></div>
-            <h4>Date: <span id="date-today"></span></h4>
-
-            <!-- Task Table -->
-            <table id="task-table">
-                <tr>
-                    <th>Task</th>
-                    <th>Significance</th>
-                    <th>Category</th>
-                    <th>Points</th>
-                    <th>Complete</th>
-                    <th>Remove</th>
-                    <th>Outcomes</th> <!-- New column for Outcomes -->
-                </tr>
-            </table>
-
-            <!-- Progress Bars -->
-            <div class="progress-container" id="progress-container">
-                <!-- Dynamically generated -->
-            </div>
-
-            <!-- Add Task Form -->
-            <div class="add-task-form">
-                <h3>Add New Task</h3>
-                <input type="text" id="new-task" placeholder="Task description">
-                <select id="new-task-significance">
-                    <option value="daily">Daily</option>
-                    <option value="minor">Minor</option>
-                    <option value="major">Major</option>
-                    <option value="massive">Massive</option>
-                </select>
-                <select id="new-task-category">
-                    <!-- Dynamically generated -->
-                </select>
-                <button onclick="addTask()">Add Task</button>
-            </div>
-
-            <!-- Add Category Form -->
-            <div class="add-category-form">
-                <h3>Add New Category</h3>
-                <input type="text" id="new-category" placeholder="Category name">
-                <button onclick="addCategory()">Add Category</button>
-            </div>
-
-            <!-- Remove Category Form -->
-            <div class="remove-category-form">
-                <h3>Remove Category</h3>
-                <select id="remove-category-select">
-                    <!-- Dynamically generated -->
-                </select>
-                <button onclick="removeCategory()">Remove Category</button>
-            </div>
-
-            <!-- Reward Management Form -->
-            <div class="reward-management-form" id="reward-management-form">
-                <h3>Manage Rewards for <span id="reward-category-name"></span></h3>
-                <input type="text" id="new-reward" placeholder="Reward description">
-                <button onclick="addReward()">Add Reward</button>
-                <div id="reward-list">
-                    <!-- Dynamically generated -->
-                </div>
-            </div>
-
-            <!-- Clear Data Button -->
-            <div class="clear-data-form">
-                <button onclick="clearAllData()">Clear All Data</button>
-            </div>
-
-            <!-- Prize Wheel -->
-            <div id="wheel-container">
-                <canvas id="confetti-canvas"></canvas>
-                <div id="pointer"></div>
-                <canvas id="wheel"></canvas>
-            </div>
-        </div>
-    </main>
-    <footer id="footer">
-        <a href="index.html">Back to Home</a>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/confetti-js@0.0.17/dist/index.min.js"></script>
-    <script>
-        const taskSignificancePoints = {
-            daily: 1,
-            minor: 5,
-            major: 10,
-            massive: 25
-        };
-
-        let tasks = JSON.parse(localStorage.getItem('tasks')) || {};
-        let categories = JSON.parse(localStorage.getItem('categories')) || [{ name: 'General', rewards: [] }];
-        let categoryPoints = JSON.parse(localStorage.getItem('categoryPoints')) || {};
-        let categoryFillCounts = JSON.parse(localStorage.getItem('categoryFillCounts')) || {};
-        let categoryCredits = JSON.parse(localStorage.getItem('categoryCredits')) || {};
-
-        // Initialize categories if not present
-        categories = categories.filter(cat => cat && cat.name);
-        categories.forEach(cat => {
-            if (!(cat.name in categoryPoints)) {
-                categoryPoints[cat.name] = 0;
-            }
-            if (!(cat.name in categoryFillCounts)) {
-                categoryFillCounts[cat.name] = 0;
-            }
-            if (!(cat.name in categoryCredits)) {
-                categoryCredits[cat.name] = 0;
-            }
-        });
-
-        let selectedDate = getFormattedDate(new Date()); // Default to today's date in MM-DD-YYYY format
-        let currentMonth = new Date().getMonth();
-        let currentYear = new Date().getFullYear();
-
-        function getFormattedDate(date) {
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const day = date.getDate().toString().padStart(2, '0');
-            const year = date.getFullYear();
-            return `${month}-${day}-${year}`;
-        }
-
-        function renderProgressBars() {
-            const progressContainer = document.getElementById('progress-container');
-            progressContainer.innerHTML = '';
-            categories.forEach(category => {
-                const progressWrapper = document.createElement('div');
-                progressWrapper.className = 'progress-wrapper';
-
-                // Fill Count Tracker
-                const fillCount = document.createElement('div');
-                fillCount.className = 'progress-tracker';
-                fillCount.id = `fill-count-${category.name}`;
-                fillCount.textContent = categoryFillCounts[category.name] || 0;
-                progressWrapper.appendChild(fillCount);
-
-                // Category Label
-                const categoryLabel = document.createElement('div');
-                categoryLabel.className = 'progress-tracker';
-                categoryLabel.style.minWidth = '100px';
-                categoryLabel.style.textAlign = 'center';
-                categoryLabel.textContent = `${category.name} Progress:`;
-                progressWrapper.appendChild(categoryLabel);
-
-                // Progress Bar
-                const progressBar = document.createElement('div');
-                progressBar.className = 'progress-bar';
-                progressBar.id = `progress-bar-${category.name}`;
-                const progressFill = document.createElement('div');
-                progressFill.className = 'progress-fill';
-                progressFill.style.width = `${categoryPoints[category.name]}%`;
-                progressFill.id = `progress-fill-${category.name}`;
-                const progressText = document.createElement('div');
-                progressText.className = 'progress-text';
-                progressText.id = `progress-text-${category.name}`;
-                progressText.textContent = `${categoryPoints[category.name]}%`;
-                progressBar.appendChild(progressFill);
-                progressBar.appendChild(progressText);
-                progressWrapper.appendChild(progressBar);
-
-                // Reward Credit Tracker
-                const creditTracker = document.createElement('div');
-                creditTracker.className = 'progress-tracker';
-                creditTracker.id = `credit-count-${category.name}`;
-                creditTracker.textContent = categoryCredits[category.name] || 0;
-                progressWrapper.appendChild(creditTracker);
-
-                // Claim Reward Spin Button
-                const claimButton = document.createElement('button');
-                claimButton.className = 'reward-button';
-                claimButton.textContent = 'Claim Reward Spin';
-                claimButton.onclick = () => claimRewardSpin(category.name);
-                if (categoryPoints[category.name] < 100) {
-                    claimButton.style.display = 'none';
-                }
-                progressWrapper.appendChild(claimButton);
-
-                // Manage Rewards Button
-                const manageRewardsButton = document.createElement('button');
-                manageRewardsButton.className = 'reward-button';
-                manageRewardsButton.textContent = 'Manage Rewards';
-                manageRewardsButton.onclick = () => manageRewards(category.name);
-                progressWrapper.appendChild(manageRewardsButton);
-
-                // Spin Reward Wheel Button
-                const rewardButton = document.createElement('button');
-                rewardButton.className = 'reward-button';
-                rewardButton.id = `reward-button-${category.name}`;
-                rewardButton.textContent = 'Spin Reward Wheel';
-                rewardButton.onclick = () => spinRewardWheel(category.name);
-                if (categoryCredits[category.name] <= 0) {
-                    rewardButton.style.display = 'none';
-                }
-                progressWrapper.appendChild(rewardButton);
-
-                progressContainer.appendChild(progressWrapper);
-            });
-            renderCategoryOptions();
-        }
-
-        function updateProgressBar(categoryName) {
-            const progressFill = document.getElementById(`progress-fill-${categoryName}`);
-            const progressText = document.getElementById(`progress-text-${categoryName}`);
-            const rewardButton = document.getElementById(`reward-button-${categoryName}`);
-            const claimButton = document.getElementById(`reward-button-${categoryName}`);
-            const creditTracker = document.getElementById(`credit-count-${categoryName}`);
-
-            progressFill.style.width = `${categoryPoints[categoryName]}%`;
-            progressText.textContent = `${categoryPoints[categoryName]}%`;
-
-            if (categoryPoints[categoryName] >= 100) {
-                claimButton.style.display = 'inline-block';
-            } else {
-                claimButton.style.display = 'none';
-            }
-
-            if (categoryCredits[categoryName] > 0) {
-                rewardButton.style.display = 'inline-block';
-            } else {
-                rewardButton.style.display = 'none';
-            }
-
-            creditTracker.textContent = categoryCredits[categoryName];
-        }
-
-        function renderCategoryOptions() {
-            const categorySelects = [document.getElementById('new-task-category'), document.getElementById('remove-category-select')];
-            categorySelects.forEach(select => {
-                select.innerHTML = '';
-                categories.forEach(category => {
-                    const option = document.createElement('option');
-                    option.value = category.name;
-                    option.textContent = category.name;
-                    select.appendChild(option);
-                });
-            });
-        }
-
-        function renderTasks() {
-            const taskTable = document.getElementById('task-table');
-            taskTable.innerHTML = `
-                <tr>
-                    <th>Task</th>
-                    <th>Significance</th>
-                    <th>Category</th>
-                    <th>Points</th>
-                    <th>Complete</th>
-                    <th>Remove</th>
-                    <th>Outcomes</th> <!-- Header for the new outcomes column -->
-                </tr>
-            `;
-            if (tasks[selectedDate]) {
-                tasks[selectedDate].forEach((task, index) => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td class="${task.completed ? 'task-completed' : ''}">${task.description}</td>
-                        <td>${task.significance}</td>
-                        <td>${task.category}</td>
-                        <td>${taskSignificancePoints[task.significance]}</td>
-                        <td><input type="checkbox" ${task.completed ? 'checked' : ''} onclick="toggleTaskCompletion(${index})"></td>
-                        <td><button onclick="removeTask(${index})">Remove</button></td>
-                        <td>
-                            <div class="outcome-section" id="outcome-section-${index}">
-                                <textarea placeholder="Enter outcomes here" oninput="updateOutcome(${index}, this.value)">${task.outcome || ''}</textarea>
-                            </div>
-                        </td>
-                    `;
-                    taskTable.appendChild(row);
-                    if (task.completed) {
-                        document.getElementById(`outcome-section-${index}`).style.display = 'block';
-                    }
-                });
-            }
-        }
-
-        function toggleTaskCompletion(index) {
-            const task = tasks[selectedDate][index];
-            task.completed = !task.completed;
-            if (task.completed) {
-                document.getElementById(`outcome-section-${index}`).style.display = 'block';
-            } else {
-                document.getElementById(`outcome-section-${index}`).style.display = 'none';
-            }
-            saveData();
-            renderTasks();
-        }
-
-        function updateOutcome(index, value) {
-            tasks[selectedDate][index].outcome = value;
-            saveData();
-        }
-
-        function removeTask(index) {
-            tasks[selectedDate].splice(index, 1);
-            renderTasks();
-            saveData();
-        }
-
-        function addTask() {
-            const description = document.getElementById('new-task').value.trim();
-            const significance = document.getElementById('new-task-significance').value;
-            const category = document.getElementById('new-task-category').value;
-            if (description && significance && category) {
-                if (!tasks[selectedDate]) {
-                    tasks[selectedDate] = [];
-                }
-                tasks[selectedDate].push({ description, significance, category, completed: false, outcome: '' });
-                renderTasks();
-                saveData();
-                document.getElementById('new-task').value = '';
-            } else {
-                alert('Please fill in all fields to add a task.');
-            }
-        }
-
-        function addCategory() {
-            const categoryName = document.getElementById('new-category').value.trim();
-            if (categoryName && !categories.some(cat => cat.name === categoryName)) {
-                categories.push({ name: categoryName, rewards: [] });
-                categoryPoints[categoryName] = 0;
-                categoryFillCounts[categoryName] = 0;
-                categoryCredits[categoryName] = 0;
-                renderProgressBars();
-                saveData();
-                document.getElementById('new-category').value = '';
-            } else {
-                alert('Category name is either empty or already exists.');
-            }
-        }
-
-        function removeCategory() {
-            const categoryName = document.getElementById('remove-category-select').value;
-            if (categoryName === 'General') {
-                alert('Cannot remove the General category.');
-                return;
-            }
-            if (confirm(`Are you sure you want to remove the category "${categoryName}"? This will also remove all associated tasks.`)) {
-                categories = categories.filter(cat => cat.name !== categoryName);
-                delete categoryPoints[categoryName];
-                delete categoryFillCounts[categoryName];
-                delete categoryCredits[categoryName];
-
-                // Remove tasks associated with the category
-                Object.keys(tasks).forEach(date => {
-                    tasks[date] = tasks[date].filter(task => task.category !== categoryName);
-                    if (tasks[date].length === 0) {
-                        delete tasks[date];
-                    }
-                });
-
-                renderProgressBars();
-                renderTasks();
-                saveData();
-            }
-        }
-
-        function claimRewardSpin(categoryName) {
-            if (categoryPoints[categoryName] >= 100) {
-                categoryPoints[categoryName] -= 100;
-                categoryCredits[categoryName] += 1;
-                updateProgressBar(categoryName);
-                saveData();
-            }
-        }
-
-        function spinRewardWheel(categoryName) {
-            const category = categories.find(cat => cat.name === categoryName);
-            if (categoryCredits[categoryName] <= 0) {
-                alert(`You don't have any reward credits for ${categoryName}.`);
-                return;
-            }
-            if (category.rewards.length === 0) {
-                alert(`No rewards available for ${categoryName}. Please add rewards first.`);
-                return;
-            }
-
-            // Subtract one reward credit
-            categoryCredits[categoryName] -= 1;
-            updateProgressBar(categoryName);
-            saveData();
-
-            // Show the wheel and scroll down to it
-            document.getElementById('wheel-container').style.display = 'block';
-            document.getElementById('wheel-container').scrollIntoView({ behavior: 'smooth' });
-
-            const prizes = category.rewards;
-            const canvas = document.getElementById('wheel');
-            const ctx = canvas.getContext('2d');
-            const confettiCanvas = document.getElementById('confetti-canvas');
-            const arcSize = (2 * Math.PI) / prizes.length;
-            let rotation = 0;
-
-            canvas.width = 300;
-            canvas.height = 300;
-
-            function drawWheel() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                let lastColor = '';
-                for (let i = 0; i < prizes.length; i++) {
-                    ctx.beginPath();
-                    ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, i * arcSize, (i + 1) * arcSize);
-                    ctx.lineTo(canvas.width / 2, canvas.height / 2);
-
-                    let fillColor;
-                    do {
-                        fillColor = i % 2 === 0 ? '#FFD700' : '#FF4500'; // Alternate colors
-                    } while (fillColor === lastColor);
-                    lastColor = fillColor;
-
-                    ctx.fillStyle = fillColor;
-                    ctx.fill();
-
-                    ctx.save();
-                    ctx.translate(canvas.width / 2, canvas.height / 2);
-                    ctx.rotate((i + 0.5) * arcSize);
-                    ctx.textAlign = "center";
-                    ctx.fillStyle = "#fff";
-                    ctx.font = "16px Arial";
-                    ctx.fillText(prizes[i], canvas.width / 4, 10);
-                    ctx.restore();
-                }
-            }
-
-            function triggerConfetti() {
-                const confetti = new ConfettiGenerator({
-                    target: 'confetti-canvas',
-                    max: 100,
-                    size: 1,
-                    animate: true,
-                    props: ['circle', 'square'],
-                    colors: [[165, 104, 246], [230, 61, 135], [0, 199, 228], [253, 214, 126]],
-                    clock: 25,
-                    rotate: true,
-                    start_from_edge: false,
-                    respawn: true
-                });
-                confetti.render();
-
-                setTimeout(() => {
-                    confetti.clear();
-                }, 3000); // Stop confetti after 3 seconds
-            }
-
-            function spinWheel() {
-                const spins = Math.floor(Math.random() * 5) + 5; // Random spins between 5 and 9
-                const selectedPrizeIndex = Math.floor(Math.random() * prizes.length);
-                const selectedPrizeAngle = selectedPrizeIndex * arcSize + arcSize / 2;
-                const endRotation = (spins * 2 * Math.PI) - selectedPrizeAngle;
-
-                rotation += endRotation;
-                canvas.style.transform = `rotate(${rotation}rad)`;
-
-                setTimeout(() => {
-                    alert(`You won: ${prizes[selectedPrizeIndex]}!`);
-                    triggerConfetti();
-                    // Hide the wheel after selection
-                    document.getElementById('wheel-container').style.display = 'none';
-                }, 4000);
-            }
-
-            drawWheel();
-            spinWheel();
-        }
-
-        function manageRewards(categoryName) {
-            const rewardManagementForm = document.getElementById('reward-management-form');
-            document.getElementById('reward-category-name').textContent = categoryName;
-            rewardManagementForm.classList.remove('hidden');
-            renderRewardList(categoryName);
-        }
-
-        function renderRewardList(categoryName) {
-            const rewardList = document.getElementById('reward-list');
-            const category = categories.find(cat => cat.name === categoryName);
-            rewardList.innerHTML = '';
-            category.rewards.forEach((reward, index) => {
-                const rewardItem = document.createElement('div');
-                rewardItem.textContent = reward;
-                const removeButton = document.createElement('button');
-                removeButton.textContent = 'Remove';
-                removeButton.onclick = () => removeReward(categoryName, index);
-                rewardItem.appendChild(removeButton);
-                rewardList.appendChild(rewardItem);
-            });
-        }
-
-        function addReward() {
-            const rewardDescription = document.getElementById('new-reward').value.trim();
-            const categoryName = document.getElementById('reward-category-name').textContent;
-            const category = categories.find(cat => cat.name === categoryName);
-            if (rewardDescription) {
-                category.rewards.push(rewardDescription);
-                renderRewardList(categoryName);
-                saveData();
-                document.getElementById('new-reward').value = '';
-            } else {
-                alert('Please enter a reward description.');
-            }
-        }
-
-        function removeReward(categoryName, index) {
-            const category = categories.find(cat => cat.name === categoryName);
-            category.rewards.splice(index, 1);
-            renderRewardList(categoryName);
-            saveData();
-        }
-
-        function clearAllData() {
-            if (confirm('Are you sure you want to clear all existing data? This action cannot be undone.')) {
-                localStorage.clear();
-                tasks = {};
-                categories = [{ name: 'General', rewards: [] }];
-                categoryPoints = { 'General': 0 };
-                categoryFillCounts = { 'General': 0 };
-                categoryCredits = { 'General': 0 };
-                renderProgressBars();
-                renderTasks();
-                alert('All data has been cleared.');
-            }
-        }
-
-        function renderCalendar() {
-            const calendarElement = document.getElementById('calendar');
-            const monthYearElement = document.getElementById('calendar-month-year');
-            const dateTodayElement = document.getElementById('date-today');
-
-            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-
-            monthYearElement.textContent = `${new Date(currentYear, currentMonth).toLocaleString('default', { month: 'long' })} ${currentYear}`;
-            dateTodayElement.textContent = formatDate(selectedDate);
-
-            let calendarHTML = `<table><tr>`;
-            const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-            daysOfWeek.forEach(day => {
-                calendarHTML += `<th>${day}</th>`;
-            });
-            calendarHTML += `</tr><tr>`;
-
-            for (let i = 0; i < firstDay; i++) {
-                calendarHTML += `<td></td>`;
-            }
-
-            const today = getFormattedDate(new Date());
-
-            for (let day = 1; day <= daysInMonth; day++) {
-                if ((firstDay + day - 1) % 7 === 0 && day !== 1) {
-                    calendarHTML += `</tr><tr>`;
-                }
-
-                const fullDate = getFormattedDate(new Date(currentYear, currentMonth, day));
-                let style = "";
-
-                // Highlight unfinished tasks
-                if (tasks[fullDate] && tasks[fullDate].some(task => !task.completed)) {
-                    style = "background-color: lightyellow;";
-                }
-
-                if (fullDate === today && fullDate === selectedDate) {
-                    // Today's date is selected
-                    style = `
-                        background: linear-gradient(to bottom right, blue 50%, red 50%);
-                        color: white;
-                    `;
-                } else if (fullDate === today) {
-                    // Just today's date
-                    style = "background-color: blue; color: white;";
-                } else if (fullDate === selectedDate) {
-                    // Selected date (not today)
-                    style = "background-color: red; color: white;";
-                }
-
-                calendarHTML += `<td style="${style}" onclick="selectDate('${fullDate}')">${day}</td>`;
-            }
-
-            calendarHTML += `</tr></table>`;
-            calendarElement.innerHTML = calendarHTML;
-        }
-
-        function selectDate(dateString) {
-            selectedDate = dateString;
-            document.getElementById('date-today').textContent = formatDate(selectedDate);
-            renderTasks();
-            renderCalendar(); // Re-render the calendar to update highlighting
-        }
-
-        function formatDate(dateString) {
-            const [month, day, year] = dateString.split('-');
-            return `${month}-${day}-${year}`;
-        }
-
-        function changeMonth(offset) {
-            currentMonth += offset;
-            if (currentMonth < 0) {
-                currentMonth = 11;
-                currentYear -= 1;
-            } else if (currentMonth > 11) {
-                currentMonth = 0;
-                currentYear += 1;
-            }
-            renderCalendar();
-        }
-
-        function saveData() {
-            localStorage.setItem('tasks', JSON.stringify(tasks));
-            localStorage.setItem('categories', JSON.stringify(categories));
-            localStorage.setItem('categoryPoints', JSON.stringify(categoryPoints));
-            localStorage.setItem('categoryFillCounts', JSON.stringify(categoryFillCounts));
-            localStorage.setItem('categoryCredits', JSON.stringify(categoryCredits));
-        }
-
-        window.onload = () => {
-            renderProgressBars();
-            renderCalendar();
-            renderTasks();
-        };
-    </script>
+<header>
+  <h1>Task Tracker (Ŧ / ₱ Edition)</h1>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="#">Tasks</a>
+  </nav>
+</header>
+
+<main>
+  <!-- WEEK TOKEN BAR -->
+  <div id="token-week-wrapper">
+    <span id="token-week-text">Ŧ Used: 0 / 0</span>
+    <div class="token-week-bar">
+      <div id="token-week-fill" class="token-week-fill"></div>
+      <div id="token-week-label" class="token-week-label">0 %</div>
+    </div>
+  </div>
+
+  <!-- CALENDAR -->
+  <div class="flex mt10">
+    <button onclick="changeMonth(-1)">&#8249;</button>
+    <h3 id="calendar-month-year" style="flex:1;text-align:center"></h3>
+    <button onclick="changeMonth(1)">&#8250;</button>
+  </div>
+  <div id="calendar"></div>
+  <h4>Date: <span id="date-today"></span></h4>
+
+  <!-- TASK TABLE -->
+  <table id="task-table"></table>
+
+  <!-- CATEGORY PROGRESS -->
+  <div id="progress-container" class="mt10"></div>
+
+  <!-- ADD TASK -->
+  <div class="form-block">
+    <h3>Add Task</h3>
+    <input id="new-task-desc" type="text" placeholder="Task description">
+    <select id="new-task-signif">
+      <option value="daily">daily (1 Ŧ/h)</option>
+      <option value="minor">minor (5 Ŧ/h)</option>
+      <option value="major">major (10 Ŧ/h)</option>
+      <option value="massive">massive (25 Ŧ/h)</option>
+    </select>
+    <select id="new-task-cat"></select>
+    <button onclick="addTask()">Add</button>
+  </div>
+
+  <!-- ADD / REMOVE CATEGORY -->
+  <div class="form-block flex">
+    <div style="flex:1">
+      <h3>Add Category</h3>
+      <input id="new-cat-name" type="text" placeholder="Category">
+      <button onclick="addCategory()">Add</button>
+    </div>
+    <div style="flex:1">
+      <h3>Remove Category</h3>
+      <select id="remove-cat-select"></select>
+      <button onclick="removeCategory()">Delete</button>
+    </div>
+  </div>
+
+  <!-- REWARD SHOP -->
+  <div class="form-block">
+    <h3 id="shop-title">Reward Shop (Choose category)</h3>
+    <select id="shop-cat-select" onchange="renderShop()"></select>
+    <div id="shop-list" class="mt10"></div>
+
+    <h4 class="mt10">Add Reward to Category</h4>
+    <input id="new-reward-desc" type="text" placeholder="Description">
+    <input id="new-reward-cost" type="number" min="1" style="width:80px" placeholder="₱">
+    <button onclick="addReward()">Add Reward</button>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="form-block">
+    <h3>Settings</h3>
+    Weekly Ŧ Trove: <input id="weekly-tokens-input" type="number" style="width:80px">
+    <button onclick="updateSettings()">Save</button>
+  </div>
+
+  <!-- CLEAR -->
+  <div class="form-block">
+    <button onclick="clearAllData()" style="background:#d9534f;color:#fff">Clear ALL local data</button>
+  </div>
+</main>
+
+<footer style="text-align:center;margin-top:30px">
+  © 2025 Christian Kohnle
+</footer>
+
+<script>
+/* ---------- CONSTANTS ---------- */
+const signifRate = {daily:1,minor:5,major:10,massive:25};   // Ŧ/h
+const exerciseCapHrs = 10;                                  // hard‑cap per ISO week
+/* ---------- STATE ---------- */
+let settings = JSON.parse(localStorage.getItem('settings')) ||
+               {weeklyTokens:600};
+let tasks = JSON.parse(localStorage.getItem('tasks')) || {}; // keyed by date
+let categories = JSON.parse(localStorage.getItem('categories')) ||
+                 [{name:'General',points:0,credits:0,rewards:[]}];
+let tokenUsage = JSON.parse(localStorage.getItem('tokenUsage')) || {}; // per weekId
+
+/* ---------- HELPER DATE / WEEK ---------- */
+function fmtDate(d){const m=('0'+(d.getMonth()+1)).slice(-2),dd=('0'+d.getDate()).slice(-2);return `${m}-${dd}-${d.getFullYear()}`;}
+function weekId(dateStr){const [m,d,y]=dateStr.split('-').map(Number);const dt=new Date(`${y}-${m}-${d}`);dt.setHours(0,0,0,0); // ISO
+  const day=(dt.getDay()+6)%7; dt.setDate(dt.getDate()-day+3); // Thursday
+  const firstThu=new Date(dt.getFullYear(),0,4);const dayFirstThu=(firstThu.getDay()+6)%7;firstThu.setDate(firstThu.getDate()-dayFirstThu+3);
+  const week=Math.round((dt-firstThu)/604800000)+1; return `${dt.getFullYear()}-W${('0'+week).slice(-2)}`;}
+/* ---------- SELECTED DATE ---------- */
+let selDate = fmtDate(new Date());
+let calMonth = new Date().getMonth(), calYear = new Date().getFullYear();
+
+/* ---------- RENDER FUNCTIONS ---------- */
+function renderCalendar(){
+  const first=new Date(calYear,calMonth,1), days=new Date(calYear,calMonth+1,0).getDate();
+  document.getElementById('calendar-month-year').textContent=first.toLocaleString('default',{month:'long'})+' '+calYear;
+  let html='<table><tr>'+['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<th>${d}</th>`).join('')+'</tr><tr>';
+  for(let i=0;i<first.getDay();i++)html+='<td></td>';
+  for(let d=1;d<=days;d++){const cur=fmtDate(new Date(calYear,calMonth,d));
+    if((first.getDay()+d-1)%7===0&&d!==1)html+='</tr><tr>';
+    let style='';if(cur===selDate)style='background:#ff4444;color:#fff';
+    html+=`<td style="${style}" onclick="selectDate('${cur}')">${d}</td>`;}
+  html+='</tr></table>'; document.getElementById('calendar').innerHTML=html;
+}
+function renderTaskTable(){
+  const tBody=document.getElementById('task-table');
+  tBody.innerHTML=`<tr><th>Task</th><th>Signif</th><th>Cat</th><th>Ŧ/h</th><th>Done?</th><th>Del</th></tr>`;
+  (tasks[selDate]||[]).forEach((t,i)=>{
+    tBody.innerHTML+=`
+      <tr>
+        <td class="${t.done?'task-completed':''}">${t.desc}</td>
+        <td>${t.signif}</td>
+        <td>${t.cat}</td>
+        <td>${signifRate[t.signif]}</td>
+        <td><input type="checkbox" ${t.done?'checked':''} onchange="toggleDone(${i})"></td>
+        <td><button onclick="delTask(${i})">x</button></td>
+      </tr>`;
+  });
+}
+function renderCategoryUI(){
+  // dropdowns
+  const catSel=document.getElementById('new-task-cat');
+  const remSel=document.getElementById('remove-cat-select');
+  const shopSel=document.getElementById('shop-cat-select');
+  [catSel,remSel,shopSel].forEach(s=>{s.innerHTML='';});
+  categories.forEach(c=>{
+    [catSel,shopSel].forEach(s=>{const o=document.createElement('option');o.value=c.name;o.textContent=c.name;s.appendChild(o);});
+    if(c.name!=='General'){const o=document.createElement('option');o.value=c.name;o.textContent=c.name;remSel.appendChild(o);}
+  });
+  // progress bars
+  const prog=document.getElementById('progress-container');prog.innerHTML='';
+  categories.forEach(c=>{
+    const pct=(c.points%100);const full=Math.floor(c.points/100);
+    prog.innerHTML+=`
+      <div class="progress-wrapper">
+        <span class="progress-label">${c.name}</span>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div><div class="progress-text">${pct} %</div></div>
+        <span class="credit-badge">🎁 ${full}</span>
+      </div>`;
+  });
+  renderShop();
+}
+function renderShop(){
+  const cat=document.getElementById('shop-cat-select').value||categories[0].name;
+  document.getElementById('shop-title').textContent=`Reward Shop (${cat})`;
+  const list=document.getElementById('shop-list');list.innerHTML='';
+  const c=categories.find(x=>x.name===cat);
+  c.rewards.forEach((r,idx)=>{
+    list.innerHTML+=`
+      <div class="flex">
+        <span style="flex:1">${r.desc} – <b>${r.cost} ₱</b></span>
+        <button onclick="buyReward('${cat}',${idx})">Buy</button>
+      </div>`;
+  });
+}
+/* ---------- WEEK TOKEN BAR ---------- */
+function updateTokenBar(){
+  const w=weekId(selDate);
+  const used=tokenUsage[w]||0; const pct=Math.min(100,(used/settings.weeklyTokens*100).toFixed(1));
+  const fill=document.getElementById('token-week-fill');
+  fill.style.width=pct+'%'; fill.className='token-week-fill'+(used>settings.weeklyTokens?' over':'');
+  document.getElementById('token-week-label').textContent=pct+' %';
+  document.getElementById('token-week-text').textContent=`Ŧ Used: ${used.toFixed(1)} / ${settings.weeklyTokens}`;
+}
+/* ---------- MUTATION HELPERS ---------- */
+function addTask(){
+  const desc=document.getElementById('new-task-desc').value.trim();
+  const signif=document.getElementById('new-task-signif').value;
+  const cat=document.getElementById('new-task-cat').value;
+  if(!desc)return alert('Enter description');
+  tasks[selDate]=tasks[selDate]||[];
+  tasks[selDate].push({desc,signif,cat,done:false,dur:0});
+  document.getElementById('new-task-desc').value='';
+  save();renderTaskTable();
+}
+function toggleDone(idx){
+  const t=tasks[selDate][idx];
+  if(!t.done){ // mark complete
+    const mins=parseFloat(prompt('Minutes spent?','60')); if(isNaN(mins)||mins<=0){event.target.checked=false;return;}
+    const hrs=mins/60;
+    const spent=signifRate[t.signif]*hrs;
+    // WEEK + EXERCISE CHECKS
+    const w=weekId(selDate); tokenUsage[w]=(tokenUsage[w]||0)+spent;
+    if(tokenUsage[w]>settings.weeklyTokens)alert('⚠️ You exceeded your weekly Ŧ trove!');
+    if(t.cat==='Exercise'){
+      const exHrs=(tasksOfWeek('Exercise',w)+hrs);
+      if(exHrs>exerciseCapHrs)alert('Exercise cap (10 h/wk) exceeded!');
+    }
+    // points
+    const catObj=categories.find(c=>c.name===t.cat);catObj.points+=spent;
+    t.done=true;t.dur=hrs;t.spent=spent;
+  }else{ // un‑check (rollback)
+    const w=weekId(selDate);tokenUsage[w]-=t.spent;
+    const catObj=categories.find(c=>c.name===t.cat);catObj.points-=t.spent;
+    t.done=false;
+  }
+  save();renderTaskTable();renderCategoryUI();updateTokenBar();
+}
+function delTask(i){tasks[selDate].splice(i,1);save();renderTaskTable();}
+function addCategory(){
+  const name=document.getElementById('new-cat-name').value.trim();if(!name)return;
+  if(categories.some(c=>c.name===name))return alert('Exists!');
+  categories.push({name,points:0,credits:0,rewards:[]});
+  document.getElementById('new-cat-name').value='';
+  save();renderCategoryUI();
+}
+function removeCategory(){
+  const name=document.getElementById('remove-cat-select').value;if(!name)return;
+  if(!confirm('Delete '+name+' ?'))return;
+  categories=categories.filter(c=>c.name!==name);
+  for(const d in tasks){tasks[d]=tasks[d].filter(t=>t.cat!==name);}
+  save();renderCategoryUI();renderTaskTable();
+}
+function addReward(){
+  const cat=document.getElementById('shop-cat-select').value;
+  const desc=document.getElementById('new-reward-desc').value.trim();
+  const cost=parseInt(document.getElementById('new-reward-cost').value);
+  if(!desc||!cost)return alert('Need desc & cost');
+  const c=categories.find(x=>x.name===cat);c.rewards.push({desc,cost});
+  document.getElementById('new-reward-desc').value='';document.getElementById('new-reward-cost').value='';
+  save();renderShop();
+}
+function buyReward(cat,idx){
+  const c=categories.find(x=>x.name===cat),r=c.rewards[idx];
+  if(c.points<r.cost)return alert('Not enough ₱');
+  if(!confirm(`Redeem "${r.desc}" for ${r.cost} ₱ ?`))return;
+  c.points-=r.cost;save();renderCategoryUI();
+  alert('Enjoy your reward: '+r.desc+'!');
+}
+function updateSettings(){
+  settings.weeklyTokens=parseInt(document.getElementById('weekly-tokens-input').value)||settings.weeklyTokens;
+  save();updateTokenBar();
+}
+/* ---------- UTIL ---------- */
+function tasksOfWeek(cat,wId){
+  let hrs=0;
+  for(const d in tasks)if(weekId(d)===wId)tasks[d].forEach(t=>{if(t.done&&t.cat===cat)hrs+=t.dur;});
+  return hrs;
+}
+/* ---------- SAVE ---------- */
+function save(){
+  localStorage.setItem('settings',JSON.stringify(settings));
+  localStorage.setItem('tasks',JSON.stringify(tasks));
+  localStorage.setItem('categories',JSON.stringify(categories));
+  localStorage.setItem('tokenUsage',JSON.stringify(tokenUsage));
+}
+/* ---------- INIT ---------- */
+function selectDate(d){selDate=d;document.getElementById('date-today').textContent=d;renderCalendar();renderTaskTable();updateTokenBar();}
+function changeMonth(off){calMonth+=off;if(calMonth<0){calMonth=11;calYear--;} if(calMonth>11){calMonth=0;calYear++;} renderCalendar();}
+function clearAllData(){if(!confirm('Delete ALL local data?'))return;localStorage.clear();location.reload();}
+/* ---------- BOOT ---------- */
+window.onload=()=>{
+  document.getElementById('weekly-tokens-input').value=settings.weeklyTokens;
+  document.getElementById('date-today').textContent=selDate;
+  renderCalendar();renderTaskTable();renderCategoryUI();updateTokenBar();
+};
+</script>
 </body>
 </html>
