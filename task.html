@@ -78,9 +78,6 @@ button{padding:5px 8px;margin:2px;cursor:pointer}
   <!-- TASK TABLE -->
   <table id="task-table"></table>
 
-  <!-- CATEGORY PROGRESS -->
-  <div id="progress-container" class="mt10"></div>
-
   <!-- ADD TASK -->
   <div class="form-block">
     <h3>Add Task</h3>
@@ -183,7 +180,11 @@ function renderCalendar(){
   for(let i=0;i<first.getDay();i++)html+='<td></td>';
   for(let d=1;d<=days;d++){const cur=fmtDate(new Date(calYear,calMonth,d));
     if((first.getDay()+d-1)%7===0&&d!==1)html+='</tr><tr>';
-    let style='';if(cur===selDate)style='background:#ff4444;color:#fff';
+    let style='';
+    const todayFmt = fmtDate(new Date());
+    if (cur === selDate && cur === todayFmt) style = 'background:linear-gradient(to bottom right,#3399ff 50%,#ff4444 50%);color:white;';
+    else if (cur === selDate) style = 'background:#ff4444;color:white;';
+    else if (cur === todayFmt) style = 'background:#3399ff;color:white;';
     html+=`<td style="${style}" onclick="selectDate('${cur}')">${d}</td>`;}
   html+='</tr></table>'; document.getElementById('calendar').innerHTML=html;
 }
