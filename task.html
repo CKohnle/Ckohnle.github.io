@@ -19,6 +19,11 @@ button{padding:5px 8px;margin:2px;cursor:pointer}
 
 /* ---------- WEEKLY TOKEN BAR ---------- */
 #token-week-wrapper{display:flex;align-items:center;margin-top:14px}
+  <div style="margin-top:10px;font-weight:bold;text-align:center;">
+    Current Points (₱): <span id="points-current">0</span> |
+    Earned: <span id="points-earned">0</span> |
+    Spent: <span id="points-spent">0</span>
+  </div>
 #token-week-text{min-width:160px;font-weight:bold}
 .token-week-bar{flex:1;height:24px;background:#ddd;border-radius:6px;overflow:hidden;position:relative}
 .token-week-fill{height:100%;background:#76c7c0;width:0%;transition:width .3s}
@@ -127,6 +132,13 @@ button{padding:5px 8px;margin:2px;cursor:pointer}
   <div class="form-block">
     <button onclick="clearAllData()" style="background:#d9534f;color:#fff">Clear ALL local data</button>
   </div>
+
+  <div class="form-block">
+  <button onclick="saveBackup()">Save Backup</button>
+  <input type="file" id="loadBackup" onchange="loadBackup(event)" style="display:none;">
+  <button onclick="document.getElementById('loadBackup').click()">Load Backup</button>
+  </div>
+
 </main>
 
 <footer style="text-align:center;margin-top:30px">
@@ -135,11 +147,19 @@ button{padding:5px 8px;margin:2px;cursor:pointer}
 
 <script>
 /* ---------- CONSTANTS ---------- */
-const signifRate = {daily:1,minor:5,major:10,massive:25};   // Ŧ/h
+// Clearly aligned with $50/hr baseline; 1 ₱ = 1 hour of productive work
+const signifRate = {
+  daily: 0.2,    // ~$10/hr
+  minor: 0.5,    // ~$25/hr
+  major: 1,      // $50/hr baseline
+  massive: 2     // $100/hr, highly impactful tasks
+};
+
 const exerciseCapHrs = 10;                                  // hard‑cap per ISO week
 /* ---------- STATE ---------- */
 let settings = JSON.parse(localStorage.getItem('settings')) ||
-               {weeklyTokens:600};
+               {weeklyTokens:80};  // Adjusted from 600 to 80 tokens
+let pointsData=JSON.parse(localStorage.getItem('pointsData'))||{current:0,totalEarned:0,totalSpent:0};
 let tasks = JSON.parse(localStorage.getItem('tasks')) || {}; // keyed by date
 let categories = JSON.parse(localStorage.getItem('categories')) ||
                  [{name:'General',points:0,credits:0,rewards:[]}];
@@ -240,26 +260,31 @@ function addTask(){
 }
 function toggleDone(idx){
   const t=tasks[selDate][idx];
-  if(!t.done){ // mark complete
-    const mins=parseFloat(prompt('Minutes spent?','60')); if(isNaN(mins)||mins<=0){event.target.checked=false;return;}
+  if(!t.done){
+    const mins=parseFloat(prompt('Minutes spent?','60'));if(isNaN(mins)||mins<=0){event.target.checked=false;return;}
     const hrs=mins/60;
     const spent=signifRate[t.signif]*hrs;
-    // WEEK + EXERCISE CHECKS
-    const w=weekId(selDate); tokenUsage[w]=(tokenUsage[w]||0)+spent;
-    if(tokenUsage[w]>settings.weeklyTokens)alert('⚠️ You exceeded your weekly Ŧ trove!');
+
+    const w=weekId(selDate);tokenUsage[w]=(tokenUsage[w]||0)+spent;
+    if(tokenUsage[w]>settings.weeklyTokens)alert('⚠️ Weekly Ŧ limit exceeded!');
+
     if(t.cat==='Exercise'){
       const exHrs=(tasksOfWeek('Exercise',w)+hrs);
       if(exHrs>exerciseCapHrs)alert('Exercise cap (10 h/wk) exceeded!');
     }
-    // points
-    const catObj=categories.find(c=>c.name===t.cat);catObj.points+=spent;
+
+    pointsData.current+=spent;
+    pointsData.totalEarned+=spent;
+
     t.done=true;t.dur=hrs;t.spent=spent;
-  }else{ // un‑check (rollback)
+  }else{
     const w=weekId(selDate);tokenUsage[w]-=t.spent;
-    const catObj=categories.find(c=>c.name===t.cat);catObj.points-=t.spent;
+    pointsData.current-=t.spent;
+    pointsData.totalEarned-=t.spent; // Optional rollback tracking
+
     t.done=false;
   }
-  save();renderTaskTable();renderCategoryUI();updateTokenBar();
+  save();renderTaskTable();updateTokenBar();updatePointsDisplay();
 }
 function delTask(i){tasks[selDate].splice(i,1);save();renderTaskTable();}
 function addCategory(){
@@ -267,14 +292,14 @@ function addCategory(){
   if(categories.some(c=>c.name===name))return alert('Exists!');
   categories.push({name,points:0,credits:0,rewards:[]});
   document.getElementById('new-cat-name').value='';
-  save();renderCategoryUI();
+  save();
 }
 function removeCategory(){
   const name=document.getElementById('remove-cat-select').value;if(!name)return;
   if(!confirm('Delete '+name+' ?'))return;
   categories=categories.filter(c=>c.name!==name);
   for(const d in tasks){tasks[d]=tasks[d].filter(t=>t.cat!==name);}
-  save();renderCategoryUI();renderTaskTable();
+  save();renderTaskTable();
 }
 function addReward(){
   const cat=document.getElementById('shop-cat-select').value;
@@ -287,15 +312,22 @@ function addReward(){
 }
 function buyReward(cat,idx){
   const c=categories.find(x=>x.name===cat),r=c.rewards[idx];
-  if(c.points<r.cost)return alert('Not enough ₱');
+  if(pointsData.current<r.cost)return alert('Not enough ₱');
   if(!confirm(`Redeem "${r.desc}" for ${r.cost} ₱ ?`))return;
-  c.points-=r.cost;save();renderCategoryUI();
-  alert('Enjoy your reward: '+r.desc+'!');
+  pointsData.current-=r.cost;pointsData.totalSpent+=r.cost;
+  save();updatePointsDisplay();
+  alert('Enjoy: '+r.desc+'!');
 }
 function updateSettings(){
   settings.weeklyTokens=parseInt(document.getElementById('weekly-tokens-input').value)||settings.weeklyTokens;
   save();updateTokenBar();
 }
+function updatePointsDisplay(){
+  document.getElementById('points-current').textContent=pointsData.current.toFixed(1);
+  document.getElementById('points-earned').textContent=pointsData.totalEarned.toFixed(1);
+  document.getElementById('points-spent').textContent=pointsData.totalSpent.toFixed(1);
+}
+
 /* ---------- UTIL ---------- */
 function tasksOfWeek(cat,wId){
   let hrs=0;
@@ -308,6 +340,20 @@ function save(){
   localStorage.setItem('tasks',JSON.stringify(tasks));
   localStorage.setItem('categories',JSON.stringify(categories));
   localStorage.setItem('tokenUsage',JSON.stringify(tokenUsage));
+  localStorage.setItem('pointsData',JSON.stringify(pointsData));
+}
+function saveBackup(){
+  const data={tasks,categories,tokenUsage,settings,pointsData};
+  const blob=new Blob([JSON.stringify(data)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=`backup_${fmtDate(new Date())}.json`;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+}
+function loadBackup(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{const data=JSON.parse(reader.result);tasks=data.tasks;categories=data.categories;tokenUsage=data.tokenUsage;settings=data.settings;pointsData=data.pointsData;save();location.reload();};
+  reader.readAsText(file);
 }
 /* ---------- INIT ---------- */
 function selectDate(d){selDate=d;document.getElementById('date-today').textContent=d;renderCalendar();renderTaskTable();updateTokenBar();}
@@ -317,7 +363,7 @@ function clearAllData(){if(!confirm('Delete ALL local data?'))return;localStorag
 window.onload=()=>{
   document.getElementById('weekly-tokens-input').value=settings.weeklyTokens;
   document.getElementById('date-today').textContent=selDate;
-  renderCalendar();renderTaskTable();renderCategoryUI();updateTokenBar();
+  renderCalendar();renderTaskTable();updateTokenBar();updatePointsDisplay();
 };
 </script>
 </body>
