@@ -301,6 +301,7 @@ function addCategory(){
   categories.push({name,points:0,credits:0,rewards:[]});
   document.getElementById('new-cat-name').value='';
   save();
+  renderCategoryUI();
 }
 function removeCategory(){
   const name=document.getElementById('remove-cat-select').value;if(!name)return;
@@ -308,6 +309,7 @@ function removeCategory(){
   categories=categories.filter(c=>c.name!==name);
   for(const d in tasks){tasks[d]=tasks[d].filter(t=>t.cat!==name);}
   save();renderTaskTable();
+  renderCategoryUI();
 }
 function addReward(){
   const cat=document.getElementById('shop-cat-select').value;
