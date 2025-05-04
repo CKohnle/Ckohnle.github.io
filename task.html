@@ -19,11 +19,7 @@ button{padding:5px 8px;margin:2px;cursor:pointer}
 
 /* ---------- WEEKLY TOKEN BAR ---------- */
 #token-week-wrapper{display:flex;align-items:center;margin-top:14px}
-<div style="margin-top:10px;font-weight:bold;text-align:center;">
-  Current Points (₱): <span id="points-current">0</span> |
-  Earned: <span id="points-earned">0</span> |
-  Spent: <span id="points-spent">0</span>
-</div>
+
 #token-week-text{min-width:160px;font-weight:bold}
 .token-week-bar{flex:1;height:24px;background:#ddd;border-radius:6px;overflow:hidden;position:relative}
 .token-week-fill{height:100%;background:#76c7c0;width:0%;transition:width .3s}
@@ -64,6 +60,13 @@ button{padding:5px 8px;margin:2px;cursor:pointer}
       <div id="token-week-fill" class="token-week-fill"></div>
       <div id="token-week-label" class="token-week-label">0 %</div>
     </div>
+  </div>
+
+  <!-- POINT Tracking -->
+  <div style="margin-top:10px;font-weight:bold;text-align:center;">
+    Current Points (₱): <span id="points-current">0</span> |
+    Earned: <span id="points-earned">0</span> |
+    Spent: <span id="points-spent">0</span>
   </div>
 
   <!-- CALENDAR -->
