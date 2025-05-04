@@ -235,7 +235,8 @@ function renderCategoryUI(){
 }
 function renderShop(){
   const cat=document.getElementById('shop-cat-select').value||categories[0].name;
-  document.getElementById('shop-title').textContent=`Reward Shop (${cat})`;
+  document.getElementById('shop-title').textContent =
+  `Reward Shop (${cat}) – ₱: ${pointsData.current.toFixed(1)} (Spent: ${pointsData.totalSpent.toFixed(1)})`;
   const list=document.getElementById('shop-list');list.innerHTML='';
   const c=categories.find(x=>x.name===cat);
   c.rewards.forEach((r,idx)=>{
@@ -292,7 +293,7 @@ function toggleDone(idx){
 
     t.done=false;
   }
-  save();renderTaskTable();updateTokenBar();updatePointsDisplay();
+  save();renderTaskTable();updateTokenBar();updatePointsDisplay();renderShop();
 }
 function delTask(i){tasks[selDate].splice(i,1);save();renderTaskTable();}
 function addCategory(){
@@ -325,7 +326,7 @@ function buyReward(cat,idx){
   if(pointsData.current<r.cost)return alert('Not enough ₱');
   if(!confirm(`Redeem "${r.desc}" for ${r.cost} ₱ ?`))return;
   pointsData.current-=r.cost;pointsData.totalSpent+=r.cost;
-  save();updatePointsDisplay();
+  save();updatePointsDisplay();renderShop();
   alert('Enjoy: '+r.desc+'!');
 }
 function updateSettings(){
@@ -391,7 +392,7 @@ function clearAllData() {
 window.onload=()=>{
   document.getElementById('weekly-tokens-input').value=settings.weeklyTokens;
   document.getElementById('date-today').textContent=selDate;
-  renderCalendar();renderCategoryUI();renderTaskTable();updateTokenBar();updatePointsDisplay();
+  renderCalendar();renderCategoryUI();renderTaskTable();updateTokenBar();updatePointsDisplay();renderShop();
 };
 </script>
 </body>
