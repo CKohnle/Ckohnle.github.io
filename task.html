@@ -204,26 +204,33 @@ function renderTaskTable(){
   });
 }
 function renderCategoryUI(){
-  // dropdowns
-  const catSel=document.getElementById('new-task-cat');
-  const remSel=document.getElementById('remove-cat-select');
-  const shopSel=document.getElementById('shop-cat-select');
-  [catSel,remSel,shopSel].forEach(s=>{s.innerHTML='';});
-  categories.forEach(c=>{
-    [catSel,shopSel].forEach(s=>{const o=document.createElement('option');o.value=c.name;o.textContent=c.name;s.appendChild(o);});
-    if(c.name!=='General'){const o=document.createElement('option');o.value=c.name;o.textContent=c.name;remSel.appendChild(o);}
+  const catSel = document.getElementById('new-task-cat');
+  const remSel = document.getElementById('remove-cat-select');
+  const shopSel = document.getElementById('shop-cat-select');
+
+  if (!catSel || !remSel || !shopSel) return;
+
+  [catSel, remSel, shopSel].forEach(s => s.innerHTML = '');
+
+  categories.forEach(c => {
+    const o1 = document.createElement('option');
+    o1.value = c.name;
+    o1.textContent = c.name;
+    catSel.appendChild(o1);
+
+    const o2 = document.createElement('option');
+    o2.value = c.name;
+    o2.textContent = c.name;
+    shopSel.appendChild(o2);
+
+    if (c.name !== 'General') {
+      const o3 = document.createElement('option');
+      o3.value = c.name;
+      o3.textContent = c.name;
+      remSel.appendChild(o3);
+    }
   });
-  // progress bars
-  const prog=document.getElementById('progress-container');prog.innerHTML='';
-  categories.forEach(c=>{
-    const pct=(c.points%100);const full=Math.floor(c.points/100);
-    prog.innerHTML+=`
-      <div class="progress-wrapper">
-        <span class="progress-label">${c.name}</span>
-        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div><div class="progress-text">${pct} %</div></div>
-        <span class="credit-badge">🎁 ${full}</span>
-      </div>`;
-  });
+
   renderShop();
 }
 function renderShop(){
@@ -382,7 +389,7 @@ function clearAllData() {
 window.onload=()=>{
   document.getElementById('weekly-tokens-input').value=settings.weeklyTokens;
   document.getElementById('date-today').textContent=selDate;
-  renderCalendar();renderTaskTable();updateTokenBar();updatePointsDisplay();
+  renderCalendar();renderCategoryUI();renderTaskTable();updateTokenBar();updatePointsDisplay();
 };
 </script>
 </body>
