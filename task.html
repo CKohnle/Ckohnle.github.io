@@ -203,7 +203,7 @@ function renderTaskTable(){
       </tr>`;
   });
 }
-function renderCategoryUI(){
+function renderCategoryUI() {
   const catSel = document.getElementById('new-task-cat');
   const remSel = document.getElementById('remove-cat-select');
   const shopSel = document.getElementById('shop-cat-select');
@@ -229,6 +229,36 @@ function renderCategoryUI(){
       o3.textContent = c.name;
       remSel.appendChild(o3);
     }
+  });
+
+  // Add progress bars for category token caps
+  const prog = document.getElementById('progress-container');
+  prog.innerHTML = '';
+
+  const w = weekId(selDate);
+
+  categories.forEach(c => {
+    let spent = 0;
+    for (const d in tasks) {
+      if (weekId(d) === w) {
+        tasks[d].forEach(t => {
+          if (t.done && t.cat === c.name) spent += t.spent;
+        });
+      }
+    }
+
+    const cap = c.cap || 100; // default if missing
+    const pct = Math.min(100, (spent / cap * 100).toFixed(1));
+    const over = spent > cap ? ' style="background:#d9534f"' : '';
+
+    prog.innerHTML += `
+      <div class="progress-wrapper">
+        <span class="progress-label">${c.name}</span>
+        <div class="progress-bar">
+          <div class="progress-fill"${over} style="width:${pct}%"></div>
+          <div class="progress-text">${spent.toFixed(1)} / ${cap} Ŧ</div>
+        </div>
+      </div>`;
   });
 
   renderShop();
@@ -275,6 +305,18 @@ function toggleDone(idx){
     const spent=signifRate[t.signif]*hrs;
 
     const w=weekId(selDate);tokenUsage[w]=(tokenUsage[w]||0)+spent;
+    const catObj = categories.find(c => c.name === t.cat);
+    let catSpent = 0;
+    for (const d in tasks) {
+      if (weekId(d) === w) {
+        tasks[d].forEach(x => {
+          if (x.done && x.cat === t.cat) catSpent += x.spent;
+        });
+      }
+    }
+    if (catSpent + spent > catObj.cap) {
+      alert(`⚠️ You exceeded the weekly cap for ${t.cat} (${catObj.cap} Ŧ)`);
+    }
     if(tokenUsage[w]>settings.weeklyTokens)alert('⚠️ Weekly Ŧ limit exceeded!');
 
     if(t.cat==='Exercise'){
@@ -288,6 +330,18 @@ function toggleDone(idx){
     t.done=true;t.dur=hrs;t.spent=spent;
   }else{
     const w=weekId(selDate);tokenUsage[w]-=t.spent;
+    const catObj = categories.find(c => c.name === t.cat);
+    let catSpent = 0;
+    for (const d in tasks) {
+      if (weekId(d) === w) {
+        tasks[d].forEach(x => {
+          if (x.done && x.cat === t.cat) catSpent += x.spent;
+        });
+      }
+    }
+    if (catSpent + spent > catObj.cap) {
+      alert(`⚠️ You exceeded the weekly cap for ${t.cat} (${catObj.cap} Ŧ)`);
+    }
     pointsData.current-=t.spent;
     pointsData.totalEarned-=t.spent; // Optional rollback tracking
 
@@ -297,9 +351,12 @@ function toggleDone(idx){
 }
 function delTask(i){tasks[selDate].splice(i,1);save();renderTaskTable();}
 function addCategory(){
-  const name=document.getElementById('new-cat-name').value.trim();if(!name)return;
-  if(categories.some(c=>c.name===name))return alert('Exists!');
-  categories.push({name,points:0,credits:0,rewards:[]});
+  const name = document.getElementById('new-cat-name').value.trim();
+  if (!name) return;
+  if (categories.some(c => c.name === name)) return alert('Exists!');
+  const cap = parseFloat(prompt(`Weekly Ŧ cap for category "${name}"? (e.g. 20)`));
+  if (isNaN(cap) || cap <= 0) return alert('Invalid cap amount.');
+  categories.push({name,points:0,credits:0,rewards:[],cap});
   document.getElementById('new-cat-name').value='';
   save();
   renderCategoryUI();
