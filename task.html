@@ -300,14 +300,29 @@ function addTask(){
   document.getElementById('new-task-desc').value='';
   save();renderTaskTable();
 }
-function toggleDone(idx){
-  const t=tasks[selDate][idx];
-  if(!t.done){
-    const mins=parseFloat(prompt('Minutes spent?','60'));if(isNaN(mins)||mins<=0){event.target.checked=false;return;}
-    const hrs=mins/60;
-    const spent=signifRate[t.signif]*hrs;
+function toggleDone(idx) {
+  const t = tasks[selDate][idx];
+  const w = weekId(selDate);
 
-    const w=weekId(selDate);tokenUsage[w]=(tokenUsage[w]||0)+spent;
+  if (!t.done) {
+    const mins = parseFloat(prompt('Minutes spent?', '60'));
+    if (isNaN(mins) || mins <= 0) {
+      event.target.checked = false;
+      return;
+    }
+
+    const hrs = mins / 60;
+    const spent = signifRate[t.signif] * hrs;
+
+    // Update token usage
+    tokenUsage[w] = (tokenUsage[w] || 0) + spent;
+
+    // Weekly token cap warning
+    if (tokenUsage[w] > settings.weeklyTokens) {
+      alert('⚠️ Weekly Ŧ limit exceeded!');
+    }
+
+    // Category cap check
     const catObj = categories.find(c => c.name === t.cat);
     let catSpent = 0;
     for (const d in tasks) {
@@ -320,37 +335,37 @@ function toggleDone(idx){
     if (catSpent + spent > catObj.cap) {
       alert(`⚠️ You exceeded the weekly cap for ${t.cat} (${catObj.cap} Ŧ)`);
     }
-    if(tokenUsage[w]>settings.weeklyTokens)alert('⚠️ Weekly Ŧ limit exceeded!');
 
-    if(t.cat==='Exercise'){
-      const exHrs=(tasksOfWeek('Exercise',w)+hrs);
-      if(exHrs>exerciseCapHrs)alert('Exercise cap (10 h/wk) exceeded!');
-    }
-
-    pointsData.current+=spent;
-    pointsData.totalEarned+=spent;
-
-    t.done=true;t.dur=hrs;t.spent=spent;
-  }else{
-    const w=weekId(selDate);tokenUsage[w]-=t.spent;
-    const catObj = categories.find(c => c.name === t.cat);
-    let catSpent = 0;
-    for (const d in tasks) {
-      if (weekId(d) === w) {
-        tasks[d].forEach(x => {
-          if (x.done && x.cat === t.cat) catSpent += x.spent;
-        });
+    // Special case: Exercise cap
+    if (t.cat === 'Exercise') {
+      const exHrs = tasksOfWeek('Exercise', w) + hrs;
+      if (exHrs > exerciseCapHrs) {
+        alert('Exercise cap (10 h/wk) exceeded!');
       }
     }
-    if (catSpent + spent > catObj.cap) {
-      alert(`⚠️ You exceeded the weekly cap for ${t.cat} (${catObj.cap} Ŧ)`);
-    }
-    pointsData.current-=t.spent;
-    pointsData.totalEarned-=t.spent; // Optional rollback tracking
 
-    t.done=false;
+    pointsData.current += spent;
+    pointsData.totalEarned += spent;
+
+    t.done = true;
+    t.dur = hrs;
+    t.spent = spent;
+
+  } else {
+    // Undoing task completion
+    tokenUsage[w] -= t.spent;
+    pointsData.current -= t.spent;
+    pointsData.totalEarned -= t.spent;
+
+    t.done = false;
   }
-  save();renderTaskTable();updateTokenBar();updatePointsDisplay();renderShop();
+
+  save();
+  renderTaskTable();
+  updateTokenBar();
+  updatePointsDisplay();
+  renderShop();
+  renderCategoryUI(); // <- To update category bars too
 }
 function delTask(i){tasks[selDate].splice(i,1);save();renderTaskTable();}
 function addCategory(){
