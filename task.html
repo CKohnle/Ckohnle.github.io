@@ -445,7 +445,7 @@ function loadBackup(e){
   reader.readAsText(file);
 }
 /* ---------- INIT ---------- */
-function selectDate(d){selDate=d;document.getElementById('date-today').textContent=d;renderCalendar();renderTaskTable();updateTokenBar();}
+function selectDate(d){selDate=d;document.getElementById('date-today').textContent=d;renderCalendar();renderTaskTable();updateTokenBar();renderCategoryUI();}
 function changeMonth(off){calMonth+=off;if(calMonth<0){calMonth=11;calYear--;} if(calMonth>11){calMonth=0;calYear++;} renderCalendar();}
 function clearAllData() {
   if (!confirm('Delete ALL local data?')) return;
