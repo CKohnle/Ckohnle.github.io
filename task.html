@@ -48,6 +48,9 @@ button{padding:5px 8px;margin:2px;cursor:pointer}
     <a href="index.html">Home</a>
     <a href="#">Tasks</a>
     <button id="login" style="margin-left:20px">🔒 Log in to sync</button>
+    <span id="login-status" style="margin-left:8px;font-weight:bold;color:#555">
+    (offline)
+    </span>
   </nav>
 </header>
 
@@ -446,6 +449,12 @@ onAuthStateChanged(auth,async user=>{
     }else{
       await save();    // first-time user: push local → cloud
     }
+    statusEl.textContent = `(online – ${user.displayName || user.email})`;
+    statusEl.style.color = "#2a8f2a";          // nice green
+  } else {
+    // not signed in
+    statusEl.textContent = "(offline)";
+    statusEl.style.color = "#b00";             // subtle red
   }
   // In all cases, persist to localStorage then (re)render
   saveLocal();
