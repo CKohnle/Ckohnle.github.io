@@ -433,12 +433,6 @@ function selectDate(d){
   renderCalendar(); renderTaskTable(); updateTokenBar(); renderCategoryUI();
 }
 
-/* ---------- 10. AUTH BUTTON ---------- */
-document.getElementById("login").addEventListener("click",async()=>{
-  try{ await signInWithPopup(auth,new GoogleAuthProvider()); }
-  catch(e){ if(e.code!=="auth/popup-closed-by-user") alert(e.message); }
-});
-
 /* ---------- LOGIN / SIGN-OUT HANDLER ---------- */
 loginBtn.addEventListener("click", async () => {
   if (auth.currentUser) {
