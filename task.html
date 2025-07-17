@@ -434,14 +434,38 @@ function selectDate(d){
 }
 
 /* ---------- LOGIN / SIGN-OUT HANDLER ---------- */
+let signingIn = false;
+
 loginBtn.addEventListener("click", async () => {
-  if (auth.currentUser) {
+  if (auth.currentUser) {                      // already signed in → sign out
     await auth.signOut();
-  } else {
-    try { await signInWithPopup(auth, new GoogleAuthProvider()); }
-    catch (e) { if (e.code !== "auth/popup-closed-by-user") alert(e.message); }
+    return;
+  }
+
+  if (signingIn) return;                       // debounce double-clicks
+  signingIn = true; loginBtn.disabled = true;
+
+  const provider = new GoogleAuthProvider();
+  try {
+    await signInWithPopup(auth, provider);     // first try popup
+  } catch (e) {
+    // Any environment where the popup can’t complete (3P-cookies, ad-block, etc.)
+    if ([
+      "auth/popup-blocked",
+      "auth/popup-closed-by-user",
+      "auth/cancelled-popup-request",
+      "auth/network-request-failed"
+    ].includes(e.code)) {
+      await signInWithRedirect(auth, provider);  // guaranteed to work
+      return;                                    // tab will reload after OAuth
+    }
+    alert(`Sign-in failed: ${e.message}`);
+  } finally {
+    signingIn = false;
+    loginBtn.disabled = false;
   }
 });
+
 
 /* ---------- AUTH STATE LISTENER (no reloads) ---------- */
 onAuthStateChanged(auth, async user => {
