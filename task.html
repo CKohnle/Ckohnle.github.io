@@ -180,6 +180,10 @@ const db   = getFirestore(fbApp);
 const signifRate = { daily:0.2, minor:0.5, major:1, massive:2 };
 const exerciseCapHrs = 10;
 
+/* ---------- DOM refs for login UI ---------- */
+const loginBtn = document.getElementById("login");
+const statusEl = document.getElementById("login-status");
+
 /* ---------- 3. STATE (load from localStorage first) ---------- */
 let settings    = JSON.parse(localStorage.getItem("settings"))    || { weeklyTokens:80 };
 let pointsData  = JSON.parse(localStorage.getItem("pointsData"))  || { current:0,totalEarned:0,totalSpent:0 };
@@ -435,31 +439,43 @@ document.getElementById("login").addEventListener("click",async()=>{
   catch(e){ if(e.code!=="auth/popup-closed-by-user") alert(e.message); }
 });
 
-/* ---------- 11. AUTH STATE LISTENER ---------- */
-onAuthStateChanged(auth,async user=>{
-  if(user){
-    const snap=await getDoc(doc(db,"trackers",user.uid));
-    if(snap.exists()){
-      const data=snap.data();
-      Object.assign(settings,data.settings||{});
-      Object.assign(pointsData,data.pointsData||{});
-      Object.assign(tasks,data.tasks||{});
-      Object.assign(categories,data.categories||{});
-      Object.assign(tokenUsage,data.tokenUsage||{});
-    }else{
-      await save();    // first-time user: push local → cloud
-    }
-    statusEl.textContent = `(online – ${user.displayName || user.email})`;
-    statusEl.style.color = "#2a8f2a";          // nice green
+/* ---------- LOGIN / SIGN-OUT HANDLER ---------- */
+loginBtn.addEventListener("click", async () => {
+  if (auth.currentUser) {
+    await auth.signOut();
   } else {
-    // not signed in
-    statusEl.textContent = "(offline)";
-    statusEl.style.color = "#b00";             // subtle red
+    try { await signInWithPopup(auth, new GoogleAuthProvider()); }
+    catch (e) { if (e.code !== "auth/popup-closed-by-user") alert(e.message); }
   }
-  // In all cases, persist to localStorage then (re)render
-  saveLocal();
-  initUI();
 });
+
+/* ---------- AUTH STATE LISTENER (no reloads) ---------- */
+onAuthStateChanged(auth, async user => {
+  if (user) {
+    loginBtn.textContent = "↩️ Sign out";
+    statusEl.textContent = `(online – ${user.displayName || user.email})`;
+    statusEl.style.color = "#2a8f2a";
+
+    const snap = await getDoc(doc(db,"trackers",user.uid));
+    if (snap.exists()) {
+      const d = snap.data();
+      Object.assign(settings,   d.settings   || {});
+      Object.assign(pointsData, d.pointsData || {});
+      Object.assign(tasks,      d.tasks      || {});
+      Object.assign(categories, d.categories || {});
+      Object.assign(tokenUsage, d.tokenUsage || {});
+    } else {
+      await save();           // first login → upload local → cloud
+    }
+  } else {
+    loginBtn.textContent = "🔒 Log in to sync";
+    statusEl.textContent = "(offline)";
+    statusEl.style.color = "#b00";
+  }
+  saveLocal();   // persist whatever state we now have
+  initUI();      // re-draw calendar, tables, etc.
+});
+
 
 /* ---------- 12. BOOTSTRAP UI ---------- */
 function initUI(){
