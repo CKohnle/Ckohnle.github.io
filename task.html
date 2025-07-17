@@ -1,154 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Task‑Tracker with Time Tokens</title>
-<style>
-/* ---------- BASIC LAYOUT ---------- */
-body{font-family:Arial,Helvetica,sans-serif;margin:0;background:#f0f0f0;color:#222}
-header,main,footer{max-width:1100px;margin:auto;padding:10px}
-h1,h2,h3{margin:4px 0}
-nav a{margin-right:10px}
-table{width:100%;border-collapse:collapse;margin-top:10px}
-th,td{border:1px solid #ccc;padding:6px;text-align:center}
-td.task-completed{text-decoration:line-through;color:#888}
-input[type=text],select{padding:4px}
-button{padding:5px 8px;margin:2px;cursor:pointer}
-.hidden{display:none}
+<script type="module">
+  // Your web app's Firebase configuration (already present and looks correct!)
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyBzCogyORUtEw8efrl8KoeAPPuK0mFQzy8",
+    authDomain: "task-tracker-83250.firebaseapp.com",
+    projectId: "task-tracker-83250",
+    storageBucket: "task-tracker-83250.firebasestorage.app",
+    messagingSenderId: "657729804454",
+    appId: "1:657729804454:web:a980f2b9e7ca6108e8fc67",
+    measurementId: "G-XLS1KS71VZ"
+  };
 
-/* ---------- WEEKLY TOKEN BAR ---------- */
-#token-week-wrapper{display:flex;align-items:center;margin-top:14px}
+  // --- Firebase SDK Imports (now v11.10.0 as per your code) ---
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-analytics.js";
+  // Added Authentication and Firestore imports
+  import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc }
+    from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
-#token-week-text{min-width:160px;font-weight:bold}
-.token-week-bar{flex:1;height:24px;background:#ddd;border-radius:6px;overflow:hidden;position:relative}
-.token-week-fill{height:100%;background:#76c7c0;width:0%;transition:width .3s}
-.token-week-fill.over{background:#d9534f}
-.token-week-label{position:absolute;width:100%;text-align:center;line-height:24px;font-weight:bold;color:#fff}
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  // Initialize Firebase services for Auth and Firestore
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-/* ---------- PROGRESS BARS ---------- */
-.progress-wrapper{display:flex;align-items:center;margin:8px 0}
-.progress-label{min-width:90px;text-align:right;padding-right:6px;font-weight:bold}
-.progress-bar{flex:1;height:20px;background:#e0e0e0;border-radius:5px;position:relative}
-.progress-fill{background:#4287f5;height:100%;width:0%;transition:width .3s}
-.progress-text{position:absolute;width:100%;text-align:center;line-height:20px;color:#fff;font-weight:bold}
-.credit-badge{min-width:60px;text-align:center;font-weight:bold}
-
-/* ---------- FORMS ---------- */
-.form-block{margin-top:20px;border:1px solid #bbb;background:#fff;padding:10px;border-radius:8px}
-.form-block h3{margin-top:0}
-
-/* ---------- UTILITY ---------- */
-.flex{display:flex;align-items:center}
-.mt10{margin-top:10px}
-</style>
-</head>
-<body>
-<header>
-  <h1>Task Tracker (Ŧ / ₱ Edition)</h1>
-  <nav>
-    <a href="index.html">Home</a>
-    <a href="#">Tasks</a>
-  </nav>
-</header>
-
-<main>
-  <!-- WEEK TOKEN BAR -->
-  <div id="token-week-wrapper">
-    <span id="token-week-text">Ŧ Used: 0 / 0</span>
-    <div class="token-week-bar">
-      <div id="token-week-fill" class="token-week-fill"></div>
-      <div id="token-week-label" class="token-week-label">0 %</div>
-    </div>
-  </div>
-
-  <!-- POINT Tracking -->
-  <div style="margin-top:10px;font-weight:bold;text-align:center;">
-    Current Points (₱): <span id="points-current">0</span> |
-    Earned: <span id="points-earned">0</span> |
-    Spent: <span id="points-spent">0</span>
-  </div>
-
-  <!-- CALENDAR -->
-  <div class="flex mt10">
-    <button onclick="changeMonth(-1)">&#8249;</button>
-    <h3 id="calendar-month-year" style="flex:1;text-align:center"></h3>
-    <button onclick="changeMonth(1)">&#8250;</button>
-  </div>
-  <div id="calendar"></div>
-  <h4>Date: <span id="date-today"></span></h4>
-
-  <!-- TASK TABLE -->
-  <table id="task-table"></table>
-
-  <!-- CATEGORY WEEKLY SPENDING PROGRESS -->
-  <div id="progress-container" class="mt10"></div>
-
-  <!-- ADD TASK -->
-  <div class="form-block">
-    <h3>Add Task</h3>
-    <input id="new-task-desc" type="text" placeholder="Task description">
-    <select id="new-task-signif">
-      <option value="daily">daily (0.2 Ŧ/h)</option>
-      <option value="minor">minor (0.5 Ŧ/h)</option>
-      <option value="major">major (1 Ŧ/h)</option>
-      <option value="massive">massive (2 Ŧ/h)</option>
-    </select>
-    <select id="new-task-cat"></select>
-    <button onclick="addTask()">Add</button>
-  </div>
-
-  <!-- ADD / REMOVE CATEGORY -->
-  <div class="form-block flex">
-    <div style="flex:1">
-      <h3>Add Category</h3>
-      <input id="new-cat-name" type="text" placeholder="Category">
-      <button onclick="addCategory()">Add</button>
-    </div>
-    <div style="flex:1">
-      <h3>Remove Category</h3>
-      <select id="remove-cat-select"></select>
-      <button onclick="removeCategory()">Delete</button>
-    </div>
-  </div>
-
-  <!-- REWARD SHOP -->
-  <div class="form-block">
-    <h3 id="shop-title">Reward Shop (Choose category)</h3>
-    <select id="shop-cat-select" onchange="renderShop()"></select>
-    <div id="shop-list" class="mt10"></div>
-
-    <h4 class="mt10">Add Reward to Category</h4>
-    <input id="new-reward-desc" type="text" placeholder="Description">
-    <input id="new-reward-cost" type="number" min="1" style="width:80px" placeholder="₱">
-    <button onclick="addReward()">Add Reward</button>
-  </div>
-
-  <!-- SETTINGS -->
-  <div class="form-block">
-    <h3>Settings</h3>
-    Weekly Ŧ Trove: <input id="weekly-tokens-input" type="number" style="width:80px">
-    <button onclick="updateSettings()">Save</button>
-  </div>
-
-  <!-- CLEAR -->
-  <div class="form-block">
-    <button onclick="clearAllData()" style="background:#d9534f;color:#fff">Clear ALL local data</button>
-  </div>
-
-  <div class="form-block">
-  <button onclick="saveBackup()">Save Backup</button>
-  <input type="file" id="loadBackup" onchange="loadBackup(event)" style="display:none;">
-  <button onclick="document.getElementById('loadBackup').click()">Load Backup</button>
-  </div>
-
-</main>
-
-<footer style="text-align:center;margin-top:30px">
-  © 2025 Christian Kohnle
-</footer>
-
-<script>
 /* ---------- CONSTANTS ---------- */
 // Clearly aligned with $50/hr baseline; 1 ₱ = 1 hour of productive work
 const signifRate = {
@@ -158,11 +36,15 @@ const signifRate = {
   massive: 2     // $100/hr, highly impactful tasks
 };
 
-const exerciseCapHrs = 10;                                  // hard‑cap per ISO week
-/* ---------- STATE ---------- */
+const exerciseCapHrs = 10;                                  // hard-cap per ISO week
+
+/* ---------- STATE (Initial load from localStorage on page load) ---------- */
+// These lines correctly load initial state from localStorage.
+// They will be overwritten by Firebase data if a user signs in, and then re-loaded
+// from localStorage after the page reloads from a Firebase sync.
 let settings = JSON.parse(localStorage.getItem('settings')) ||
                {weeklyTokens:80};  // Adjusted from 600 to 80 tokens
-let pointsData=JSON.parse(localStorage.getItem('pointsData'))||{current:0,totalEarned:0,totalSpent:0};
+let pointsData = JSON.parse(localStorage.getItem('pointsData')) || {current:0,totalEarned:0,totalSpent:0};
 let tasks = JSON.parse(localStorage.getItem('tasks')) || {}; // keyed by date
 let categories = JSON.parse(localStorage.getItem('categories')) ||
                  [{name:'General',points:0,credits:0,rewards:[]}];
@@ -174,6 +56,7 @@ function weekId(dateStr){const [m,d,y]=dateStr.split('-').map(Number);const dt=n
   const day=(dt.getDay()+6)%7; dt.setDate(dt.getDate()-day+3); // Thursday
   const firstThu=new Date(dt.getFullYear(),0,4);const dayFirstThu=(firstThu.getDay()+6)%7;firstThu.setDate(firstThu.getDate()-dayFirstThu+3);
   const week=Math.round((dt-firstThu)/604800000)+1; return `${dt.getFullYear()}-W${('0'+week).slice(-2)}`;}
+
 /* ---------- SELECTED DATE ---------- */
 let selDate = fmtDate(new Date());
 let calMonth = new Date().getMonth(), calYear = new Date().getFullYear();
@@ -278,7 +161,7 @@ function renderShop(){
   c.rewards.forEach((r,idx)=>{
     list.innerHTML+=`
       <div class="flex">
-        <span style="flex:1">${r.desc} – <b>${r.cost} ₱</b></span>
+        <span style="flex:1">${r.desc} - <b>${r.cost} ₱</b></span>
         <button onclick="buyReward('${cat}',${idx})">Buy</button>
       </div>`;
   });
@@ -289,11 +172,11 @@ function updateTokenBar(){
   const used=tokenUsage[w]||0; const pct=Math.min(100,(used/settings.weeklyTokens*100).toFixed(1));
   const fill=document.getElementById('token-week-fill');
   fill.style.width=pct+'%'; fill.className='token-week-fill'+(used>settings.weeklyTokens?' over':'');
-  document.getElementById('token-week-label').textContent=pct+' %';
-  document.getElementById('token-week-text').textContent=`Ŧ Used: ${used.toFixed(1)} / ${settings.weeklyTokens}`;
+  document.getElementById('token-week-label').textContent=pct+' %';
+  document.getElementById('token-week-text').textContent=`Ŧ Used: ${used.toFixed(1)} / ${settings.weeklyTokens}`;
 }
 /* ---------- MUTATION HELPERS ---------- */
-function addTask(){
+async function addTask(){ // Made async
   const desc=document.getElementById('new-task-desc').value.trim();
   const signif=document.getElementById('new-task-signif').value;
   const cat=document.getElementById('new-task-cat').value;
@@ -301,9 +184,10 @@ function addTask(){
   tasks[selDate]=tasks[selDate]||[];
   tasks[selDate].push({desc,signif,cat,done:false,dur:0});
   document.getElementById('new-task-desc').value='';
-  save();renderTaskTable();
+  await save(); // Call async save()
+  renderTaskTable();
 }
-function toggleDone(idx) {
+async function toggleDone(idx) { // Made async
   const t = tasks[selDate][idx];
   const w = weekId(selDate);
 
@@ -335,7 +219,7 @@ function toggleDone(idx) {
         });
       }
     }
-    if (catSpent + spent > catObj.cap) {
+    if (catObj && catSpent + spent > catObj.cap) { // Added null check for catObj
       alert(`⚠️ You exceeded the weekly cap for ${t.cat} (${catObj.cap} Ŧ)`);
     }
 
@@ -343,7 +227,7 @@ function toggleDone(idx) {
     if (t.cat === 'Exercise') {
       const exHrs = tasksOfWeek('Exercise', w) + hrs;
       if (exHrs > exerciseCapHrs) {
-        alert('Exercise cap (10 h/wk) exceeded!');
+        alert('Exercise cap (10 h/wk) exceeded!');
       }
     }
 
@@ -363,15 +247,19 @@ function toggleDone(idx) {
     t.done = false;
   }
 
-  save();
+  await save(); // Call async save()
   renderTaskTable();
   updateTokenBar();
   updatePointsDisplay();
   renderShop();
   renderCategoryUI(); // <- To update category bars too
 }
-function delTask(i){tasks[selDate].splice(i,1);save();renderTaskTable();}
-function addCategory(){
+async function delTask(i){ // Made async
+  tasks[selDate].splice(i,1);
+  await save(); // Call async save()
+  renderTaskTable();
+}
+async function addCategory(){ // Made async
   const name = document.getElementById('new-cat-name').value.trim();
   if (!name) return;
   if (categories.some(c => c.name === name)) return alert('Exists!');
@@ -379,37 +267,41 @@ function addCategory(){
   if (isNaN(cap) || cap <= 0) return alert('Invalid cap amount.');
   categories.push({name,points:0,credits:0,rewards:[],cap});
   document.getElementById('new-cat-name').value='';
-  save();
+  await save(); // Call async save()
   renderCategoryUI();
 }
-function removeCategory(){
+async function removeCategory(){ // Made async
   const name=document.getElementById('remove-cat-select').value;if(!name)return;
   if(!confirm('Delete '+name+' ?'))return;
   categories=categories.filter(c=>c.name!==name);
   for(const d in tasks){tasks[d]=tasks[d].filter(t=>t.cat!==name);}
-  save();renderTaskTable();
+  await save(); // Call async save()
+  renderTaskTable();
   renderCategoryUI();
 }
-function addReward(){
+async function addReward(){ // Made async
   const cat=document.getElementById('shop-cat-select').value;
   const desc=document.getElementById('new-reward-desc').value.trim();
   const cost=parseInt(document.getElementById('new-reward-cost').value);
   if(!desc||!cost)return alert('Need desc & cost');
   const c=categories.find(x=>x.name===cat);c.rewards.push({desc,cost});
   document.getElementById('new-reward-desc').value='';document.getElementById('new-reward-cost').value='';
-  save();renderShop();
+  await save(); // Call async save()
+  renderShop();
 }
-function buyReward(cat,idx){
+async function buyReward(cat,idx){ // Made async
   const c=categories.find(x=>x.name===cat),r=c.rewards[idx];
   if(pointsData.current<r.cost)return alert('Not enough ₱');
   if(!confirm(`Redeem "${r.desc}" for ${r.cost} ₱ ?`))return;
   pointsData.current-=r.cost;pointsData.totalSpent+=r.cost;
-  save();updatePointsDisplay();renderShop();
+  await save(); // Call async save()
+  updatePointsDisplay();renderShop();
   alert('Enjoy: '+r.desc+'!');
 }
-function updateSettings(){
+async function updateSettings(){ // Made async
   settings.weeklyTokens=parseInt(document.getElementById('weekly-tokens-input').value)||settings.weeklyTokens;
-  save();updateTokenBar();
+  await save(); // Call async save()
+  updateTokenBar();
 }
 function updatePointsDisplay(){
   document.getElementById('points-current').textContent=pointsData.current.toFixed(1);
@@ -423,14 +315,51 @@ function tasksOfWeek(cat,wId){
   for(const d in tasks)if(weekId(d)===wId)tasks[d].forEach(t=>{if(t.done&&t.cat===cat)hrs+=t.dur;});
   return hrs;
 }
-/* ---------- SAVE ---------- */
-function save(){
-  localStorage.setItem('settings',JSON.stringify(settings));
-  localStorage.setItem('tasks',JSON.stringify(tasks));
-  localStorage.setItem('categories',JSON.stringify(categories));
-  localStorage.setItem('tokenUsage',JSON.stringify(tokenUsage));
-  localStorage.setItem('pointsData',JSON.stringify(pointsData));
+
+/* ---------- NEW SAVE FUNCTIONS (Replaced old `save()`) ---------- */
+// Writes all five state objects into localStorage.
+function saveLocal() {
+  try {
+    localStorage.setItem("settings", JSON.stringify(settings));
+    localStorage.setItem("pointsData", JSON.stringify(pointsData));
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+    localStorage.setItem("categories", JSON.stringify(categories));
+    localStorage.setItem("tokenUsage", JSON.stringify(tokenUsage));
+    console.log("Local state saved to localStorage.");
+  } catch (e) {
+    console.error("Error saving state to localStorage:", e);
+  }
 }
+
+// Calls saveLocal(), then if userId is set, writes all five objects
+// into Firestore under the same “trackers”/user.uid document.
+async function save() {
+  saveLocal(); // Always save to local storage first
+
+  const user = auth.currentUser;
+  if (user) {
+    try {
+      const userDocRef = doc(db, "trackers", user.uid);
+      const dataToSave = {
+        settings: settings,
+        pointsData: pointsData,
+        tasks: tasks,
+        categories: categories,
+        tokenUsage: tokenUsage,
+        lastUpdated: new Date() // Good practice to add a timestamp!
+      };
+      // setDoc with { merge: true } ensures that only these fields are updated/created,
+      // and other fields in the document (if any) are preserved.
+      await setDoc(userDocRef, dataToSave, { merge: true });
+      console.log("State saved to Firestore for user:", user.uid);
+    } catch (error) {
+      console.error("Error saving state to Firestore:", error);
+    }
+  } else {
+    console.log("No user signed in. State only saved to localStorage.");
+  }
+}
+
 function saveBackup(){
   const data={tasks,categories,tokenUsage,settings,pointsData};
   const blob=new Blob([JSON.stringify(data)],{type:"application/json"});
@@ -441,14 +370,24 @@ function saveBackup(){
 function loadBackup(e){
   const file=e.target.files[0];if(!file)return;
   const reader=new FileReader();
-  reader.onload=()=>{const data=JSON.parse(reader.result);tasks=data.tasks;categories=data.categories;tokenUsage=data.tokenUsage;settings=data.settings;pointsData=data.pointsData;save();location.reload();};
+  reader.onload=()=>{
+    const data=JSON.parse(reader.result);
+    // Overwrite in-memory state variables
+    tasks=data.tasks;
+    categories=data.categories;
+    tokenUsage=data.tokenUsage;
+    settings=data.settings;
+    pointsData=data.pointsData;
+    saveLocal(); // Save the loaded backup to localStorage only
+    location.reload();
+  };
   reader.readAsText(file);
 }
 /* ---------- INIT ---------- */
 function selectDate(d){selDate=d;document.getElementById('date-today').textContent=d;renderCalendar();renderTaskTable();updateTokenBar();renderCategoryUI();}
 function changeMonth(off){calMonth+=off;if(calMonth<0){calMonth=11;calYear--;} if(calMonth>11){calMonth=0;calYear++;} renderCalendar();}
 function clearAllData() {
-  if (!confirm('Delete ALL local data?')) return;
+  if (!confirm('Delete ALL local data? This will NOT delete your synced cloud data.')) return; // Improved confirmation message
 
   // Clear localStorage
   localStorage.clear();
@@ -460,12 +399,80 @@ function clearAllData() {
   tokenUsage = {};
   categories = [{ name: 'General', points: 0, credits: 0, rewards: [] }];
 
-  // Save fresh base state
-  save();
+  // No call to `save()` or `saveLocal()` here, as localStorage.clear() handles it.
+  // The next page load will re-initialize `let ... = JSON.parse(localStorage.getItem...) || {}`.
 
   // Reload clean
   location.reload();
 }
+
+/* ---------- Firebase Authentication: Google Sign-In (from previous response) ---------- */
+const loginButton = document.getElementById("login");
+if (loginButton) {
+  loginButton.addEventListener("click", async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+      console.log("Successfully signed in with Google!");
+      // The onAuthStateChanged listener will handle the rest (syncing and reloading)
+    } catch (error) {
+      console.error("Error signing in with Google:", error.message);
+      if (error.code === 'auth/popup-closed-by-user') {
+        alert("Sign-in process cancelled. Please try again.");
+      } else {
+        alert(`Sign-in failed: ${error.message}`);
+      }
+    }
+  });
+} else {
+  console.warn("Login button with ID 'login' not found. Please ensure your HTML has it.");
+}
+
+/* ---------- Firebase onAuthStateChanged Listener (from previous response) ---------- */
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    console.log("User signed in:", user.uid);
+    const userDocRef = doc(db, "trackers", user.uid);
+
+    try {
+      const docSnap = await getDoc(userDocRef);
+
+      if (docSnap.exists()) {
+        const remoteData = docSnap.data();
+        console.log("Remote data found in Firestore, syncing to local:", remoteData);
+
+        // Overwrite local variables with remote data, prioritizing what's in Firestore
+        // Use `|| {}` to ensure variables are always objects even if a field is missing in Firestore
+        settings = remoteData.settings || {};
+        pointsData = remoteData.pointsData || {};
+        tasks = remoteData.tasks || {};
+        categories = remoteData.categories || {};
+        tokenUsage = remoteData.tokenUsage || {};
+
+        console.log("Local state updated with remote data from Firestore.");
+        saveLocal(); // Push the now-synced data into localStorage
+        window.location.reload(); // Reload the page to ensure all components reflect the new state
+
+      } else {
+        console.log("No remote data found for this user. Saving current local state to Firestore.");
+        // If it's a new user or their first time syncing, save their current local state to Firestore.
+        await save(); // This will call saveLocal() AND save to Firestore
+        window.location.reload(); // Reload the page after saving the initial state
+      }
+    } catch (error) {
+      console.error("Error loading user data from Firestore:", error);
+      // In case of an error during Firestore read, ensure local state is still persisted.
+      saveLocal();
+      window.location.reload(); // Still reload to handle potential UI inconsistencies
+    }
+  } else {
+    console.log("No user signed in. Using data from localStorage only.");
+    // At this point, the initial `let var = JSON.parse(localStorage.getItem('var')) || {}`
+    // has already run, so the app will use the last saved local state.
+  }
+});
+
+
 /* ---------- BOOT ---------- */
 window.onload=()=>{
   document.getElementById('weekly-tokens-input').value=settings.weeklyTokens;
@@ -473,5 +480,3 @@ window.onload=()=>{
   renderCalendar();renderCategoryUI();renderTaskTable();updateTokenBar();updatePointsDisplay();renderShop();
 };
 </script>
-</body>
-</html>
