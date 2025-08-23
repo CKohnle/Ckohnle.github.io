@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Task-Tracker with Time Tokens</title>
 <style>
 /* ---------- BASIC LAYOUT ---------- */
@@ -17,8 +17,8 @@ input[type=text],select{padding:4px}
 button{padding:5px 8px;margin:2px;cursor:pointer}
 .hidden{display:none}
 
-/* ---------- LAYOUT SPLIT ---------- */
-#task-sections{display:flex;gap:10px;margin-top:10px}
+/* ---------- LAYOUT SPLIT (75/25) ---------- */
+#task-sections{display:flex;gap:12px;margin-top:10px}
 #daily-section{flex:3}
 #weekly-section{flex:1;background:#fff;border:1px solid #bbb;padding:8px;border-radius:8px}
 
@@ -53,7 +53,9 @@ button{padding:5px 8px;margin:2px;cursor:pointer}
     <a href="index.html">Home</a>
     <a href="#">Tasks</a>
     <button id="login" style="margin-left:20px">🔒 Log in to sync</button>
-    <span id="login-status" style="margin-left:8px;font-weight:bold;color:#555">(offline)</span>
+    <span id="login-status" style="margin-left:8px;font-weight:bold;color:#555">
+      (offline)
+    </span>
   </nav>
 </header>
 
@@ -69,8 +71,8 @@ button{padding:5px 8px;margin:2px;cursor:pointer}
 
   <!-- POINT Tracking -->
   <div style="margin-top:10px;font-weight:bold;text-align:center;">
-    Current Points (₱): <span id="points-current">0</span> | 
-    Earned: <span id="points-earned">0</span> | 
+    Current Points (₱): <span id="points-current">0</span> |
+    Earned: <span id="points-earned">0</span> |
     Spent: <span id="points-spent">0</span>
   </div>
 
@@ -83,14 +85,12 @@ button{padding:5px 8px;margin:2px;cursor:pointer}
   <div id="calendar"></div>
   <h4>Date: <span id="date-today"></span></h4>
 
-  <!-- SPLIT TASK SECTIONS -->
+  <!-- SPLIT: DAILY (75%) | WEEKLY (25%) -->
   <div id="task-sections">
-    <!-- DAILY TASKS -->
     <div id="daily-section">
       <h3>Daily Tasks</h3>
       <table id="task-table"></table>
     </div>
-    <!-- WEEKLY TASKS -->
     <div id="weekly-section">
       <h3 id="weekly-header">Weekly Tasks</h3>
       <table id="weekly-task-table"></table>
@@ -104,17 +104,17 @@ button{padding:5px 8px;margin:2px;cursor:pointer}
   <div class="form-block">
     <h3>Add Task</h3>
     <input id="new-task-desc" type="text" placeholder="Task description">
-    <select id="new-task-scope">
+    <select id="new-task-scope" title="Scope">
       <option value="daily">Daily</option>
       <option value="weekly">Weekly</option>
     </select>
-    <select id="new-task-signif">
+    <select id="new-task-signif" title="Significance / tokens">
       <option value="daily">daily (0.2 Ŧ/h)</option>
       <option value="minor">minor (0.5 Ŧ/h)</option>
       <option value="major">major (1 Ŧ/h)</option>
       <option value="massive">massive (2 Ŧ/h)</option>
     </select>
-    <select id="new-task-cat"></select>
+    <select id="new-task-cat" title="Category"></select>
     <button onclick="addTask()">Add</button>
   </div>
 
@@ -170,134 +170,432 @@ button{padding:5px 8px;margin:2px;cursor:pointer}
 
 <!-- ───────────────────────────────────────── MODULE SCRIPT ───────────────────────────────────────── -->
 <script type="module">
-/* imports ... (same as your version) */
+/* ---------- 1. FIREBASE IMPORTS & INIT ---------- */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
 import { getAnalytics }  from "https://www.gstatic.com/firebasejs/11.10.0/firebase-analytics.js";
-import { getAuth, signInWithPopup, signInWithRedirect, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+import {
+  getAuth, signInWithPopup, signInWithRedirect, GoogleAuthProvider, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
-const firebaseConfig={/* ... your config unchanged ... */};
-const fbApp=initializeApp(firebaseConfig);getAnalytics(fbApp);
-const auth=getAuth(fbApp);const db=getFirestore(fbApp);
+const firebaseConfig = {
+  apiKey:            "AIzaSyBzCogyORUtEw8efrl8KoeAPPuK0mFQzy8",
+  authDomain:        "task-tracker-83250.firebaseapp.com",
+  projectId:         "task-tracker-83250",
+  storageBucket:     "task-tracker-83250.firebasestorage.app",
+  messagingSenderId: "657729804454",
+  appId:             "1:657729804454:web:a980f2b9e7ca6108e8fc67",
+  measurementId:     "G-XLS1KS71VZ"
+};
+const fbApp = initializeApp(firebaseConfig);
+getAnalytics(fbApp);
+const auth = getAuth(fbApp);
+const db   = getFirestore(fbApp);
 
-/* ---------- STATE ---------- */
-const signifRate={daily:0.2,minor:0.5,major:1,massive:2};
-let settings=JSON.parse(localStorage.getItem("settings"))||{weeklyTokens:80};
-let pointsData=JSON.parse(localStorage.getItem("pointsData"))||{current:0,totalEarned:0,totalSpent:0};
-let tasks=JSON.parse(localStorage.getItem("tasks"))||{};               // daily tasks
-let weeklyTasks=JSON.parse(localStorage.getItem("weeklyTasks"))||{};   // NEW weekly tasks
-let categories=JSON.parse(localStorage.getItem("categories"))||[{name:"General",rewards:[],cap:100}];
-let tokenUsage=JSON.parse(localStorage.getItem("tokenUsage"))||{};
+/* ---------- 2. CONSTANTS ---------- */
+const signifRate = { daily:0.2, minor:0.5, major:1, massive:2 };
+const exerciseCapHrs = 10;
 
-/* ---------- DATE HELPERS ---------- */
-const fmtDate=d=>`${("0"+(d.getMonth()+1)).slice(-2)}-${("0"+d.getDate()).slice(-2)}-${d.getFullYear()}`;
-function getWeekRange(dateStr){
-  const [m,d,y]=dateStr.split("-").map(Number);
-  const dt=new Date(`${y}-${m}-${d}`);dt.setHours(0,0,0,0);
-  const day=dt.getDay();
-  const sunday=new Date(dt);sunday.setDate(dt.getDate()-day);
-  const saturday=new Date(sunday);saturday.setDate(sunday.getDate()+6);
-  return `${fmtDate(sunday)} – ${fmtDate(saturday)}`;
-}
+/* ---------- DOM refs for login UI ---------- */
+const loginBtn = document.getElementById("login");
+const statusEl = document.getElementById("login-status");
+
+/* ---------- 3. STATE (load from localStorage first) ---------- */
+let settings    = JSON.parse(localStorage.getItem("settings"))    || { weeklyTokens:80 };
+let pointsData  = JSON.parse(localStorage.getItem("pointsData"))  || { current:0, totalEarned:0, totalSpent:0 };
+let tasks       = JSON.parse(localStorage.getItem("tasks"))       || {}; // daily tasks keyed by date
+let weeklyTasks = JSON.parse(localStorage.getItem("weeklyTasks")) || {}; // NEW: weekly tasks keyed by week key (Sunday)
+let categories  = JSON.parse(localStorage.getItem("categories"))  || [{ name:"General", rewards:[], cap:100 }];
+let tokenUsage  = JSON.parse(localStorage.getItem("tokenUsage"))  || {};
+
+/* ---------- 4. UTILITY: DATE & WEEK ---------- */
+const fmtDate = d => `${("0"+(d.getMonth()+1)).slice(-2)}-${("0"+d.getDate()).slice(-2)}-${d.getFullYear()}`;
+
+/* Original ISO week id (used by tokens/progress) — keep unchanged */
 function weekId(dateStr){
   const [m,d,y]=dateStr.split("-").map(Number);
-  const dt=new Date(`${y}-${m}-${d}`);dt.setHours(0,0,0,0);
-  const sunday=new Date(dt);sunday.setDate(dt.getDate()-dt.getDay());
-  return fmtDate(sunday); // weekId = sunday date
+  const dt=new Date(`${y}-${m}-${d}`); dt.setHours(0,0,0,0);
+  const day=(dt.getDay()+6)%7; dt.setDate(dt.getDate()-day+3);     // ISO week anchor (Thursday)
+  const firstThu=new Date(dt.getFullYear(),0,4);
+  const dayFirst=(firstThu.getDay()+6)%7; firstThu.setDate(firstThu.getDate()-dayFirst+3);
+  const week=Math.round((dt-firstThu)/604800000)+1;
+  return `${dt.getFullYear()}-W${("0"+week).slice(-2)}`;
 }
 
-/* ---------- SAVE HELPERS ---------- */
+/* NEW: Sunday-based week key & human-readable range for the Weekly panel */
+function weekKeySunday(dateStr){
+  const [m,d,y]=dateStr.split("-").map(Number);
+  const dt=new Date(`${y}-${m}-${d}`); dt.setHours(0,0,0,0);
+  const sunday=new Date(dt); sunday.setDate(dt.getDate() - dt.getDay());
+  return fmtDate(sunday); // e.g. "08-18-2025"
+}
+function weekRangeSundayToSaturday(dateStr){
+  const [m,d,y]=dateStr.split("-").map(Number);
+  const dt=new Date(`${y}-${m}-${d}`); dt.setHours(0,0,0,0);
+  const sunday=new Date(dt); sunday.setDate(dt.getDate() - dt.getDay());
+  const saturday=new Date(sunday); saturday.setDate(sunday.getDate()+6);
+  return `${fmtDate(sunday)} – ${fmtDate(saturday)}`;
+}
+
+/* ---------- 5. SELECTED DATE ---------- */
+let selDate = fmtDate(new Date());
+let calMonth = new Date().getMonth(), calYear = new Date().getFullYear();
+
+/* ---------- 6. SAVE HELPERS ---------- */
 function saveLocal(){
-  localStorage.setItem("settings",JSON.stringify(settings));
-  localStorage.setItem("pointsData",JSON.stringify(pointsData));
-  localStorage.setItem("tasks",JSON.stringify(tasks));
-  localStorage.setItem("weeklyTasks",JSON.stringify(weeklyTasks));
-  localStorage.setItem("categories",JSON.stringify(categories));
-  localStorage.setItem("tokenUsage",JSON.stringify(tokenUsage));
+  localStorage.setItem("settings",    JSON.stringify(settings));
+  localStorage.setItem("pointsData",  JSON.stringify(pointsData));
+  localStorage.setItem("tasks",       JSON.stringify(tasks));
+  localStorage.setItem("weeklyTasks", JSON.stringify(weeklyTasks));
+  localStorage.setItem("categories",  JSON.stringify(categories));
+  localStorage.setItem("tokenUsage",  JSON.stringify(tokenUsage));
 }
 async function save(){
   saveLocal();
-  if(!auth.currentUser) return;
-  await setDoc(doc(db,"trackers",auth.currentUser.uid),{settings,pointsData,tasks,weeklyTasks,categories,tokenUsage,lastUpdated:new Date()},{merge:true});
+  if (!auth.currentUser) return;
+  await setDoc(doc(db,"trackers",auth.currentUser.uid),{
+    settings, pointsData, tasks, weeklyTasks, categories, tokenUsage,
+    lastUpdated: new Date()
+  },{ merge:true });
 }
 
-/* ---------- RENDER ---------- */
+/* ---------- 7. RENDER FUNCTIONS ---------- */
+function renderCalendar(){
+  const first=new Date(calYear,calMonth,1);
+  const days=new Date(calYear,calMonth+1,0).getDate();
+  document.getElementById("calendar-month-year").textContent=
+    first.toLocaleString("default",{month:"long"})+" "+calYear;
+  let html="<table><tr>"+["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
+            .map(d=>`<th>${d}</th>`).join("")+"</tr><tr>";
+  for(let i=0;i<first.getDay();i++) html+="<td></td>";
+  for(let d=1;d<=days;d++){
+    const cur=fmtDate(new Date(calYear,calMonth,d));
+    if((first.getDay()+d-1)%7===0&&d!==1) html+="</tr><tr>";
+    let style="";
+    const today=fmtDate(new Date());
+    if(cur===selDate && cur===today) style="background:linear-gradient(to bottom right,#3399ff 50%,#ff4444 50%);color:#fff;";
+    else if(cur===selDate)           style="background:#ff4444;color:#fff;";
+    else if(cur===today)             style="background:#3399ff;color:#fff;";
+    html+=`<td style="${style}" onclick="selectDate('${cur}')">${d}</td>`;
+  }
+  html+="</tr></table>";
+  document.getElementById("calendar").innerHTML=html;
+}
 function renderTaskTable(){
   const tBody=document.getElementById("task-table");
   tBody.innerHTML=`<tr><th>Task</th><th>Signif</th><th>Cat</th><th>Ŧ/h</th><th>Done?</th><th>Del</th></tr>`;
   (tasks[selDate]||[]).forEach((t,i)=>{
-    tBody.innerHTML+=`<tr>
-      <td class="${t.done?"task-completed":""}">${t.desc}</td>
-      <td>${t.signif}</td>
-      <td>${t.cat}</td>
-      <td>${signifRate[t.signif]}</td>
-      <td><input type="checkbox" ${t.done?"checked":""} onchange="toggleDone('${selDate}',${i},'daily',this)"></td>
-      <td><button onclick="delTask('${selDate}',${i},'daily')">x</button></td>
-    </tr>`;
+    tBody.innerHTML+=`
+      <tr>
+        <td class="${t.done?"task-completed":""}">${t.desc}</td>
+        <td>${t.signif}</td>
+        <td>${t.cat}</td>
+        <td>${signifRate[t.signif]}</td>
+        <td><input type="checkbox" ${t.done?"checked":""} onchange="toggleDone(${i},this)"></td>
+        <td><button onclick="delTask(${i})">x</button></td>
+      </tr>`;
   });
 }
 function renderWeeklyTasks(){
-  const wId=weekId(selDate);
+  const wKey = weekKeySunday(selDate);
   const header=document.getElementById("weekly-header");
-  header.textContent=`Weekly Tasks (${getWeekRange(selDate)})`;
+  header.textContent = `Weekly Tasks (${weekRangeSundayToSaturday(selDate)})`;
   const tBody=document.getElementById("weekly-task-table");
   tBody.innerHTML=`<tr><th>Task</th><th>Cat</th><th>Done?</th><th>Del</th></tr>`;
-  (weeklyTasks[wId]||[]).forEach((t,i)=>{
-    tBody.innerHTML+=`<tr>
-      <td class="${t.done?"task-completed":""}">${t.desc}</td>
-      <td>${t.cat}</td>
-      <td><input type="checkbox" ${t.done?"checked":""} onchange="toggleDone('${wId}',${i},'weekly',this)"></td>
-      <td><button onclick="delTask('${wId}',${i},'weekly')">x</button></td>
-    </tr>`;
+  (weeklyTasks[wKey]||[]).forEach((t,i)=>{
+    tBody.innerHTML+=`
+      <tr>
+        <td class="${t.done?"task-completed":""}">${t.desc}</td>
+        <td>${t.cat||""}</td>
+        <td><input type="checkbox" ${t.done?"checked":""} onchange="toggleWeeklyDone(${i},this)"></td>
+        <td><button onclick="delWeeklyTask(${i})">x</button></td>
+      </tr>`;
   });
 }
+function renderCategoryUI(){
+  const catSel=document.getElementById("new-task-cat");
+  const remSel=document.getElementById("remove-cat-select");
+  const shopSel=document.getElementById("shop-cat-select");
+  [catSel,remSel,shopSel].forEach(s=>s.innerHTML="");
+  categories.forEach(c=>{
+    catSel  .insertAdjacentHTML("beforeend",`<option>${c.name}</option>`);
+    shopSel .insertAdjacentHTML("beforeend",`<option>${c.name}</option>`);
+    if(c.name!=="General")
+      remSel.insertAdjacentHTML("beforeend",`<option>${c.name}</option>`);
+  });
 
-/* ---------- MUTATORS ---------- */
+  // progress bars (per ISO-week like before)
+  const prog=document.getElementById("progress-container"); prog.innerHTML="";
+  const w=weekId(selDate);
+  categories.forEach(c=>{
+    let spent=0;
+    for(const d in tasks) if(weekId(d)===w)
+      tasks[d].forEach(t=>{ if(t.done && t.cat===c.name) spent+=t.spent||0; });
+    const cap=c.cap||100, pct=Math.min(100,(spent/cap*100).toFixed(1));
+    prog.innerHTML+=`
+      <div class="progress-wrapper">
+        <span class="progress-label">${c.name}</span>
+        <div class="progress-bar">
+          <div class="progress-fill${spent>cap?" over":""}" style="width:${pct}%"></div>
+          <div class="progress-text">${spent.toFixed(1)} / ${cap} Ŧ</div>
+        </div>
+      </div>`;
+  });
+  renderShop();
+}
+function renderShop(){
+  const cat=document.getElementById("shop-cat-select").value||categories[0].name;
+  const c=categories.find(x=>x.name===cat);
+  document.getElementById("shop-title").textContent=
+    `Reward Shop (${cat}) – ₱: ${pointsData.current.toFixed(1)} (Spent: ${pointsData.totalSpent.toFixed(1)})`;
+  const list=document.getElementById("shop-list"); list.innerHTML="";
+  c.rewards.forEach((r,idx)=>{
+    list.innerHTML+=`
+      <div class="flex">
+        <span style="flex:1">${r.desc} – <b>${r.cost} ₱</b></span>
+        <button onclick="buyReward('${cat}',${idx})">Buy</button>
+      </div>`;
+  });
+}
+function updateTokenBar(){
+  const w=weekId(selDate);
+  const used=tokenUsage[w]||0, pct=Math.min(100,(used/settings.weeklyTokens*100).toFixed(1));
+  const fill=document.getElementById("token-week-fill");
+  fill.style.width=pct+"%"; fill.className="token-week-fill"+(used>settings.weeklyTokens?" over":"");
+  document.getElementById("token-week-label").textContent=pct+" %";
+  document.getElementById("token-week-text").textContent=`Ŧ Used: ${used.toFixed(1)} / ${settings.weeklyTokens}`;
+}
+function updatePointsDisplay(){
+  document.getElementById("points-current").textContent=pointsData.current.toFixed(1);
+  document.getElementById("points-earned").textContent =pointsData.totalEarned.toFixed(1);
+  document.getElementById("points-spent").textContent  =pointsData.totalSpent.toFixed(1);
+}
+
+/* ---------- 8. TASK & CATEGORY MUTATORS ---------- */
 async function addTask(){
   const desc=document.getElementById("new-task-desc").value.trim();
   if(!desc) return alert("Enter description");
-  const scope=document.getElementById("new-task-scope").value;
+  const scope=document.getElementById("new-task-scope").value; // daily | weekly
   const signif=document.getElementById("new-task-signif").value;
-  const cat=document.getElementById("new-task-cat").value;
+  const cat   =document.getElementById("new-task-cat").value;
+
   if(scope==="daily"){
     tasks[selDate]=tasks[selDate]||[];
-    tasks[selDate].push({desc,signif,cat,done:false});
+    tasks[selDate].push({desc,signif,cat,done:false,dur:0});
   }else{
-    const wId=weekId(selDate);
-    weeklyTasks[wId]=weeklyTasks[wId]||[];
-    weeklyTasks[wId].push({desc,cat,done:false});
+    const wKey = weekKeySunday(selDate);
+    weeklyTasks[wKey]=weeklyTasks[wKey]||[];
+    weeklyTasks[wKey].push({desc,cat,done:false});
   }
   document.getElementById("new-task-desc").value="";
   await save();
-  renderTaskTable();renderWeeklyTasks();
+  renderTaskTable(); renderWeeklyTasks();
 }
-async function toggleDone(key,idx,scope,chk){
-  if(scope==="daily"){
-    const t=tasks[key][idx];
-    t.done=chk.checked;
+async function toggleDone(idx, chk){
+  const t=tasks[selDate][idx]; const w=weekId(selDate);
+  if(!t.done){
+    const mins=parseFloat(prompt("Minutes spent?","60"));
+    if(isNaN(mins)||mins<=0){ chk.checked=false; return; }
+    const hrs=mins/60, spent=signifRate[t.signif]*hrs;
+    tokenUsage[w]=(tokenUsage[w]||0)+spent;
+    const catObj=categories.find(c=>c.name===t.cat);
+    let catSpent=0;
+    for(const d in tasks) if(weekId(d)===w)
+      tasks[d].forEach(x=>{ if(x.done&&x.cat===t.cat) catSpent+=x.spent||0; });
+    if(catObj && catSpent+spent>catObj.cap) alert(`⚠️ Cap for ${t.cat} (${catObj.cap} Ŧ) exceeded`);
+    if(t.cat==="Exercise" && (tasksOfWeek("Exercise",w)+hrs)>exerciseCapHrs)
+      alert("Exercise cap (10 h/wk) exceeded!");
+    pointsData.current+=spent; pointsData.totalEarned+=spent;
+    Object.assign(t,{done:true,dur:hrs,spent});
   }else{
-    const t=weeklyTasks[key][idx];
-    t.done=chk.checked;
+    tokenUsage[w]-=t.spent||0;
+    pointsData.current-=t.spent||0; pointsData.totalEarned-=t.spent||0;
+    t.done=false; t.spent=0; t.dur=0;
   }
   await save();
-  renderTaskTable();renderWeeklyTasks();
+  renderTaskTable(); updateTokenBar(); updatePointsDisplay(); renderShop(); renderCategoryUI();
 }
-async function delTask(key,idx,scope){
-  if(scope==="daily"){tasks[key].splice(idx,1);}
-  else{weeklyTasks[key].splice(idx,1);}
-  await save();renderTaskTable();renderWeeklyTasks();
+async function toggleWeeklyDone(idx, chk){
+  const wKey = weekKeySunday(selDate);
+  const t = (weeklyTasks[wKey]||[])[idx];
+  if(!t) return;
+  t.done = chk.checked;
+  await save();
+  renderWeeklyTasks();
+}
+async function delTask(i){
+  tasks[selDate].splice(i,1); await save(); renderTaskTable();
+}
+async function delWeeklyTask(i){
+  const wKey = weekKeySunday(selDate);
+  (weeklyTasks[wKey]||[]).splice(i,1);
+  await save(); renderWeeklyTasks();
+}
+async function addCategory(){
+  const name=document.getElementById("new-cat-name").value.trim();
+  if(!name) return;
+  if(categories.some(c=>c.name===name)) return alert("Exists!");
+  const cap=parseFloat(prompt(`Weekly Ŧ cap for "${name}"?`));
+  if(isNaN(cap)||cap<=0) return alert("Invalid cap");
+  categories.push({name,rewards:[],cap});
+  document.getElementById("new-cat-name").value="";
+  await save(); renderCategoryUI();
+}
+async function removeCategory(){
+  const name=document.getElementById("remove-cat-select").value;
+  if(!name||!confirm("Delete "+name+" ?")) return;
+  categories=categories.filter(c=>c.name!==name);
+  for(const d in tasks) tasks[d]=tasks[d].filter(t=>t.cat!==name);
+  for(const w in weeklyTasks) weeklyTasks[w]=weeklyTasks[w].filter(t=>t.cat!==name);
+  await save(); renderTaskTable(); renderWeeklyTasks(); renderCategoryUI();
+}
+async function addReward(){
+  const cat=document.getElementById("shop-cat-select").value;
+  const desc=document.getElementById("new-reward-desc").value.trim();
+  const cost=parseInt(document.getElementById("new-reward-cost").value);
+  if(!desc||!cost) return alert("Need desc & cost");
+  categories.find(x=>x.name===cat).rewards.push({desc,cost});
+  document.getElementById("new-reward-desc").value="";
+  document.getElementById("new-reward-cost").value="";
+  await save(); renderShop();
+}
+async function buyReward(cat,idx){
+  const c=categories.find(x=>x.name===cat), r=c.rewards[idx];
+  if(pointsData.current<r.cost) return alert("Not enough ₱");
+  if(!confirm(`Redeem "${r.desc}" for ${r.cost} ₱ ?`)) return;
+  pointsData.current-=r.cost; pointsData.totalSpent+=r.cost;
+  await save(); updatePointsDisplay(); renderShop(); alert("Enjoy: "+r.desc+"!");
+}
+async function updateSettings(){
+  settings.weeklyTokens=parseInt(document.getElementById("weekly-tokens-input").value)||settings.weeklyTokens;
+  await save(); updateTokenBar();
 }
 
-/* ---------- BOOTSTRAP ---------- */
-let selDate=fmtDate(new Date());
+/* ---------- 9. MISC UTILS ---------- */
+function tasksOfWeek(cat,wId){
+  let hrs=0;
+  for(const d in tasks) if(weekId(d)===wId)
+    tasks[d].forEach(t=>{ if(t.done&&t.cat===cat) hrs+=t.dur||0; });
+  return hrs;
+}
+function saveBackup(){
+  const blob=new Blob([JSON.stringify({settings,pointsData,tasks,weeklyTasks,categories,tokenUsage})],
+                      {type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a"); a.href=url;
+  a.download=`backup_${fmtDate(new Date())}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+function loadBackup(e){
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const d=JSON.parse(r.result);
+      settings    = d.settings    || settings;
+      pointsData  = d.pointsData  || pointsData;
+      tasks       = d.tasks       || tasks;
+      weeklyTasks = d.weeklyTasks || weeklyTasks;
+      categories  = d.categories  || categories;
+      tokenUsage  = d.tokenUsage  || tokenUsage;
+      saveLocal(); location.reload();
+    }catch(err){
+      alert("Invalid backup file.");
+    }
+  };
+  r.readAsText(f);
+}
+function clearAllData(){
+  if(!confirm("Delete ALL local data?")) return;
+  localStorage.clear(); location.reload();
+}
+function changeMonth(off){
+  calMonth+=off;
+  if(calMonth<0){ calMonth=11; calYear--;}
+  if(calMonth>11){ calMonth=0;  calYear++;}
+  renderCalendar();
+}
+function selectDate(d){
+  selDate=d; document.getElementById("date-today").textContent=d;
+  renderCalendar(); renderTaskTable(); renderWeeklyTasks(); updateTokenBar(); renderCategoryUI();
+}
+
+/* ---------- LOGIN / SIGN-OUT HANDLER ---------- */
+let signingIn = false;
+
+loginBtn.addEventListener("click", async () => {
+  if (auth.currentUser) {                      // already signed in → sign out
+    await auth.signOut();
+    return;
+  }
+  if (signingIn) return;                       // debounce double-clicks
+  signingIn = true; loginBtn.disabled = true;
+  const provider = new GoogleAuthProvider();
+  try {
+    await signInWithPopup(auth, provider);     // try popup
+  } catch (e) {
+    if ([
+      "auth/popup-blocked",
+      "auth/popup-closed-by-user",
+      "auth/cancelled-popup-request",
+      "auth/network-request-failed"
+    ].includes(e.code)) {
+      await signInWithRedirect(auth, provider);  // fallback
+      return;
+    }
+    alert(`Sign-in failed: ${e.message}`);
+  } finally {
+    signingIn = false;
+    loginBtn.disabled = false;
+  }
+});
+
+/* ---------- AUTH STATE LISTENER ---------- */
+onAuthStateChanged(auth, async user => {
+  if (user) {
+    loginBtn.textContent = "↩️ Sign out";
+    statusEl.textContent = `(online – ${user.displayName || user.email})`;
+    statusEl.style.color = "#2a8f2a";
+
+    const snap = await getDoc(doc(db,"trackers",user.uid));
+    if (snap.exists()) {
+      const d = snap.data();
+      Object.assign(settings,   d.settings   || {});
+      Object.assign(pointsData, d.pointsData || {});
+      Object.assign(tasks,      d.tasks      || {});
+      Object.assign(weeklyTasks,d.weeklyTasks|| {});
+      Object.assign(categories, d.categories || {});
+      Object.assign(tokenUsage, d.tokenUsage || {});
+    } else {
+      await save(); // first login → upload local → cloud
+    }
+  } else {
+    loginBtn.textContent = "🔒 Log in to sync";
+    statusEl.textContent = "(offline)";
+    statusEl.style.color = "#b00";
+  }
+  saveLocal();
+  initUI();
+});
+
+/* ---------- 12. BOOTSTRAP UI ---------- */
 function initUI(){
+  const weekly=document.getElementById("weekly-tokens-input");
+  if(weekly) weekly.value=settings.weeklyTokens;
   document.getElementById("date-today").textContent=selDate;
-  renderCalendar();renderTaskTable();renderWeeklyTasks();
+  renderCalendar(); renderCategoryUI(); renderTaskTable(); renderWeeklyTasks();
+  updateTokenBar(); updatePointsDisplay(); renderShop();
 }
 window.onload=initUI;
 
-/* expose */
-Object.assign(window,{addTask,toggleDone,delTask,changeMonth,selectDate});
+/* ---------- 13. EXPOSE INLINE HANDLERS ---------- */
+Object.assign(window,{
+  addTask, toggleDone, delTask, toggleWeeklyDone, delWeeklyTask,
+  addCategory, removeCategory, addReward, buyReward, updateSettings,
+  saveBackup, loadBackup, clearAllData, changeMonth, selectDate
+});
 </script>
 </body>
 </html>
