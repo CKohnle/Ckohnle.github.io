@@ -1,54 +1,109 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Academic Website - Home</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body class="index-page">
-    <header>
-        <h1>Welcome to My Website</h1>
-        <nav>
-            <a href="index.html">Home</a>
-            <a href="research.html">Research</a>
-            <a href="blog.html">Blog</a>
-            <a href="personal.html">Personal</a>
-            <a href="cv.html">CV</a>
-            <a href="#" onclick="showTaskPage()">Tasks</a>
-        </nav>
-    </header>
-    <main>
-        <h2>Hello, and welcome to my website!</h2>
-        <p>My name is Christian Kohnle. I am a Mathematics and Physics Undergraduate Student at Boston University.</p>
-        <p>Here you can find information about my research, blog posts, and personal information. If you are looking to employ me, or are just curious, my CV can be downloaded here as well.</p>
-        <p>In addition, you can find links to my LinkedIn, Youtube, Github, and other ways to connect with me.</p>
-        <audio id="quack-sound" src="quack.mp3"></audio>
-    </main>
-    <footer>
-        <a href="https://www.linkedin.com/in/christian-kohnle-phys/" target="_blank" rel="noopener noreferrer">
-            <img src="LinkedIn_logo.png" alt="LinkedIn" width="32" height="32">
-        </a>
-        <a href="https://www.youtube.com/channel/UCp4eVMSIq-zZgiTZfk4Yx_Q" target="_blank" rel="noopener noreferrer">
-            <img src="YouTube_logo.png" alt="YouTube" width="32" height="32">
-        </a>
-        <p>&copy; 2024 Christian Kohnle. All rights reserved.</p>
-    </footer>
+<main>
 
-    <script>
-        // The Base64 encoded version of your new password "CAK4cars"
-        const encodedPassword = 'Q0FLNGNhcnM=';
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <h2>Christian Kohnle</h2>
+        <p class="subtitle">
+            Physics & Applied Mathematics — Theoretical Cosmology, Scientific Computing, and Quantitative Modeling
+        </p>
+        <p>
+            This site is a central hub for my research, scientific writing, and technical projects. It serves as both an academic portfolio and a public-facing interface to my work, with the goal of making complex ideas more accessible while maintaining technical rigor.
+        </p>
 
-        function showTaskPage() {
-            //const userInput = prompt("Enter password to access tasks:");
-            //const decodedPassword = atob(encodedPassword);
+        <div class="hero-buttons">
+            <a href="research.html" class="button">Research</a>
+            <a href="blog.html" class="button">Writing</a>
+            <a href="personal.html" class="button">About</a>
+            <a href="task.html" class="button">Projects & Tools</a>
+        </div>
+    </section>
 
-            //if (userInput === decodedPassword) {
-            window.location.href = 'task.html';
-            //} else {
-            //    alert("Incorrect password!");
-            //}
-        }
-    </script>
-</body>
-</html>
+
+    <!-- SITE OVERVIEW -->
+    <section class="overview">
+        <h3>What You’ll Find Here</h3>
+
+        <div class="grid">
+            <div class="card">
+                <h4>Research</h4>
+                <p>
+                    Current and past work in theoretical cosmology, effective field theory of large-scale structure, and computational physics. Includes ongoing projects, technical summaries, and links to code and papers.
+                </p>
+            </div>
+
+            <div class="card">
+                <h4>Writing</h4>
+                <p>
+                    Explanations of complex ideas in physics, mathematics, and computation, aimed at bridging the gap between technical research and broader understanding.
+                </p>
+            </div>
+
+            <div class="card">
+                <h4>About</h4>
+                <p>
+                    Background, academic experience, and current direction, along with a downloadable CV and relevant information for collaborators or employers.
+                </p>
+            </div>
+
+            <div class="card">
+                <h4>Projects & Tools</h4>
+                <p>
+                    Technical systems, computational tools, and experimental workflows supporting ongoing research and development.
+                </p>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- CURRENT FOCUS -->
+    <section class="focus">
+        <h3>Current Focus</h3>
+        <p>
+            My current work centers on theoretical cosmology and scientific computation, with a focus on efficient evaluation methods in large-scale structure, parameter inference, and the development of scalable numerical frameworks. I am also interested in science communication and building tools that make advanced ideas more intuitive and accessible.
+        </p>
+    </section>
+
+
+    <!-- FEATURED WORK -->
+    <section class="featured">
+        <h3>Featured Work</h3>
+
+        <div class="grid">
+            <div class="card">
+                <h4>Efficient Two-Loop EFTofLSS Evaluation</h4>
+                <p>
+                    Developing a fast computational framework for evaluating two-loop corrections in the effective field theory of large-scale structure, reducing evaluation time from minutes to milliseconds.
+                </p>
+                <a href="research.html">Read more →</a>
+            </div>
+
+            <div class="card">
+                <h4>IR Resummation Integration</h4>
+                <p>
+                    Incorporating IR resummation into fast EFTofLSS pipelines to resolve BAO-scale mismodeling and improve theoretical precision for modern surveys such as DESI and Euclid.
+                </p>
+                <a href="research.html">Read more →</a>
+            </div>
+
+            <div class="card">
+                <h4>Scientific Writing</h4>
+                <p>
+                    Long-form explanations of topics in physics and computation, including intuitive treatments of power spectra, quantum mechanics, and cosmological inference.
+                </p>
+                <a href="blog.html">Read more →</a>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- OPTIONAL UPDATES -->
+    <section class="updates">
+        <h3>Updates</h3>
+        <ul>
+            <li>Working on IR resummation integration within fast EFTofLSS pipelines.</li>
+            <li>Expanding research section with current CERN and LLNL projects.</li>
+            <li>Developing new long-form posts on cosmology and quantum theory.</li>
+        </ul>
+    </section>
+
+</main>
