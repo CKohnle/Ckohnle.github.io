@@ -726,3 +726,201 @@ img {
         min-height: 280px;
     }
 }
+
+/* =========================
+   INTERACTIVE HOMEPAGE HERO
+   Add this to your existing stylesheet
+========================= */
+
+/* Hide default cursor only inside the interactive hero on desktop */
+body.home #hero {
+    cursor: none;
+}
+
+body.home #main-content,
+body.home .site-header,
+body.home .site-footer {
+    cursor: auto;
+}
+
+#hero {
+    position: relative;
+    width: 100%;
+    height: 100dvh;
+    min-height: 600px;
+    overflow: hidden;
+    background-color: #06070d;
+}
+
+#universe-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* Prompt shown before click */
+.hero-prompt {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-align: center;
+    pointer-events: none;
+    z-index: 10;
+    animation: prompt-breathe 3s ease-in-out infinite;
+}
+
+.hero-prompt.hidden {
+    opacity: 0;
+    transition: opacity 0.6s ease;
+}
+
+.prompt-main {
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: clamp(1.4rem, 3vw, 2.2rem);
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    color: #f4f7fb;
+}
+
+.prompt-sub {
+    font-family: "DM Mono", "Courier New", monospace;
+    font-size: clamp(0.65rem, 1.2vw, 0.8rem);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #6f7a96;
+}
+
+@keyframes prompt-breathe {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+/* Hint after galaxy clusters stabilize */
+.hero-hint {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: "DM Mono", "Courier New", monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #6f7a96;
+    opacity: 0;
+    pointer-events: none;
+    white-space: nowrap;
+    transition: opacity 1s ease;
+    z-index: 10;
+}
+
+.hero-hint.visible {
+    opacity: 0.7;
+}
+
+/* Reduced motion fallback nav inside hero */
+.reduced-nav {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    padding: 2rem;
+    z-index: 11;
+}
+
+.reduced-nav__item {
+    font-family: "DM Mono", "Courier New", monospace;
+    font-size: 0.85rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #b1bdd0;
+    border: 1px solid rgba(255,255,255,0.18);
+    padding: 0.7rem 1.4rem;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.04);
+    transition: color 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+
+.reduced-nav__item:hover {
+    color: #5fd3ff;
+    border-color: #5fd3ff;
+    background: rgba(255,255,255,0.08);
+}
+
+/* Transition overlay used for black-hole page exit */
+.transition-overlay {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    border-radius: 50%;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0;
+    transform: scale(0);
+    transform-origin: center center;
+    will-change: transform, opacity;
+}
+
+/* Page reveal overlay for destination pages */
+.page-reveal-overlay {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 9998;
+    pointer-events: none;
+}
+
+/* Optional utility */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .hero-prompt {
+        animation: none;
+        opacity: 1;
+    }
+}
+
+/* Mobile adjustments */
+@media (max-width: 720px) {
+    body.home #hero {
+        cursor: auto;
+    }
+
+    .hero-hint {
+        bottom: 1.2rem;
+        font-size: 0.62rem;
+        letter-spacing: 0.14em;
+        white-space: normal;
+        text-align: center;
+        width: min(90%, 320px);
+    }
+
+    .reduced-nav {
+        gap: 1rem;
+    }
+
+    .reduced-nav__item {
+        width: 100%;
+        max-width: 280px;
+        text-align: center;
+    }
+}
