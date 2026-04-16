@@ -53,7 +53,7 @@ const CFG = {
   CLUSTERING_DURATION_MS: 2000,
   CLUSTER_SPRING_K: 0.025,
   CLUSTER_NOISE: 0.35,
-  CLUSTER_SCATTER_RADIUS: 80,
+  CLUSTER_SCATTER_RADIUS: 120,
   CLUSTER_STAGGER_MS: 300,
 
   // Navigation (steady state)
@@ -221,27 +221,23 @@ class Particle {
     const dy = clusterY - this.y;
     const dist = Math.sqrt(dx * dx + dy * dy) || 1;
   
-    // inward restoring force
-    this.vx += dx * 0.006;
-    this.vy += dy * 0.006;
+    this.vx += dx * 0.0018;
+    this.vy += dy * 0.0018;
   
-    // tangential orbital force, bounded so it does not grow forever
-    const orbitStrength = 0.38 / Math.sqrt(dist + 12);
+    const orbitStrength = 0.16 / Math.sqrt(dist + 28);
     this.vx += (-dy / dist) * orbitStrength;
     this.vy += ( dx / dist) * orbitStrength;
   
-    // damping
-    this.vx *= 0.92;
-    this.vy *= 0.92;
+    this.vx *= 0.965;
+    this.vy *= 0.965;
   
     this.x += this.vx;
     this.y += this.vy;
   
-    // twinkle
     this.twinklePhase += this.twinkleSpeed;
     const tw = (Math.sin(this.twinklePhase) * 0.5 + 0.5);
     this.radius = Utils.lerp(this.targetRadius * 0.6, this.targetRadius, tw);
-}
+  }
 
   draw(ctx, alpha = 1) {
     if (this.radius < 0.1) return;
