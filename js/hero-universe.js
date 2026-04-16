@@ -207,31 +207,38 @@ class Particle {
     this.vy += ( dx / d) * strength * CFG.BLACK_HOLE_ORBIT_SCALE;
   }
 
-  // Broad, airy galaxy motion — does not collapse tightly to the attractor.
   updateNavigation(clusterX, clusterY) {
-    this.vx *= 0.92;
-    this.vy *= 0.92;
-
-    this.x += this.vx;
-    this.y += this.vy;
-
     const dx = clusterX - this.x;
     const dy = clusterY - this.y;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-
-    if (dist > CFG.CLUSTER_SCATTER_RADIUS * 2.5) {
-      this.vx += dx * 0.005;
-      this.vy += dy * 0.005;
+    const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+  
+    const preferredRadius = CFG.CLUSTER_SCATTER_RADIUS * 1.15;
+  
+    // Only weakly correct radius relative to a broad preferred orbit zone
+    if (dist > preferredRadius) {
+      this.vx += dx * 0.0016;
+      this.vy += dy * 0.0016;
+    } else if (dist < preferredRadius * 0.55) {
+      // push gently outward if star falls too close to the core
+      this.vx -= dx * 0.0009;
+      this.vy -= dy * 0.0009;
     }
-
+  
+    // Add bounded tangential motion around the attractor
+    const orbitStrength = 0.085 / Math.sqrt(dist + 18);
+    this.vx += (-dy / dist) * orbitStrength;
+    this.vy += ( dx / dist) * orbitStrength;
+  
+    // Light damping
+    this.vx *= 0.945;
+    this.vy *= 0.945;
+  
+    this.x += this.vx;
+    this.y += this.vy;
+  
     this.twinklePhase += this.twinkleSpeed;
     const tw = (Math.sin(this.twinklePhase) * 0.5 + 0.5);
     this.radius = Utils.lerp(this.targetRadius * 0.6, this.targetRadius, tw);
-  }
-
-  draw(ctx, alpha = 1) {
-    if (this.radius < 0.1) return;
-    Utils.fillCircle(ctx, this.x, this.y, this.radius, Utils.rgba(this.colour, Utils.clamp(alpha, 0, 1)));
   }
 }
 
