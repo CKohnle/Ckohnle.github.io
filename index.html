@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Christian Kohnle</title>
-    <meta name="description" content="Research, scientific writing, and public-facing work in physics, cosmology, and computation.">
-    <link rel="stylesheet" href="styles.css">
+    <meta name="description" content="Research, scientific writing, and public-facing work in physics, cosmology, and computation." />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
+<body class="home">
 
     <!-- NAVBAR -->
     <header class="site-header">
@@ -19,48 +24,38 @@
                 <a href="blog.html">Writing</a>
                 <a href="research.html">Research</a>
                 <a href="personal.html">About</a>
-                <a href="task.html">Projects</a>
+                <a href="projects.html">Projects</a>
+                <!-- If you are still using task.html, replace projects.html everywhere with task.html -->
             </nav>
         </div>
     </header>
 
-    <main>
+    <!-- INTERACTIVE HERO -->
+    <section id="hero" aria-label="Interactive cosmology hero">
+        <canvas id="universe-canvas" aria-hidden="true"></canvas>
 
-        <!-- HERO -->
-        <section class="hero">
-            <div class="container hero-grid">
-                <div class="hero-text">
-                    <p class="eyebrow">Physics • Applied Mathematics • Science Communication</p>
-                    <h1>Research, explanation, and public-facing work in physics and computation.</h1>
-                    <p class="hero-description">
-                        I create short-form and long-form explanations of advanced scientific ideas while actively working in theoretical cosmology and scientific computing. This site is where that work comes together: research, writing, technical projects, and deeper discussion beyond social media.
-                    </p>
+        <!-- Prompt overlay shown before first click -->
+        <div id="hero-prompt" class="hero-prompt" role="status" aria-live="polite">
+            <span class="prompt-main">Click anywhere to begin</span>
+            <span class="prompt-sub">An interactive universe awaits</span>
+        </div>
 
-                    <div class="hero-buttons">
-                        <a href="#start-here" class="button button-primary">Start Here</a>
-                        <a href="blog.html" class="button button-secondary">Read Writing</a>
-                        <a href="research.html" class="button button-secondary">View Research</a>
-                    </div>
-                </div>
+        <!-- Reduced-motion fallback -->
+        <nav id="reduced-motion-nav" class="reduced-nav" aria-label="Site sections" hidden>
+            <a href="research.html" class="reduced-nav__item">Research</a>
+            <a href="blog.html" class="reduced-nav__item">Writing</a>
+            <a href="personal.html" class="reduced-nav__item">About</a>
+            <a href="projects.html" class="reduced-nav__item">Projects</a>
+        </nav>
 
-                <div class="hero-visual">
-                    <!-- INSERT FUTURE VISUAL / PARTICLE CANVAS / ANIMATION HERE -->
-                    <!-- You can replace this block later with:
-                         - a canvas for particles
-                         - a custom image
-                         - an animated SVG
-                         - a Three.js visual
-                    -->
-                    <div class="visual-shell">
-                        <div class="orb orb-1"></div>
-                        <div class="orb orb-2"></div>
-                        <div class="orb orb-3"></div>
-                        <div class="grid-glow"></div>
-                        <div class="hero-visual-label">Future interactive visual space</div>
-                    </div>
-                </div>
-            </div>
-        </section>
+        <!-- Hint after clusters stabilize -->
+        <p id="hero-hint" class="hero-hint" aria-hidden="true">
+            Move your cursor · Click a cluster to explore
+        </p>
+    </section>
+
+    <!-- REST OF YOUR ORIGINAL HOMEPAGE -->
+    <main id="main-content">
 
         <!-- SITE PURPOSE -->
         <section class="section intro-strip">
@@ -107,8 +102,6 @@
                         </p>
                     </a>
                 </div>
-
-                <!-- REPLACE THE TITLES, DESCRIPTIONS, AND LINKS ABOVE WITH YOUR ACTUAL BEST POSTS -->
             </div>
         </section>
 
@@ -187,7 +180,7 @@
                         </p>
                     </a>
 
-                    <a href="task.html" class="content-card">
+                    <a href="projects.html" class="content-card">
                         <h3>Projects</h3>
                         <p>
                             Technical systems, experiments, tools, workflows, and other project-based work that supports ongoing development.
@@ -208,8 +201,6 @@
                 <p class="focus-text">
                     My current work centers on theoretical cosmology and scientific computation, especially efficient large-scale structure methods, inference frameworks, and the development of tools that make difficult technical ideas clearer and more accessible.
                 </p>
-
-                <!-- REPLACE THIS WITH YOUR MOST CURRENT 1–3 SENTENCE STATUS -->
             </div>
         </section>
 
@@ -240,8 +231,6 @@
                         <span class="update-text">Building out a fuller public-facing hub for research, science communication, and technical projects.</span>
                     </a>
                 </div>
-
-                <!-- REPLACE THESE WITH REAL POSTS, VIDEO LINKS, OR PROJECT UPDATES -->
             </div>
         </section>
 
@@ -255,15 +244,10 @@
             </div>
 
             <div class="footer-links">
-                <!-- INSERT / UPDATE YOUR REAL LINKS BELOW -->
                 <a href="https://github.com/CKohnle" target="_blank" rel="noopener noreferrer">GitHub</a>
                 <a href="https://www.linkedin.com/in/christian-kohnle-phys/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
                 <a href="blog.html">Writing</a>
                 <a href="research.html">Research</a>
-                <!-- ADD EMAIL LINK HERE IF YOU WANT -->
-                <!-- Example:
-                <a href="mailto:yourname@email.com">Email</a>
-                -->
             </div>
         </div>
 
@@ -272,5 +256,13 @@
         </div>
     </footer>
 
+    <!-- TRANSITION OVERLAY -->
+    <div id="transition-overlay" class="transition-overlay" aria-hidden="true"></div>
+
+    <!-- SCRIPTS -->
+    <script src="js/utils.js"></script>
+    <script src="js/hero-universe.js"></script>
+    <script src="js/transitions.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
