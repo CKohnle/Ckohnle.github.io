@@ -880,6 +880,12 @@ body.home .site-footer {
     font-weight: 400;
     letter-spacing: 0.08em;
     color: #f4f7fb;
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.prompt-main.hidden {
+    opacity: 0;
+    transform: translateY(-10px);
 }
 
 .prompt-sub {
@@ -888,6 +894,13 @@ body.home .site-footer {
     letter-spacing: 0.22em;
     text-transform: uppercase;
     color: #6f7a96;
+    opacity: 0.55;
+    transition: opacity 1.2s ease, transform 1.2s ease;
+}
+
+.prompt-sub.awaits-visible {
+    opacity: 0.95;
+    transform: translateY(0);
 }
 
 @keyframes prompt-breathe {
@@ -1091,9 +1104,9 @@ body.home .site-footer {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .hero-prompt {
-        animation: none;
+    .hero-prompt.hidden {
         opacity: 1;
+        transition: none;
     }
 
     * {
