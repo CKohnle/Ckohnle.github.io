@@ -1,109 +1,276 @@
-<main>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Christian Kohnle</title>
+    <meta name="description" content="Research, scientific writing, and public-facing work in physics, cosmology, and computation.">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
 
-    <!-- HERO SECTION -->
-    <section class="hero">
-        <h2>Christian Kohnle</h2>
-        <p class="subtitle">
-            Physics & Applied Mathematics — Theoretical Cosmology, Scientific Computing, and Quantitative Modeling
-        </p>
-        <p>
-            This site is a central hub for my research, scientific writing, and technical projects. It serves as both an academic portfolio and a public-facing interface to my work, with the goal of making complex ideas more accessible while maintaining technical rigor.
-        </p>
+    <!-- NAVBAR -->
+    <header class="site-header">
+        <div class="container nav-container">
+            <a href="index.html" class="site-logo">Christian Kohnle</a>
 
-        <div class="hero-buttons">
-            <a href="research.html" class="button">Research</a>
-            <a href="blog.html" class="button">Writing</a>
-            <a href="personal.html" class="button">About</a>
-            <a href="task.html" class="button">Projects & Tools</a>
+            <nav class="site-nav">
+                <a href="index.html">Home</a>
+                <a href="blog.html">Writing</a>
+                <a href="research.html">Research</a>
+                <a href="personal.html">About</a>
+                <a href="task.html">Projects</a>
+            </nav>
         </div>
-    </section>
+    </header>
 
+    <main>
 
-    <!-- SITE OVERVIEW -->
-    <section class="overview">
-        <h3>What You’ll Find Here</h3>
+        <!-- HERO -->
+        <section class="hero">
+            <div class="container hero-grid">
+                <div class="hero-text">
+                    <p class="eyebrow">Physics • Applied Mathematics • Science Communication</p>
+                    <h1>Research, explanation, and public-facing work in physics and computation.</h1>
+                    <p class="hero-description">
+                        I create short-form and long-form explanations of advanced scientific ideas while actively working in theoretical cosmology and scientific computing. This site is where that work comes together: research, writing, technical projects, and deeper discussion beyond social media.
+                    </p>
 
-        <div class="grid">
-            <div class="card">
-                <h4>Research</h4>
+                    <div class="hero-buttons">
+                        <a href="#start-here" class="button button-primary">Start Here</a>
+                        <a href="blog.html" class="button button-secondary">Read Writing</a>
+                        <a href="research.html" class="button button-secondary">View Research</a>
+                    </div>
+                </div>
+
+                <div class="hero-visual">
+                    <!-- INSERT FUTURE VISUAL / PARTICLE CANVAS / ANIMATION HERE -->
+                    <!-- You can replace this block later with:
+                         - a canvas for particles
+                         - a custom image
+                         - an animated SVG
+                         - a Three.js visual
+                    -->
+                    <div class="visual-shell">
+                        <div class="orb orb-1"></div>
+                        <div class="orb orb-2"></div>
+                        <div class="orb orb-3"></div>
+                        <div class="grid-glow"></div>
+                        <div class="hero-visual-label">Future interactive visual space</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SITE PURPOSE -->
+        <section class="section intro-strip">
+            <div class="container narrow">
                 <p>
-                    Current and past work in theoretical cosmology, effective field theory of large-scale structure, and computational physics. Includes ongoing projects, technical summaries, and links to code and papers.
+                    This website is a central hub for my public-facing research and intellectual output. It is designed for both academic readers and the broader public: a place to explore what I work on, what I explain online, and where to go deeper through writing, projects, and research.
                 </p>
             </div>
+        </section>
 
-            <div class="card">
-                <h4>Writing</h4>
-                <p>
-                    Explanations of complex ideas in physics, mathematics, and computation, aimed at bridging the gap between technical research and broader understanding.
+        <!-- START HERE -->
+        <section class="section" id="start-here">
+            <div class="container">
+                <div class="section-heading">
+                    <p class="section-label">Start Here</p>
+                    <h2>Best entry points for new visitors</h2>
+                    <p>
+                        This section is for people arriving from short-form content, YouTube, or general interest. Start here for the clearest introductions to the ideas I talk about most.
+                    </p>
+                </div>
+
+                <div class="card-grid three">
+                    <a href="blog.html" class="content-card">
+                        <span class="card-tag">Explanation</span>
+                        <h3>What the Power Spectrum Actually Means</h3>
+                        <p>
+                            A clearer conceptual introduction to one of the central tools of modern cosmology.
+                        </p>
+                    </a>
+
+                    <a href="blog.html" class="content-card">
+                        <span class="card-tag">Physics</span>
+                        <h3>Understanding Quantum Superposition</h3>
+                        <p>
+                            A more intuitive way to think about superposition without flattening the real mathematics behind it.
+                        </p>
+                    </a>
+
+                    <a href="blog.html" class="content-card">
+                        <span class="card-tag">Cosmology</span>
+                        <h3>How We Extract Information from the Universe</h3>
+                        <p>
+                            An overview of how theory, data, and computation combine to turn observations into physical knowledge.
+                        </p>
+                    </a>
+                </div>
+
+                <!-- REPLACE THE TITLES, DESCRIPTIONS, AND LINKS ABOVE WITH YOUR ACTUAL BEST POSTS -->
+            </div>
+        </section>
+
+        <!-- FEATURED -->
+        <section class="section">
+            <div class="container">
+                <div class="section-heading">
+                    <p class="section-label">Featured</p>
+                    <h2>Selected work across research and communication</h2>
+                    <p>
+                        A few highlighted pieces that reflect both the technical and explanatory sides of what I do.
+                    </p>
+                </div>
+
+                <div class="featured-layout">
+                    <a href="research.html" class="feature-large">
+                        <span class="card-tag">Research Highlight</span>
+                        <h3>Fast Two-Loop EFTofLSS Evaluation</h3>
+                        <p>
+                            Developing efficient computational methods for evaluating precision large-scale structure predictions, with the goal of making high-accuracy inference substantially faster and more scalable.
+                        </p>
+                        <span class="feature-link">Explore research →</span>
+                    </a>
+
+                    <div class="feature-stack">
+                        <a href="research.html" class="content-card">
+                            <span class="card-tag">Research</span>
+                            <h3>IR Resummation and BAO Precision</h3>
+                            <p>
+                                Improving theoretical control near the BAO scale for modern cosmological surveys.
+                            </p>
+                        </a>
+
+                        <a href="blog.html" class="content-card">
+                            <span class="card-tag">Writing</span>
+                            <h3>Long-Form Science Writing</h3>
+                            <p>
+                                Essays and explanatory pieces that expand on the topics I discuss in shorter public formats.
+                            </p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MAIN PILLARS -->
+        <section class="section">
+            <div class="container">
+                <div class="section-heading">
+                    <p class="section-label">Explore</p>
+                    <h2>Main sections of the site</h2>
+                    <p>
+                        The homepage is only the front door. These sections contain the real substance.
+                    </p>
+                </div>
+
+                <div class="card-grid four">
+                    <a href="blog.html" class="content-card">
+                        <h3>Writing</h3>
+                        <p>
+                            Blog posts, science communication, and longer written explanations of ideas in physics, mathematics, and computation.
+                        </p>
+                    </a>
+
+                    <a href="research.html" class="content-card">
+                        <h3>Research</h3>
+                        <p>
+                            Current and past research in theoretical cosmology, large-scale structure, computation, and related technical work.
+                        </p>
+                    </a>
+
+                    <a href="personal.html" class="content-card">
+                        <h3>About</h3>
+                        <p>
+                            Background, academic direction, experience, and a clearer picture of who I am and what I work on.
+                        </p>
+                    </a>
+
+                    <a href="task.html" class="content-card">
+                        <h3>Projects</h3>
+                        <p>
+                            Technical systems, experiments, tools, workflows, and other project-based work that supports ongoing development.
+                        </p>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- CURRENT FOCUS -->
+        <section class="section focus-section">
+            <div class="container narrow">
+                <div class="section-heading center">
+                    <p class="section-label">Current Focus</p>
+                    <h2>What I am working on now</h2>
+                </div>
+
+                <p class="focus-text">
+                    My current work centers on theoretical cosmology and scientific computation, especially efficient large-scale structure methods, inference frameworks, and the development of tools that make difficult technical ideas clearer and more accessible.
                 </p>
+
+                <!-- REPLACE THIS WITH YOUR MOST CURRENT 1–3 SENTENCE STATUS -->
+            </div>
+        </section>
+
+        <!-- UPDATES -->
+        <section class="section">
+            <div class="container">
+                <div class="section-heading">
+                    <p class="section-label">Updates</p>
+                    <h2>Recent activity</h2>
+                    <p>
+                        A curated bridge between ongoing research, written work, and public-facing content.
+                    </p>
+                </div>
+
+                <div class="updates-list">
+                    <a href="research.html" class="update-item">
+                        <span class="update-type">Research</span>
+                        <span class="update-text">Working on IR resummation integration for fast EFTofLSS pipelines.</span>
+                    </a>
+
+                    <a href="blog.html" class="update-item">
+                        <span class="update-type">Writing</span>
+                        <span class="update-text">Expanding long-form posts on cosmology, quantum theory, and explanation-driven physics writing.</span>
+                    </a>
+
+                    <a href="personal.html" class="update-item">
+                        <span class="update-type">Site</span>
+                        <span class="update-text">Building out a fuller public-facing hub for research, science communication, and technical projects.</span>
+                    </a>
+                </div>
+
+                <!-- REPLACE THESE WITH REAL POSTS, VIDEO LINKS, OR PROJECT UPDATES -->
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-container">
+            <div>
+                <p class="footer-title">Christian Kohnle</p>
+                <p class="footer-subtitle">Research, writing, and public-facing work in physics and computation.</p>
             </div>
 
-            <div class="card">
-                <h4>About</h4>
-                <p>
-                    Background, academic experience, and current direction, along with a downloadable CV and relevant information for collaborators or employers.
-                </p>
-            </div>
-
-            <div class="card">
-                <h4>Projects & Tools</h4>
-                <p>
-                    Technical systems, computational tools, and experimental workflows supporting ongoing research and development.
-                </p>
+            <div class="footer-links">
+                <!-- INSERT / UPDATE YOUR REAL LINKS BELOW -->
+                <a href="https://github.com/CKohnle" target="_blank" rel="noopener noreferrer">GitHub</a>
+                <a href="https://www.linkedin.com/in/christian-kohnle-phys/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+                <a href="blog.html">Writing</a>
+                <a href="research.html">Research</a>
+                <!-- ADD EMAIL LINK HERE IF YOU WANT -->
+                <!-- Example:
+                <a href="mailto:yourname@email.com">Email</a>
+                -->
             </div>
         </div>
-    </section>
 
-
-    <!-- CURRENT FOCUS -->
-    <section class="focus">
-        <h3>Current Focus</h3>
-        <p>
-            My current work centers on theoretical cosmology and scientific computation, with a focus on efficient evaluation methods in large-scale structure, parameter inference, and the development of scalable numerical frameworks. I am also interested in science communication and building tools that make advanced ideas more intuitive and accessible.
-        </p>
-    </section>
-
-
-    <!-- FEATURED WORK -->
-    <section class="featured">
-        <h3>Featured Work</h3>
-
-        <div class="grid">
-            <div class="card">
-                <h4>Efficient Two-Loop EFTofLSS Evaluation</h4>
-                <p>
-                    Developing a fast computational framework for evaluating two-loop corrections in the effective field theory of large-scale structure, reducing evaluation time from minutes to milliseconds.
-                </p>
-                <a href="research.html">Read more →</a>
-            </div>
-
-            <div class="card">
-                <h4>IR Resummation Integration</h4>
-                <p>
-                    Incorporating IR resummation into fast EFTofLSS pipelines to resolve BAO-scale mismodeling and improve theoretical precision for modern surveys such as DESI and Euclid.
-                </p>
-                <a href="research.html">Read more →</a>
-            </div>
-
-            <div class="card">
-                <h4>Scientific Writing</h4>
-                <p>
-                    Long-form explanations of topics in physics and computation, including intuitive treatments of power spectra, quantum mechanics, and cosmological inference.
-                </p>
-                <a href="blog.html">Read more →</a>
-            </div>
+        <div class="container footer-bottom">
+            <p>&copy; 2026 Christian Kohnle. All rights reserved.</p>
         </div>
-    </section>
+    </footer>
 
-
-    <!-- OPTIONAL UPDATES -->
-    <section class="updates">
-        <h3>Updates</h3>
-        <ul>
-            <li>Working on IR resummation integration within fast EFTofLSS pipelines.</li>
-            <li>Expanding research section with current CERN and LLNL projects.</li>
-            <li>Developing new long-form posts on cosmology and quantum theory.</li>
-        </ul>
-    </section>
-
-</main>
+</body>
+</html>
