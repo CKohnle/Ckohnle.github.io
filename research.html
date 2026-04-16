@@ -3,62 +3,325 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Academic Website - Research</title>
+    <title>Research | Christian Kohnle</title>
+    <meta name="description" content="Research projects, interests, and technical work by Christian Kohnle in cosmology, computation, and related areas.">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <h1>Research Projects and Interests</h1>
-        <nav>
-            <a href="index.html">Home</a>
-            <a href="research.html">Research</a>
-            <a href="blog.html">Blog</a>
-            <a href="personal.html">Personal</a>
-            <a href="cv.html">CV</a>
-            <a href="task.html">Tasks</a>
-        </nav>
+
+    <!-- NAVBAR -->
+    <header class="site-header">
+        <div class="container nav-container">
+            <a href="index.html" class="site-logo">Christian Kohnle</a>
+
+            <nav class="site-nav">
+                <a href="index.html">Home</a>
+                <a href="blog.html">Writing</a>
+                <a href="research.html">Research</a>
+                <a href="personal.html">About</a>
+                <a href="task.html">Projects</a>
+            </nav>
+        </div>
     </header>
+
     <main>
-        <h2>Research Projects</h2>
-        <section>
-            <h3>LLNL Stuff</h3>
-            <p>Principle Investigator:</p>
-            <p class="indent">    Paganis Anninos</p>
-            <p>Co-Investigator(s):</p>
-            <p class="indent">    Robert Hoffman, Christian Kohnle</p>
-            <p>Brief Description:</p>
-            <p class="indent">    text</p>
-            <p>Papers, Proceedings, and Presentations:</p>
+
+        <!-- PAGE HERO -->
+        <section class="page-hero research-hero">
+            <div class="container narrow">
+                <p class="eyebrow">Research</p>
+                <h1>Projects, interests, and technical work.</h1>
+                <p class="page-hero-description">
+                    My work spans theoretical cosmology, scientific computing, and quantitative modeling, with broader interests in mathematical physics, simulation, and the development of tools for extracting insight from complex systems.
+                </p>
+            </div>
         </section>
-        <section>
-            <h3>Sound Attenuation by Transmission Yeilding Resonators (SATYR)</h3>
-            <p>Principle Investigator:</p>
-            <p class="indent">    Christian Kohnle</p>
-            <p>Co-Investigator(s):</p>
-            <p class="indent">    Shahyad Khamnei</p>
-            <p>Brief Description:</p>
-            <p class="indent">    Experimental engineering project that aims to create a device capable of attenuating acoustic-range sound by using collimated acoustic waves to destructively interfere with the medium of propogation.</p>
-            <p>Papers, Proceedings, and Presentations:</p>
-            <p class="indent">    The first paper below outlines the experimental basis for collimating acoustic-range sound with parabolic and Fresnel reflectors.</p>
-            <embed src="SATYR_Parabolic_Collimation.pdf" type="application/pdf" width="100%" height="600px">
-            <p class="indent">    Following papers will use such acoustic Fresnel reflectors to interfere with external sound sources and determine how the resultant sound depends on the frequencies, incident angle, and SPL of both sources. We expect to show that the SPL of the resultant sound can be decreased for some choices of collimated and external sound parameters, albeit with strong sensetivities.</p>
-            <p class="indent">    If this can be shown, the next goal is to explore a few use cases for devices capable of using such acoustic attenuation including their mechanics, engineering challenges, and market advantages.</p>
+
+        <!-- RESEARCH STATEMENT -->
+        <section class="section intro-strip">
+            <div class="container narrow">
+                <p>
+                    This page collects current and past research projects, technical collaborations, and selected exploratory work. It is intended to serve both as an academic overview and as a more accessible introduction to the kinds of problems I am interested in solving.
+                </p>
+            </div>
         </section>
-        <section>
-            <h3>Maybank Tennis Algorithm</h3>
-            <p>Principle Investigator:</p>
-            <p class="indent">    Christian Kohnle</p>
-            <p>Co-Investigator(s):</p>
-            <p class="indent">    Staford Yerger</p>
-            <p>Brief Description:</p>
-            <p class="indent">    Novel approach to Tennis performance evaluation that utilizes Beysian-adjusted LSTM model calculations of a player's current performance from their general skill level to quantify and track performance momentum.</p>
-            <p class="indent">    The essay below breifly explains some key concepts. The actual application and implementation of the system is currently under development.</p>
-            <p>Papers, Proceedings, and Presentations:</p>
-            <embed src="BU_Blog_Essay.pdf" type="application/pdf" width="100%" height="600px">
+
+        <!-- CURRENT DIRECTIONS -->
+        <section class="section">
+            <div class="container">
+                <div class="section-heading">
+                    <p class="section-label">Current Directions</p>
+                    <h2>What I am working on most actively</h2>
+                    <p>
+                        My current focus is on physics and computation: especially efficient inference methods, structure in complex data, and the development of scalable frameworks for research problems that are analytically difficult or computationally expensive.
+                    </p>
+                </div>
+
+                <div class="card-grid three">
+                    <div class="content-card">
+                        <span class="card-tag">Cosmology</span>
+                        <h3>Large-Scale Structure & Inference</h3>
+                        <p>
+                            Precision theory, efficient numerical pipelines, and the extraction of physical information from cosmological data.
+                        </p>
+                    </div>
+
+                    <div class="content-card">
+                        <span class="card-tag">Computation</span>
+                        <h3>Scientific Computing</h3>
+                        <p>
+                            Building and adapting computational tools for simulation, modeling, and high-dimensional parameter exploration.
+                        </p>
+                    </div>
+
+                    <div class="content-card">
+                        <span class="card-tag">Modeling</span>
+                        <h3>Quantitative Systems</h3>
+                        <p>
+                            Using probabilistic and algorithmic methods to understand performance, dynamics, and prediction in complex systems.
+                        </p>
+                    </div>
+                </div>
+            </div>
         </section>
+
+        <!-- PROJECTS -->
+        <section class="section">
+            <div class="container">
+                <div class="section-heading">
+                    <p class="section-label">Projects</p>
+                    <h2>Selected research and technical projects</h2>
+                    <p>
+                        These range from formal research collaborations to independent projects and early-stage technical investigations.
+                    </p>
+                </div>
+
+                <div class="research-list">
+
+                    <!-- PROJECT 1 -->
+                    <article class="research-entry" id="llnl-project">
+                        <div class="research-meta">
+                            <span class="card-tag">National Lab / Computational Physics</span>
+                            <span class="post-date">Lawrence Livermore National Laboratory</span>
+                        </div>
+
+                        <h3>Computational Physics Work at LLNL</h3>
+
+                        <p class="entry-summary">
+                            Research experience in a national laboratory environment focused on large-scale computational science and technically demanding research workflows.
+                        </p>
+
+                        <div class="research-details-grid">
+                            <div class="research-detail-box">
+                                <h4>Principal Investigator</h4>
+                                <p>Paganis Anninos</p>
+                            </div>
+
+                            <div class="research-detail-box">
+                                <h4>Collaborators</h4>
+                                <p>Robert Hoffman, Christian Kohnle</p>
+                            </div>
+                        </div>
+
+                        <div class="entry-content">
+                            <p>
+                                This project represents my work and research experience at Lawrence Livermore National Laboratory. It introduced me to the structure of large-scale research environments, computational workflows at national-lab scale, and the broader institutional context in which high-impact scientific work is carried out.
+                            </p>
+
+                            <p>
+                                At the moment, this section is acting as a placeholder for a fuller technical description of the project itself. As this page develops, I plan to expand it with a more specific account of the scientific problem, methods used, and any public-facing outputs that can be shared.
+                            </p>
+
+                            <!-- REPLACE THE PARAGRAPHS ABOVE WITH THE REAL TECHNICAL DESCRIPTION -->
+                            <!-- IF YOU HAVE A PAPER, POSTER, PRESENTATION, OR CODE LINK, ADD IT BELOW -->
+                        </div>
+
+                        <div class="research-links">
+                            <!-- EXAMPLE LINKS: replace or remove -->
+                            <!--
+                            <a href="your-paper.pdf" class="button button-secondary">Paper</a>
+                            <a href="your-poster.pdf" class="button button-secondary">Poster</a>
+                            -->
+                        </div>
+                    </article>
+
+                    <!-- PROJECT 2 -->
+                    <article class="research-entry" id="satyr-project">
+                        <div class="research-meta">
+                            <span class="card-tag">Acoustics / Experimental Engineering</span>
+                            <span class="post-date">Independent Project</span>
+                        </div>
+
+                        <h3>Sound Attenuation by Transmission Yielding Resonators (SATYR)</h3>
+
+                        <p class="entry-summary">
+                            An experimental engineering project exploring whether collimated acoustic waves can be used to reduce acoustic-range sound through controlled interference in the propagation medium.
+                        </p>
+
+                        <div class="research-details-grid">
+                            <div class="research-detail-box">
+                                <h4>Principal Investigator</h4>
+                                <p>Christian Kohnle</p>
+                            </div>
+
+                            <div class="research-detail-box">
+                                <h4>Collaborators</h4>
+                                <p>Shahyad Khamnei</p>
+                            </div>
+                        </div>
+
+                        <div class="entry-content">
+                            <p>
+                                SATYR is an experimental engineering project aimed at creating a device capable of attenuating acoustic-range sound by using collimated acoustic waves to destructively interfere with an external sound source through the medium of propagation.
+                            </p>
+
+                            <p>
+                                The first paper below outlines the experimental basis for collimating acoustic-range sound with parabolic and Fresnel reflectors. Subsequent work is intended to investigate how interference behavior depends on the frequencies, incident angles, and sound pressure levels of both the collimated and external sources.
+                            </p>
+
+                            <p>
+                                If the effect can be shown robustly, the next stage is to explore practical use cases for such attenuation devices, including mechanical design constraints, engineering challenges, and possible market applications.
+                            </p>
+                        </div>
+
+                        <div class="pdf-embed-wrap research-pdf">
+                            <embed src="SATYR_Parabolic_Collimation.pdf" type="application/pdf" width="100%" height="650px">
+                        </div>
+
+                        <!-- REPLACE SATYR_Parabolic_Collimation.pdf IF NEEDED -->
+                    </article>
+
+                    <!-- PROJECT 3 -->
+                    <article class="research-entry" id="maybank-project">
+                        <div class="research-meta">
+                            <span class="card-tag">Quantitative Modeling / Sports Analytics</span>
+                            <span class="post-date">Independent / Collaborative Development</span>
+                        </div>
+
+                        <h3>Maybank Tennis Algorithm</h3>
+
+                        <p class="entry-summary">
+                            A quantitative approach to modeling tennis performance and momentum using probabilistic adjustment and sequence-based prediction methods.
+                        </p>
+
+                        <div class="research-details-grid">
+                            <div class="research-detail-box">
+                                <h4>Principal Investigator</h4>
+                                <p>Christian Kohnle</p>
+                            </div>
+
+                            <div class="research-detail-box">
+                                <h4>Collaborators</h4>
+                                <p>Stafford Yerger</p>
+                            </div>
+                        </div>
+
+                        <div class="entry-content">
+                            <p>
+                                This project explores a novel approach to tennis performance evaluation using Bayesian-adjusted sequence modeling to estimate a player's current form relative to broader skill level and recent performance history.
+                            </p>
+
+                            <p>
+                                The goal is to quantify and track performance momentum in a way that is predictive, interpretable, and useful for downstream modeling. The implementation and application of the system are still under active development.
+                            </p>
+
+                            <p>
+                                The essay below is currently included as a placeholder example. In the future, this section should point to a dedicated technical write-up, methodology summary, or project note that actually describes the model.
+                            </p>
+
+                            <!-- IMPORTANT: THE PDF BELOW IS CURRENTLY NOT ABOUT THIS PROJECT -->
+                            <!-- REPLACE IT WITH A REAL PROJECT PDF OR REMOVE THE EMBED -->
+                        </div>
+
+                        <div class="pdf-embed-wrap research-pdf">
+                            <embed src="BU_Blog_Essay.pdf" type="application/pdf" width="100%" height="650px">
+                        </div>
+                    </article>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- RESEARCH INTERESTS -->
+        <section class="section focus-section">
+            <div class="container narrow">
+                <div class="section-heading center">
+                    <p class="section-label">Research Interests</p>
+                    <h2>Broader intellectual direction</h2>
+                </div>
+
+                <p class="focus-text">
+                    Broadly, I am interested in problems where mathematics, physics, and computation meet: especially cases where better modeling, better inference, or better conceptual frameworks can unlock information that is otherwise inaccessible.
+                </p>
+
+                <!-- CUSTOMIZE THIS TO MATCH YOUR CURRENT RESEARCH DIRECTION MORE EXACTLY -->
+            </div>
+        </section>
+
+        <!-- OPTIONAL OUTPUTS / LINKS -->
+        <section class="section">
+            <div class="container">
+                <div class="section-heading">
+                    <p class="section-label">Outputs</p>
+                    <h2>Papers, presentations, and technical materials</h2>
+                    <p>
+                        This section can later grow into a cleaner archive of papers, slides, posters, code, and related project outputs.
+                    </p>
+                </div>
+
+                <div class="card-grid three">
+                    <div class="content-card">
+                        <span class="card-tag">Papers</span>
+                        <h3>Written Work</h3>
+                        <p>
+                            Formal papers, technical notes, and draft write-ups connected to research projects.
+                        </p>
+                    </div>
+
+                    <div class="content-card">
+                        <span class="card-tag">Presentations</span>
+                        <h3>Talks & Slides</h3>
+                        <p>
+                            Slide decks, talks, posters, and presentation materials for academic or technical audiences.
+                        </p>
+                    </div>
+
+                    <div class="content-card">
+                        <span class="card-tag">Code</span>
+                        <h3>Technical Repositories</h3>
+                        <p>
+                            Public code, simulations, and computational tools associated with selected projects.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- LATER YOU CAN TURN THESE INTO REAL LINK CARDS -->
+            </div>
+        </section>
+
     </main>
-    <footer>
-        <p>&copy; 2024 Christian Kohnle. All rights reserved.</p>
+
+    <footer class="site-footer">
+        <div class="container footer-container">
+            <div>
+                <p class="footer-title">Christian Kohnle</p>
+                <p class="footer-subtitle">Research, writing, and public-facing work in physics and computation.</p>
+            </div>
+
+            <div class="footer-links">
+                <a href="https://github.com/CKohnle" target="_blank" rel="noopener noreferrer">GitHub</a>
+                <a href="https://www.linkedin.com/in/christian-kohnle-phys/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+                <a href="blog.html">Writing</a>
+                <a href="personal.html">About</a>
+                <!-- ADD EMAIL IF YOU WANT -->
+                <!-- <a href="mailto:your@email.com">Email</a> -->
+            </div>
+        </div>
+
+        <div class="container footer-bottom">
+            <p>&copy; 2026 Christian Kohnle. All rights reserved.</p>
+        </div>
     </footer>
+
 </body>
 </html>
