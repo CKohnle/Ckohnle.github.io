@@ -871,6 +871,38 @@ class HeroUniverse {
     ctx.fillStyle = Utils.rgba(CFG.COLOURS.background, 1);
     ctx.fillRect(0, 0, this.width, this.height);
 
+    console.log('first burst particle:', this.burstParticles[0]);
+    console.log('first main particle:', this.particles[0]);
+    console.log('first ambient star:', this.ambientStars[0]);
+    
+    this.burstParticles.forEach((p, i) => {
+      if (typeof p?.draw !== 'function') {
+        console.error('bad burst particle at index', i, p);
+        return;
+      }
+      p.draw(ctx, coolingProgress);
+    });
+    
+    this.particles.forEach((p, i) => {
+      if (typeof p?.draw !== 'function') {
+        console.error('bad main particle at index', i, p);
+        return;
+      }
+      let alpha = 1;
+      if (this.state === 'burst') {
+        alpha = Utils.clamp(this.stateT / (CFG.BURST_DURATION_MS * 0.5), 0, 1);
+      }
+      p.draw(ctx, alpha);
+    });
+    
+    this.ambientStars.forEach((s, i) => {
+      if (typeof s?.draw !== 'function') {
+        console.error('bad ambient star at index', i, s);
+        return;
+      }
+      s.draw(ctx);
+    });
+
     // Faint moving void only really matters later, but harmless across states.
     Utils.drawGlow(
       ctx,
