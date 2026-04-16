@@ -220,27 +220,28 @@ class Particle {
     const dx = clusterX - this.x;
     const dy = clusterY - this.y;
     const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-
-    // Inward restoring force
-    this.vx += dx * CFG.CLUSTER_RETURN_STRENGTH;
-    this.vy += dy * CFG.CLUSTER_RETURN_STRENGTH;
-
-    // Tangential orbital force
-    this.vx += (-dy / dist) * CFG.CLUSTER_ORBIT_STRENGTH * dist;
-    this.vy += ( dx / dist) * CFG.CLUSTER_ORBIT_STRENGTH * dist;
-
-    // Damping
-    this.vx *= CFG.CLUSTER_NAV_FRICTION;
-    this.vy *= CFG.CLUSTER_NAV_FRICTION;
-
+  
+    // inward restoring force
+    this.vx += dx * 0.006;
+    this.vy += dy * 0.006;
+  
+    // tangential orbital force, bounded so it does not grow forever
+    const orbitStrength = 0.38 / Math.sqrt(dist + 12);
+    this.vx += (-dy / dist) * orbitStrength;
+    this.vy += ( dx / dist) * orbitStrength;
+  
+    // damping
+    this.vx *= 0.92;
+    this.vy *= 0.92;
+  
     this.x += this.vx;
     this.y += this.vy;
-
-    // Twinkle
+  
+    // twinkle
     this.twinklePhase += this.twinkleSpeed;
     const tw = (Math.sin(this.twinklePhase) * 0.5 + 0.5);
     this.radius = Utils.lerp(this.targetRadius * 0.6, this.targetRadius, tw);
-  }
+}
 
   draw(ctx, alpha = 1) {
     if (this.radius < 0.1) return;
