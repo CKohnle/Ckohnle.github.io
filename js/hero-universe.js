@@ -210,7 +210,7 @@ class Particle {
   updateNavigation(clusterX, clusterY) {
     const dx = clusterX - this.x;
     const dy = clusterY - this.y;
-    const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+    const dist = Math.max(Math.sqrt(dx * dx + dy * dy), 12);
   
     const preferredRadius = CFG.CLUSTER_SCATTER_RADIUS * 1.15;
   
@@ -329,7 +329,7 @@ class AmbientStar {
   update(width, height, cx, cy) {
     const dx = this.x - cx;
     const dy = this.y - cy;
-    const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+    const dist = Math.max(Math.sqrt(dx * dx + dy * dy), 12);
 
     this.vx += (-dy / dist) * CFG.AMBIENT_SWIRL_STRENGTH * dist;
     this.vy += ( dx / dist) * CFG.AMBIENT_SWIRL_STRENGTH * dist;
