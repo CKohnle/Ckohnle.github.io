@@ -3,62 +3,300 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Academic Website - Blog</title>
+    <title>Writing | Christian Kohnle</title>
+    <meta name="description" content="Essays, explanations, and long-form writing by Christian Kohnle on physics, computation, research, and related ideas.">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <h1>Things to Read By Me</h1>
-        <nav>
-            <a href="index.html">Home</a>
-            <a href="research.html">Research</a>
-            <a href="blog.html">Blog</a>
-            <a href="personal.html">Personal</a>
-            <a href="cv.html">CV</a>
-            <a href="task.html">Tasks</a>
-        </nav>
+
+    <!-- NAVBAR -->
+    <header class="site-header">
+        <div class="container nav-container">
+            <a href="index.html" class="site-logo">Christian Kohnle</a>
+
+            <nav class="site-nav">
+                <a href="index.html">Home</a>
+                <a href="blog.html">Writing</a>
+                <a href="research.html">Research</a>
+                <a href="personal.html">About</a>
+                <a href="task.html">Projects</a>
+            </nav>
+        </div>
     </header>
+
     <main>
-        <h2>Introductory "Blog" Post</h2>
-        <article>
-            <p class="indent">Hello again, and welcome to my website. More specifically, welcome to my “blog”. I have that in quotations because I am not so sure yet that the bulk of the writing I will do here will take the traditional “blog” format. In general, the purpose of this “blog” is the same as any other: to provide an outlet for my thoughts that can be communicated better than just thinking them at people.</p>
-            <p class="indent"><i>However</i>, I am sure that the thoughts that I would like to share over the years will take on wildly different lengths and media. This is where my “blog” will vary from the norm. Some entries could be massive musings, while some may be short puzzles, animations, open questions, recipes, what have you. </p>
-            <p class="indent">If you accept the premise that academic websites should also be personal sites, then it doesn’t make sense not to break a few other conventions, if doing so will have some utility. Spherical cows and whatnot.</p>
-            <div class="image-container">
-                <img src="spherical-cow.webp" width="600">
+
+        <!-- PAGE HERO -->
+        <section class="page-hero writing-hero">
+            <div class="container narrow">
+                <p class="eyebrow">Writing</p>
+                <h1>Essays, explanations, and long-form discussions.</h1>
+                <p class="page-hero-description">
+                    This section contains longer writing that expands on ideas from my research and public-facing science communication. It is where short-form content becomes fuller explanation, technical reflection, and more permanent discussion.
+                </p>
             </div>
-        </article>
-        <div class="like-button-container">
-            <button class="like-button" data-id="like-1">Like <span class="like-checkmark" style="display: none;">✔</span></button>
-            <span class="like-count">0</span>
-        </div>
-        <h2>Latest Posts</h2>
-        <article>
-            <h3>LLNL Blog #1</h3>
-            <p class="indent">I am posting this on Friday, June 31st, 2024. Today is now my third day working at Lawrence Livermore National Laboratory (LLNL). I have an internship here for the rest of the summer, so now seems a fitting time for a “preflection” on what I expect from and plan to do throughout the experience. As a reader of this page, my guess is that you are interested in some capacity in my early research work and my perspectives on that work, so that is what I will try to focus on.</p>
-            <p class="indent">At this point in my life, I have really only watched research being done first-hand in relatively small groups in a teaching university setting. I have noticed that, at least in such an environment, that grant-writing is a huge process that takes up the majority of the skilled labor available to the group. This is obvious in the case of the College of Charleston, where most research is done just by a single professor and an undergraduate or two. A large part of my motivation in transferring out of CofC is this very thing. I think that having the opportunity to participate in research directly with an expert mentor has been extremely useful in learning the process and getting a higher-level perspective on what it means to be a researcher, but I am hoping to bring that into a laboratory setting with more labor, and frankly, more funding. That being said, I think that having the experience of direct mentorship as early as I had will serve me well in getting more important roles in those larger labs, compared to my age-peers who’s research experiences thus far have consisted of getting coffee and cleaning lab equipment.</p>
-            <p class="indent">That brings me to LLNL. Also known as “Lasers, Lasers, Nothing but Lasers”, LLNL represents, in theory, the extreme end of the research-to-teaching spectrum, with <i>billions</i> in funding annually for almost exclusively research. I get the impression that how research universities view the research done at small teaching schools like CofC, LLNL views the research done at most large research universities. So far I have attended a few seminars briefing the historical and current work done at the lab. A conclusion that one of these seminars came to was that the very expensive early experimental work done at the lab is what paved the road for the same technology to be feasible in a university lab setting, where the application and optimization occurs. In my own analogy, it's like how the government funding of highways is expensive, massive, and general, and is more or less designed to stimulate the economy and encourage the birth of new towns, which ultimately becomes the profitable basis of the investment represented by the highway.</p>
-            <p class="indent">This makes the concept of the national lab very compelling. What academic wouldn’t want near-guaranteed funding in perpetuity? A big drawback of course is that LLNL is a secure facility. It is very difficult to gain public/wide acclaim for classified work, regardless of its impact. In practice, I doubt that this would matter much in terms of career development, as good work will still yield internal progress, which can likely be manifested externally later. The larger concern for me personally is that it means that application and progress is then in the hands of the government, and presumably more difficult to pursue on a personal level. For example, if I inexplicably am able to create a practical gamma laser for lab environments, further development of such technology would be in the hands of the politicians and administrators. This is almost certainly not a bad thing for, say, nuclear devices and other weapons, but could be difficult when working on more politically-benign devices, especially those meant for academic or commercial use.</p>
-            <p class="indent">Because of this, I anticipate that working in such an environment will give me insight into a very new kind of corporate-like research structure. If I have the means, I like the idea of founding a general research and development organization in the future of my career. As novelty is something that I always strive for, seeing what kinds of structures already exist, along with their pros and cons is personally extremely valuable. Specifically, I envision a kind of ‘federation’ that provides a certain amount of funding, more or less in perpetuity, to select research groups and returns to them the time that they would otherwise use applying for such funding, in return for some IP rights from their research. Once the organization has some IP rights for the new technology, they can utilize the economy of scale to expedite the process of commercial application, thus providing more funding for the system. It is my hope that such a structure would benefit from the application and relatively cheap cost of university-setting research, while simultaneously being more efficient than the existing university government-grant system. While this is obviously a very ambitious and economically-difficult system to establish, determining whether such a system is even worth pursuing in its current form depends in no small part on what I see and learn this summer from the case study of LLNL.</p>
-            <p class="indent">Ideally I will also walk away from the summer with my name in a paper, lifelong connections, and another job offer for next year, but this is less meta-progress and is kind of the consequence of doing well at the work that I do. I also anticipate enjoying rock-climbing, living in a new city, and meeting new people, etc., as any other 19 year old would, but these aren't nearly as unique or relevant as the spiel above. Regardless, I look forward to a fun, and hopefully very productive, summer.</p>
-        </article>
-        <div class="like-button-container">
-            <button class="like-button" data-id="like-2">Like <span class="like-checkmark" style="display: none;">✔</span></button>
-            <span class="like-count">0</span>
-        </div>
-        <article>
-            <h3>Boston University Transfer Essay</h3>
-            <p class="indent">Below is a PDF version of my transfer essay to Boston University. I was asked to write on any prompt I choose, so I chose one of the 2024 UChicago undergraduate application prompts. I think it makes for a interesting, quick, read.</p>
-            <embed src="BU_Blog_Essay.pdf" type="application/pdf" width="100%" height="600px">
-        </article>
-        <div class="like-button-container">
-            <button class="like-button" data-id="like-3">Like <span class="like-checkmark" style="display: none;">✔</span></button>
-            <span class="like-count">0</span>
-        </div>
+        </section>
+
+        <!-- INTRO STRIP -->
+        <section class="section intro-strip">
+            <div class="container narrow">
+                <p>
+                    The goal of this page is not just to host “blog posts,” but to collect writing that is worth returning to: concept explanations, research reflections, essays, notes, and other longer-form work in physics, mathematics, computation, and related ideas.
+                </p>
+            </div>
+        </section>
+
+        <!-- FEATURED WRITING -->
+        <section class="section">
+            <div class="container">
+                <div class="section-heading">
+                    <p class="section-label">Featured Writing</p>
+                    <h2>Start with these</h2>
+                    <p>
+                        A few pieces that best represent the kind of writing this section is meant to hold.
+                    </p>
+                </div>
+
+                <div class="featured-layout">
+                    <a href="#introductory-post" class="feature-large">
+                        <span class="card-tag">Featured Essay</span>
+                        <h3>Introductory “Blog” Post</h3>
+                        <p>
+                            A statement of purpose for this writing section: why it exists, what kinds of work belong here, and why an academic website should leave room for more than one format.
+                        </p>
+                        <span class="feature-link">Read this piece →</span>
+                    </a>
+
+                    <div class="feature-stack">
+                        <a href="#llnl-post" class="content-card">
+                            <span class="card-tag">Research Reflection</span>
+                            <h3>LLNL Blog #1</h3>
+                            <p>
+                                Early reflections on work at Lawrence Livermore National Laboratory, research culture, and the structure of large-scale scientific institutions.
+                            </p>
+                        </a>
+
+                        <a href="#transfer-essay" class="content-card">
+                            <span class="card-tag">Essay</span>
+                            <h3>Boston University Transfer Essay</h3>
+                            <p>
+                                A PDF essay originally written for my transfer application to Boston University.
+                            </p>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- REPLACE THESE LINKS / TITLES WITH NEWER FEATURED PIECES AS YOU BUILD THEM -->
+            </div>
+        </section>
+
+        <!-- CATEGORIES -->
+        <section class="section categories-section">
+            <div class="container">
+                <div class="section-heading">
+                    <p class="section-label">Browse by Type</p>
+                    <h2>Ways this writing is organized</h2>
+                    <p>
+                        These categories are here to keep the page readable as the archive grows.
+                    </p>
+                </div>
+
+                <div class="category-pills">
+                    <span class="category-pill">Explanations</span>
+                    <span class="category-pill">Research Reflections</span>
+                    <span class="category-pill">Essays</span>
+                    <span class="category-pill">Science Communication</span>
+                    <span class="category-pill">Notes</span>
+                </div>
+
+                <!-- LATER: YOU CAN TURN THESE INTO ACTUAL FILTER BUTTONS WITH JAVASCRIPT -->
+            </div>
+        </section>
+
+        <!-- ARCHIVE -->
+        <section class="section">
+            <div class="container">
+                <div class="section-heading">
+                    <p class="section-label">Archive</p>
+                    <h2>All writing</h2>
+                    <p>
+                        A curated archive of current essays, reflections, and other long-form pieces.
+                    </p>
+                </div>
+
+                <div class="writing-list">
+
+                    <!-- POST 1 -->
+                    <article class="writing-entry" id="introductory-post">
+                        <div class="writing-meta">
+                            <span class="card-tag">Explanations / Meta</span>
+                            <span class="post-date">Introductory Piece</span>
+                        </div>
+
+                        <h3>Introductory “Blog” Post</h3>
+
+                        <p class="entry-summary">
+                            A short opening essay explaining why this section exists and why I do not expect everything here to fit the traditional idea of a “blog.”
+                        </p>
+
+                        <div class="entry-content">
+                            <p>
+                                Hello again, and welcome to my website. More specifically, welcome to my “blog.” I have that in quotations because I am not so sure yet that the bulk of the writing I will do here will take the traditional “blog” format. In general, the purpose of this “blog” is the same as any other: to provide an outlet for my thoughts that can be communicated better than just thinking them at people.
+                            </p>
+
+                            <p>
+                                <i>However</i>, I am sure that the thoughts that I would like to share over the years will take on wildly different lengths and media. This is where my “blog” will vary from the norm. Some entries could be massive musings, while some may be short puzzles, animations, open questions, recipes, what have you.
+                            </p>
+
+                            <p>
+                                If you accept the premise that academic websites should also be personal sites, then it doesn’t make sense not to break a few other conventions, if doing so will have some utility. Spherical cows and whatnot.
+                            </p>
+
+                            <div class="entry-image-wrap">
+                                <img src="spherical-cow.webp" alt="Spherical cow illustration" class="entry-image">
+                            </div>
+
+                            <!-- IF YOU WANT TO CHANGE THIS IMAGE, REPLACE spherical-cow.webp -->
+                            <!-- IF YOU WANT A CAPTION, ADD IT BELOW IN A <p class="image-caption">...</p> -->
+                        </div>
+
+                        <div class="like-button-container">
+                            <button class="like-button" data-id="like-1">
+                                Like <span class="like-checkmark" style="display: none;">✔</span>
+                            </button>
+                            <span class="like-count">0</span>
+                        </div>
+                    </article>
+
+                    <!-- POST 2 -->
+                    <article class="writing-entry" id="llnl-post">
+                        <div class="writing-meta">
+                            <span class="card-tag">Research Reflection</span>
+                            <span class="post-date">Summer 2024</span>
+                        </div>
+
+                        <h3>LLNL Blog #1</h3>
+
+                        <p class="entry-summary">
+                            Reflections from the beginning of my internship at Lawrence Livermore National Laboratory, including thoughts on research culture, institutional scale, and the structure of scientific work.
+                        </p>
+
+                        <div class="entry-content">
+                            <p>
+                                I am posting this on Friday, June 31st, 2024. Today is now my third day working at Lawrence Livermore National Laboratory (LLNL). I have an internship here for the rest of the summer, so now seems a fitting time for a “preflection” on what I expect from and plan to do throughout the experience. As a reader of this page, my guess is that you are interested in some capacity in my early research work and my perspectives on that work, so that is what I will try to focus on.
+                            </p>
+
+                            <p>
+                                At this point in my life, I have really only watched research being done first-hand in relatively small groups in a teaching university setting. I have noticed that, at least in such an environment, that grant-writing is a huge process that takes up the majority of the skilled labor available to the group. This is obvious in the case of the College of Charleston, where most research is done just by a single professor and an undergraduate or two. A large part of my motivation in transferring out of CofC is this very thing. I think that having the opportunity to participate in research directly with an expert mentor has been extremely useful in learning the process and getting a higher-level perspective on what it means to be a researcher, but I am hoping to bring that into a laboratory setting with more labor, and frankly, more funding. That being said, I think that having the experience of direct mentorship as early as I had will serve me well in getting more important roles in those larger labs, compared to my age-peers whose research experiences thus far have consisted of getting coffee and cleaning lab equipment.
+                            </p>
+
+                            <p>
+                                That brings me to LLNL. Also known as “Lasers, Lasers, Nothing but Lasers”, LLNL represents, in theory, the extreme end of the research-to-teaching spectrum, with <i>billions</i> in funding annually for almost exclusively research. I get the impression that how research universities view the research done at small teaching schools like CofC, LLNL views the research done at most large research universities. So far I have attended a few seminars briefing the historical and current work done at the lab. A conclusion that one of these seminars came to was that the very expensive early experimental work done at the lab is what paved the road for the same technology to be feasible in a university lab setting, where the application and optimization occurs. In my own analogy, it is like how the government funding of highways is expensive, massive, and general, and is more or less designed to stimulate the economy and encourage the birth of new towns, which ultimately becomes the profitable basis of the investment represented by the highway.
+                            </p>
+
+                            <p>
+                                This makes the concept of the national lab very compelling. What academic would not want near-guaranteed funding in perpetuity? A big drawback, of course, is that LLNL is a secure facility. It is very difficult to gain public or wide acclaim for classified work, regardless of its impact. In practice, I doubt that this would matter much in terms of career development, as good work will still yield internal progress, which can likely be manifested externally later. The larger concern for me personally is that it means that application and progress is then in the hands of the government, and presumably more difficult to pursue on a personal level.
+                            </p>
+
+                            <p>
+                                Because of this, I anticipate that working in such an environment will give me insight into a very new kind of corporate-like research structure. If I have the means, I like the idea of founding a general research and development organization later in my career. As novelty is something that I always strive for, seeing what kinds of structures already exist, along with their pros and cons, is personally extremely valuable.
+                            </p>
+
+                            <p>
+                                Ideally I will also walk away from the summer with my name in a paper, lifelong connections, and another job offer for next year, but this is less meta-progress and more the consequence of doing well at the work itself. I also anticipate enjoying rock climbing, living in a new city, and meeting new people, as any other nineteen-year-old would, but those are not nearly as unique or relevant as the discussion above. Regardless, I look forward to a fun, and hopefully very productive, summer.
+                            </p>
+
+                            <!-- IMPORTANT: YOUR ORIGINAL DATE IS IMPOSSIBLE -->
+                            <!-- JUNE 31 DOES NOT EXIST -->
+                            <!-- REPLACE THAT SENTENCE WITH THE REAL DATE BEFORE PUBLISHING -->
+                        </div>
+
+                        <div class="like-button-container">
+                            <button class="like-button" data-id="like-2">
+                                Like <span class="like-checkmark" style="display: none;">✔</span>
+                            </button>
+                            <span class="like-count">0</span>
+                        </div>
+                    </article>
+
+                    <!-- POST 3 -->
+                    <article class="writing-entry" id="transfer-essay">
+                        <div class="writing-meta">
+                            <span class="card-tag">Essay / PDF</span>
+                            <span class="post-date">Application Essay</span>
+                        </div>
+
+                        <h3>Boston University Transfer Essay</h3>
+
+                        <p class="entry-summary">
+                            A PDF version of my transfer essay to Boston University, written in response to one of the 2024 University of Chicago undergraduate application prompts.
+                        </p>
+
+                        <div class="entry-content">
+                            <p>
+                                Below is a PDF version of my transfer essay to Boston University. I was asked to write on any prompt I chose, so I selected one of the 2024 UChicago undergraduate application prompts. I think it makes for an interesting quick read.
+                            </p>
+
+                            <div class="pdf-embed-wrap">
+                                <embed src="BU_Blog_Essay.pdf" type="application/pdf" width="100%" height="650px">
+                            </div>
+
+                            <!-- IF YOU WANT TO REPLACE THIS PDF, CHANGE BU_Blog_Essay.pdf -->
+                            <!-- YOU COULD ALSO REPLACE THE EMBED WITH A BUTTON LINK IF YOU PREFER -->
+                        </div>
+
+                        <div class="like-button-container">
+                            <button class="like-button" data-id="like-3">
+                                Like <span class="like-checkmark" style="display: none;">✔</span>
+                            </button>
+                            <span class="like-count">0</span>
+                        </div>
+                    </article>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- SHORT-FORM BRIDGE -->
+        <section class="section focus-section">
+            <div class="container narrow">
+                <div class="section-heading center">
+                    <p class="section-label">From Short-Form to Long-Form</p>
+                    <h2>Where brief explanations become fuller discussions</h2>
+                </div>
+
+                <p class="focus-text">
+                    Many of the ideas I discuss in shorter public formats eventually need more room: more context, more argument, more mathematics, or simply more care. This page is where that happens.
+                </p>
+
+                <!-- YOU CAN CUSTOMIZE THIS TEXT TO FIT YOUR COMMUNICATION STRATEGY MORE EXACTLY -->
+            </div>
+        </section>
+
     </main>
-    <footer>
-        <p>&copy; 2024 Christian Kohnle. All rights reserved.</p>
+
+    <footer class="site-footer">
+        <div class="container footer-container">
+            <div>
+                <p class="footer-title">Christian Kohnle</p>
+                <p class="footer-subtitle">Research, writing, and public-facing work in physics and computation.</p>
+            </div>
+
+            <div class="footer-links">
+                <a href="https://github.com/CKohnle" target="_blank" rel="noopener noreferrer">GitHub</a>
+                <a href="https://www.linkedin.com/in/christian-kohnle-phys/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+                <a href="research.html">Research</a>
+                <a href="personal.html">About</a>
+                <!-- ADD EMAIL HERE IF YOU WANT -->
+                <!-- <a href="mailto:your@email.com">Email</a> -->
+            </div>
+        </div>
+
+        <div class="container footer-bottom">
+            <p>&copy; 2026 Christian Kohnle. All rights reserved.</p>
+        </div>
     </footer>
+
     <script src="script.js"></script>
 </body>
 </html>
