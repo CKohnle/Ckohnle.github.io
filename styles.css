@@ -519,3 +519,80 @@ img {
         width: 100%;
     }
 }
+
+/* =========================
+   RESEARCH PAGE
+========================= */
+
+.research-hero {
+    padding-bottom: 2rem;
+}
+
+.research-list {
+    display: grid;
+    gap: 2rem;
+}
+
+.research-entry {
+    padding: 2rem;
+    border-radius: 26px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+}
+
+.research-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.research-details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.research-detail-box {
+    padding: 1rem 1.1rem;
+    border-radius: 18px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.research-detail-box h4 {
+    font-size: 0.92rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent-2);
+    margin-bottom: 0.45rem;
+}
+
+.research-detail-box p {
+    color: var(--text);
+    font-size: 1rem;
+}
+
+.research-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+    margin-top: 1.5rem;
+}
+
+.research-pdf {
+    margin-top: 1.5rem;
+}
+
+@media (max-width: 720px) {
+    .research-entry {
+        padding: 1.35rem;
+    }
+
+    .research-details-grid {
+        grid-template-columns: 1fr;
+    }
+}
