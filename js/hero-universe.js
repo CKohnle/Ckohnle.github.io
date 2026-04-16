@@ -6,30 +6,22 @@
  * STATE MACHINE
  * ─────────────
  *  idle        → waiting for first click
- *  burst       → Big Bang origin burst (≈0.4 s)
- *  expansion   → particles cool and spread outward (≈1.4 s)
- *  clustering  → spring-force pulls particles into four galaxy clusters (≈2 s)
+ *  burst       → dense hot Big Bang burst / plasma phase
+ *  expansion   → particles cool, diffuse, and many disappear
+ *  clustering  → surviving colored particles gather into the 4 section galaxies
  *  navigation  → stable interactive state; cursor = black hole
  *  transition  → user clicked a cluster; plays black-hole exit
- *
- * ARCHITECTURE
- * ────────────
- *  HeroUniverse   — top-level controller, owns canvas & RAF loop
- *  Particle       — a single star/particle with position, velocity, colour
- *  AmbientStar    — free background star, not bound to any attractor
- *  GalaxyCluster  — attractor + label + hit area for one section
- *  SpatialGrid    — loose-grid for O(local) cursor influence
  */
 
 'use strict';
 
 // ── TUNABLE CONSTANTS ───────────────────────────────────────────────────────
 const CFG = {
-  // Particle counts (bound to clusters)
+  // Section-cluster particles
   PARTICLE_COUNT_DESKTOP: 620,
   PARTICLE_COUNT_MOBILE: 220,
 
-    // Ambient/free stars (global galactic background)
+  // Ambient/free stars (persistent background)
   AMBIENT_STAR_COUNT_DESKTOP: 1200,
   AMBIENT_STAR_COUNT_MOBILE: 320,
   AMBIENT_STAR_SPEED_MIN: 0.18,
@@ -39,24 +31,33 @@ const CFG = {
   AMBIENT_SWIRL_STRENGTH: 0.005,
   AMBIENT_CENTER_PULL: 0.00035,
 
+  // Temporary dense burst/plasma particles
+  BURST_FIELD_COUNT_DESKTOP: 2600,
+  BURST_FIELD_COUNT_MOBILE: 900,
+  BURST_FIELD_SPEED_MIN: 0.4,
+  BURST_FIELD_SPEED_MAX: 7.5,
+  BURST_FIELD_RADIUS_MIN: 0.6,
+  BURST_FIELD_RADIUS_MAX: 2.4,
+  BURST_FIELD_SURVIVAL_RATE: 0.14,
+
   // Burst
-  BURST_DURATION_MS: 400,
+  BURST_DURATION_MS: 450,
   BURST_MAX_SPEED: 28,
   BURST_PARTICLE_RADIUS: 2.5,
   BURST_FADE_RADIUS: 1.0,
 
-  // Expansion phase
-  EXPANSION_DURATION_MS: 1400,
-  EXPANSION_FRICTION: 0.96,
+  // Expansion / cooling
+  EXPANSION_DURATION_MS: 1700,
+  EXPANSION_FRICTION: 0.965,
 
-  // Clustering phase
+  // Clustering
   CLUSTERING_DURATION_MS: 2000,
   CLUSTER_SPRING_K: 0.025,
   CLUSTER_NOISE: 0.35,
   CLUSTER_SCATTER_RADIUS: 120,
   CLUSTER_STAGGER_MS: 300,
 
-  // Navigation (steady state)
+  // Navigation
   BLACK_HOLE_RADIUS: 90,
   BLACK_HOLE_STRENGTH: 0.55,
   BLACK_HOLE_ORBIT_SCALE: 0.08,
@@ -64,21 +65,16 @@ const CFG = {
   STAR_MIN_RADIUS: 0.6,
   STAR_MAX_RADIUS: 2.0,
 
-  // Orbital return around attractors
-  CLUSTER_ORBIT_STRENGTH: 0.012,
-  CLUSTER_RETURN_STRENGTH: 0.004,
-  CLUSTER_NAV_FRICTION: 0.94,
-
-  // Galaxy label
+  // Labels
   LABEL_FONT_SIZE_DESKTOP: '13px',
   LABEL_FONT_SIZE_MOBILE: '11px',
   LABEL_OFFSET_Y: 58,
   CLUSTER_HIT_RADIUS: 70,
 
-  // Timing totals
+  // Timing
   HINT_SHOW_DELAY_MS: 4200,
 
-  // Colours — should roughly match CSS
+  // Colours
   COLOURS: {
     background: { r: 6, g: 7, b: 13 },
     starBase: { r: 180, g: 190, b: 230 },
@@ -142,24 +138,21 @@ class SpatialGrid {
   }
 }
 
-// ── PARTICLE ────────────────────────────────────────────────────────────────
+// ── PARTICLE (SECTION-GALAXY STAR) ─────────────────────────────────────────
 class Particle {
   constructor(x, y, clusterIdx, totalCount, index) {
     this.clusterIdx = clusterIdx;
 
-    // Position
     this.x = x + Utils.rand(-2, 2);
     this.y = y + Utils.rand(-2, 2);
     this.ox = this.x;
     this.oy = this.y;
 
-    // Burst velocity
     const angle = (index / totalCount) * Math.PI * 2 + Utils.rand(-0.4, 0.4);
     const speed = Utils.rand(CFG.BURST_MAX_SPEED * 0.3, CFG.BURST_MAX_SPEED);
     this.vx = Math.cos(angle) * speed;
     this.vy = Math.sin(angle) * speed;
 
-    // Visual
     this.radius = CFG.BURST_PARTICLE_RADIUS;
     this.targetRadius = Utils.rand(CFG.STAR_MIN_RADIUS, CFG.STAR_MAX_RADIUS);
     this.twinklePhase = Utils.rand(0, Math.PI * 2);
@@ -171,7 +164,6 @@ class Particle {
     this.colour = { ...this.baseColour };
 
     this.clusterTarget = null;
-    this.settled = false;
   }
 
   updateBurst(friction) {
@@ -216,24 +208,25 @@ class Particle {
     this.vy += ( dx / d) * strength * CFG.BLACK_HOLE_ORBIT_SCALE;
   }
 
+  // Looser, broader galaxy motion
   updateNavigation(clusterX, clusterY) {
     const dx = clusterX - this.x;
     const dy = clusterY - this.y;
     const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-  
+
     this.vx += dx * 0.0018;
     this.vy += dy * 0.0018;
-  
+
     const orbitStrength = 0.16 / Math.sqrt(dist + 28);
     this.vx += (-dy / dist) * orbitStrength;
     this.vy += ( dx / dist) * orbitStrength;
-  
+
     this.vx *= 0.965;
     this.vy *= 0.965;
-  
+
     this.x += this.vx;
     this.y += this.vy;
-  
+
     this.twinklePhase += this.twinkleSpeed;
     const tw = (Math.sin(this.twinklePhase) * 0.5 + 0.5);
     this.radius = Utils.lerp(this.targetRadius * 0.6, this.targetRadius, tw);
@@ -241,11 +234,57 @@ class Particle {
 
   draw(ctx, alpha = 1) {
     if (this.radius < 0.1) return;
-    const a = Utils.clamp(alpha, 0, 1);
-    Utils.fillCircle(ctx, this.x, this.y, this.radius, Utils.rgba(this.colour, a));
+    Utils.fillCircle(ctx, this.x, this.y, this.radius, Utils.rgba(this.colour, Utils.clamp(alpha, 0, 1)));
   }
 }
 
+// ── TEMPORARY HOT BURST PARTICLE ───────────────────────────────────────────
+class BurstParticle {
+  constructor(x, y, angle, speed, colour) {
+    const jitterR = Utils.rand(0, 28);
+    const jitterA = Utils.rand(0, Math.PI * 2);
+
+    this.x = x + Math.cos(jitterA) * jitterR;
+    this.y = y + Math.sin(jitterA) * jitterR;
+
+    this.vx = Math.cos(angle) * speed + Utils.gaussRand() * 0.45;
+    this.vy = Math.sin(angle) * speed + Utils.gaussRand() * 0.45;
+
+    this.radius = Utils.rand(CFG.BURST_FIELD_RADIUS_MIN, CFG.BURST_FIELD_RADIUS_MAX);
+    this.alpha = Utils.rand(0.35, 1.0);
+    this.colour = colour;
+
+    this.alive = true;
+    this.survives = Math.random() < CFG.BURST_FIELD_SURVIVAL_RATE;
+  }
+
+  update(friction = 0.992) {
+    this.vx *= friction;
+    this.vy *= friction;
+    this.x += this.vx;
+    this.y += this.vy;
+  }
+
+  draw(ctx, coolingProgress = 0) {
+    if (!this.alive) return;
+
+    const fade = this.survives
+      ? Utils.lerp(1.0, 0.12, coolingProgress)
+      : Utils.lerp(1.0, 0.0, coolingProgress);
+
+    if (fade <= 0.01) return;
+
+    Utils.fillCircle(
+      ctx,
+      this.x,
+      this.y,
+      this.radius,
+      Utils.rgba(this.colour, this.alpha * fade)
+    );
+  }
+}
+
+// ── AMBIENT BACKGROUND STAR ────────────────────────────────────────────────
 class AmbientStar {
   constructor(x, y, vx, vy) {
     this.x = x;
@@ -258,7 +297,6 @@ class AmbientStar {
     this.twinklePhase = Utils.rand(0, Math.PI * 2);
     this.twinkleSpeed = Utils.rand(0.008, 0.03);
 
-    // Mostly white, with slight cool variation
     const white = { r: 255, g: 255, b: 255 };
     this.colour = Utils.lerpColour(
       CFG.COLOURS.starBase,
@@ -272,15 +310,12 @@ class AmbientStar {
     const dy = this.y - cy;
     const dist = Math.sqrt(dx * dx + dy * dy) || 1;
 
-    // Swirl around the moving center
     this.vx += (-dy / dist) * CFG.AMBIENT_SWIRL_STRENGTH * dist;
     this.vy += ( dx / dist) * CFG.AMBIENT_SWIRL_STRENGTH * dist;
 
-    // Very weak inward pull to keep the large galactic structure together
     this.vx += (-dx) * CFG.AMBIENT_CENTER_PULL;
     this.vy += (-dy) * CFG.AMBIENT_CENTER_PULL;
 
-    // Renormalize toward near-constant speed
     const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy) || 1;
     const targetSpeed = Utils.clamp(speed, CFG.AMBIENT_STAR_SPEED_MIN, CFG.AMBIENT_STAR_SPEED_MAX);
 
@@ -292,7 +327,6 @@ class AmbientStar {
 
     this.twinklePhase += this.twinkleSpeed;
 
-    // Soft wrap
     if (this.x < -20) this.x = width + 20;
     if (this.x > width + 20) this.x = -20;
     if (this.y < -20) this.y = height + 20;
@@ -317,7 +351,6 @@ class GalaxyCluster {
     this.y = def.fy * viewH;
 
     this.hitRadius = CFG.CLUSTER_HIT_RADIUS;
-
     this.labelAlpha = 0;
     this.glowAlpha = 0;
     this.hovered = false;
@@ -388,10 +421,11 @@ class HeroUniverse {
     // Simulation
     this.particles = [];
     this.ambientStars = [];
+    this.burstParticles = [];
     this.clusters = [];
     this.grid = new SpatialGrid(CFG.BLACK_HOLE_RADIUS);
 
-    // Click origin for burst
+    // Burst origin
     this.originX = 0;
     this.originY = 0;
 
@@ -399,7 +433,7 @@ class HeroUniverse {
     this.cursorX = -1000;
     this.cursorY = -1000;
 
-    // Moving galactic swirl center for ambient stars
+    // Moving ambient swirl center
     this.ambientCenterX = 0;
     this.ambientCenterY = 0;
     this.targetAmbientCenterX = 0;
@@ -471,7 +505,7 @@ class HeroUniverse {
     this._startLoop();
   }
 
-    _resize() {
+  _resize() {
     this.width = this.canvas.offsetWidth;
     this.height = this.canvas.offsetHeight;
 
@@ -513,6 +547,69 @@ class HeroUniverse {
     }
   }
 
+  // ── BURST BUILDERS ──────────────────────────────────────
+
+  _buildClusters() {
+    this.clusters = CLUSTER_DEFS.map((def, i) => {
+      return new GalaxyCluster(def, CFG.COLOURS.clusters[i], this.width, this.height);
+    });
+  }
+
+  _buildBurstField() {
+    this.burstParticles = [];
+
+    const n = this.isMobile
+      ? CFG.BURST_FIELD_COUNT_MOBILE
+      : CFG.BURST_FIELD_COUNT_DESKTOP;
+
+    for (let i = 0; i < n; i++) {
+      const angle = Utils.rand(0, Math.PI * 2);
+
+      const speedBias = Math.random();
+      const speed = speedBias < 0.72
+        ? Utils.rand(CFG.BURST_FIELD_SPEED_MIN, CFG.BURST_FIELD_SPEED_MAX * 0.45)
+        : Utils.rand(CFG.BURST_FIELD_SPEED_MIN, CFG.BURST_FIELD_SPEED_MAX);
+
+      let colour;
+      const t = Math.random();
+      if (t < 0.72) {
+        colour = Utils.lerpColour(CFG.COLOURS.burstCore, { r: 255, g: 255, b: 255 }, Math.random());
+      } else if (t < 0.82) {
+        colour = CFG.COLOURS.clusters[0];
+      } else if (t < 0.90) {
+        colour = CFG.COLOURS.clusters[1];
+      } else if (t < 0.97) {
+        colour = CFG.COLOURS.clusters[2];
+      } else {
+        colour = CFG.COLOURS.clusters[3];
+      }
+
+      this.burstParticles.push(
+        new BurstParticle(this.originX, this.originY, angle, speed, colour)
+      );
+    }
+  }
+
+  _buildAmbientStars() {
+    this.ambientStars = [];
+    const n = this.isMobile
+      ? CFG.AMBIENT_STAR_COUNT_MOBILE
+      : CFG.AMBIENT_STAR_COUNT_DESKTOP;
+
+    for (let i = 0; i < n; i++) {
+      const angle = Utils.rand(0, Math.PI * 2);
+      const speed = Utils.rand(CFG.AMBIENT_STAR_SPEED_MIN, CFG.AMBIENT_STAR_SPEED_MAX) + Utils.rand(0.2, 1.8);
+      const spread = Utils.rand(0, 14);
+
+      const x = this.originX + Math.cos(angle) * spread;
+      const y = this.originY + Math.sin(angle) * spread;
+      const vx = Math.cos(angle) * speed;
+      const vy = Math.sin(angle) * speed;
+
+      this.ambientStars.push(new AmbientStar(x, y, vx, vy));
+    }
+  }
+
   // ── TRIGGER BIG BANG ────────────────────────────────────
 
   triggerBang(ox, oy) {
@@ -526,6 +623,7 @@ class HeroUniverse {
       : CFG.PARTICLE_COUNT_DESKTOP;
 
     this._buildClusters();
+    this._buildBurstField();
 
     this.particles = [];
     for (let i = 0; i < n; i++) {
@@ -536,41 +634,7 @@ class HeroUniverse {
     }
 
     this._buildAmbientStars();
-
     this._enterState('burst');
-  }
-
-  _buildClusters() {
-    this.clusters = CLUSTER_DEFS.map((def, i) => {
-      return new GalaxyCluster(def, CFG.COLOURS.clusters[i], this.width, this.height);
-    });
-  }
-
-  _buildAmbientStars() {
-    this.ambientStars = [];
-    const n = this.isMobile
-      ? CFG.AMBIENT_STAR_COUNT_MOBILE
-      : CFG.AMBIENT_STAR_COUNT_DESKTOP;
-
-    const cx = this.width * 0.5;
-    const cy = this.height * 0.5;
-    const maxR = Math.sqrt(cx * cx + cy * cy);
-
-    for (let i = 0; i < n; i++) {
-      // Distribute across the whole screen, but biased toward a broad disc
-      const angle = Utils.rand(0, Math.PI * 2);
-      const r = Math.pow(Math.random(), 0.72) * maxR;
-
-      const x = cx + Math.cos(angle) * r + Utils.rand(-40, 40);
-      const y = cy + Math.sin(angle) * r * 0.72 + Utils.rand(-30, 30);
-
-      // Initial velocity tangent to orbit around screen center
-      const speed = Utils.rand(CFG.AMBIENT_STAR_SPEED_MIN, CFG.AMBIENT_STAR_SPEED_MAX);
-      const vx = (-Math.sin(angle)) * speed;
-      const vy = ( Math.cos(angle)) * speed;
-
-      this.ambientStars.push(new AmbientStar(x, y, vx, vy));
-    }
   }
 
   // ── STATE MACHINE ───────────────────────────────────────
@@ -611,7 +675,7 @@ class HeroUniverse {
 
   _update(dt, now) {
     this._updateAmbientCenter();
-    
+
     switch (this.state) {
       case 'idle':
         break;
@@ -634,7 +698,7 @@ class HeroUniverse {
 
   _updateBurst() {
     const progress = Utils.clamp(this.stateT / CFG.BURST_DURATION_MS, 0, 1);
-    const friction = Utils.lerp(0.88, CFG.EXPANSION_FRICTION, progress);
+    const friction = Utils.lerp(0.90, CFG.EXPANSION_FRICTION, progress);
 
     this.particles.forEach(p => {
       p.updateBurst(friction);
@@ -649,6 +713,8 @@ class HeroUniverse {
         Utils.easeOutExpo(progress)
       );
     });
+
+    this.burstParticles.forEach(p => p.update(0.988));
 
     this.ambientStars.forEach(s =>
       s.update(this.width, this.height, this.ambientCenterX, this.ambientCenterY)
@@ -669,10 +735,22 @@ class HeroUniverse {
       );
     });
 
+    this.burstParticles.forEach(p => p.update(0.992));
+
+    // Gradually remove most burst particles
+    if (progress > 0.08) {
+      this.burstParticles.forEach(p => {
+        if (!p.survives && Math.random() < progress * 0.065) {
+          p.alive = false;
+        }
+      });
+    }
+    this.burstParticles = this.burstParticles.filter(p => p.alive || p.survives);
+
     this.ambientStars.forEach(s =>
       s.update(this.width, this.height, this.ambientCenterX, this.ambientCenterY)
     );
-    
+
     if (progress >= 1) this._beginClustering();
   }
 
@@ -691,6 +769,9 @@ class HeroUniverse {
       const localT = (this.stateT - clusterOffset) / CFG.CLUSTERING_DURATION_MS;
       p.updateClustering(p.clusterTarget.x, p.clusterTarget.y, localT);
     });
+
+    this.burstParticles.forEach(p => p.update(0.996));
+    this.burstParticles = this.burstParticles.filter(p => p.alive || p.survives);
 
     this.ambientStars.forEach(s =>
       s.update(this.width, this.height, this.ambientCenterX, this.ambientCenterY)
@@ -748,35 +829,51 @@ class HeroUniverse {
     const ctx = this.ctx;
     ctx.clearRect(0, 0, this.width, this.height);
 
-    // Background
     ctx.fillStyle = Utils.rgba(CFG.COLOURS.background, 1);
     ctx.fillRect(0, 0, this.width, this.height);
 
-    // Idle starfield
+    // faint moving void
+    Utils.drawGlow(
+      ctx,
+      this.ambientCenterX,
+      this.ambientCenterY,
+      110,
+      { r: 20, g: 18, b: 40 },
+      0.16
+    );
+
     if (this.state === 'idle' && this._idleStars) {
       this._idleStars.forEach(s => {
         Utils.fillCircle(ctx, s.x, s.y, s.r, Utils.rgba(s.c, s.a));
       });
     }
 
-    // Ambient/free stars
     this.ambientStars.forEach(s => s.draw(ctx));
 
-    // Burst flash
     if (this.state === 'burst') {
       const flashT = Utils.clamp(1 - this.stateT / CFG.BURST_DURATION_MS, 0, 1);
-      const flashAlp = Utils.easeInExpo(flashT) * 0.75;
+      const flashAlp = Utils.easeInExpo(flashT) * 0.85;
       Utils.drawGlow(
         ctx,
         this.originX,
         this.originY,
-        300 * (1 - flashT + 0.1),
+        360 * (1 - flashT + 0.14),
         CFG.COLOURS.burstCore,
         flashAlp
       );
     }
 
-    // Main particles
+    let coolingProgress = 0;
+    if (this.state === 'burst') {
+      coolingProgress = 0;
+    } else if (this.state === 'expansion') {
+      coolingProgress = Utils.clamp(this.stateT / CFG.EXPANSION_DURATION_MS, 0, 1);
+    } else if (this.state === 'clustering' || this.state === 'navigation') {
+      coolingProgress = 1;
+    }
+
+    this.burstParticles.forEach(p => p.draw(ctx, coolingProgress));
+
     this.particles.forEach(p => {
       let alpha = 1;
       if (this.state === 'burst') {
@@ -785,10 +882,8 @@ class HeroUniverse {
       p.draw(ctx, alpha);
     });
 
-    // Cluster glows + labels
     this.clusters.forEach(c => c.draw(ctx, this.isMobile));
 
-    // Custom cursor in idle and navigation
     if ((this.state === 'idle' || this.state === 'navigation') && !this.isMobile && this.cursorX > -500) {
       this._drawBlackHoleCursor(ctx);
     }
