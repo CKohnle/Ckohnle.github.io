@@ -34,6 +34,19 @@ const CFG = {
   BURST_PARTICLE_RADIUS:  2.5,   // initial glowing radius
   BURST_FADE_RADIUS:      1.0,   // radius at end of burst
 
+    // Ambient/free stars
+  AMBIENT_STAR_COUNT_DESKTOP: 260,
+  AMBIENT_STAR_COUNT_MOBILE: 100,
+  AMBIENT_STAR_SPEED_MIN: 0.15,
+  AMBIENT_STAR_SPEED_MAX: 1.4,
+  AMBIENT_STAR_RADIUS_MIN: 0.35,
+  AMBIENT_STAR_RADIUS_MAX: 1.6,
+
+  // Orbital return around attractors
+  CLUSTER_ORBIT_STRENGTH: 0.012,
+  CLUSTER_RETURN_STRENGTH: 0.004,
+  CLUSTER_NAV_FRICTION: 0.94,
+
   // Expansion phase
   EXPANSION_DURATION_MS:  1400,
   EXPANSION_FRICTION:     0.96,  // velocity damping per frame
@@ -326,6 +339,44 @@ class GalaxyCluster {
 
     if (this.hovered) ctx.restore();
     ctx.restore();
+  }
+}
+
+class AmbientStar {
+  constructor(x, y, vx, vy) {
+    this.x = x;
+    this.y = y;
+    this.vx = vx;
+    this.vy = vy;
+    this.radius = Utils.rand(CFG.AMBIENT_STAR_RADIUS_MIN, CFG.AMBIENT_STAR_RADIUS_MAX);
+    this.alpha = Utils.rand(0.25, 0.9);
+    this.twinklePhase = Utils.rand(0, Math.PI * 2);
+    this.twinkleSpeed = Utils.rand(0.01, 0.04);
+    this.colour = Utils.lerpColour(
+      CFG.COLOURS.starBase,
+      { r: 255, g: 255, b: 255 },
+      Utils.rand(0.35, 1.0)
+    );
+  }
+
+  update(width, height, friction = 0.995) {
+    this.vx *= friction;
+    this.vy *= friction;
+    this.x += this.vx;
+    this.y += this.vy;
+
+    this.twinklePhase += this.twinkleSpeed;
+
+    // wrap around edges softly
+    if (this.x < -10) this.x = width + 10;
+    if (this.x > width + 10) this.x = -10;
+    if (this.y < -10) this.y = height + 10;
+    if (this.y > height + 10) this.y = -10;
+  }
+
+  draw(ctx) {
+    const tw = 0.65 + 0.35 * Math.sin(this.twinklePhase);
+    Utils.fillCircle(ctx, this.x, this.y, this.radius, Utils.rgba(this.colour, this.alpha * tw));
   }
 }
 
