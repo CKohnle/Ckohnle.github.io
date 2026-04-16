@@ -271,23 +271,20 @@ class AmbientStar {
     );
   }
 
-  update(width, height) {
-    const cx = width * 0.5;
-    const cy = height * 0.5;
-
+  update(width, height, cx, cy) {
     const dx = this.x - cx;
     const dy = this.y - cy;
     const dist = Math.sqrt(dx * dx + dy * dy) || 1;
 
-    // Tangential swirl around the screen center
+    // Swirl around the moving center
     this.vx += (-dy / dist) * CFG.AMBIENT_SWIRL_STRENGTH * dist;
     this.vy += ( dx / dist) * CFG.AMBIENT_SWIRL_STRENGTH * dist;
 
-    // Very weak inward pull to keep a broad galactic structure
+    // Very weak inward pull to keep the large galactic structure together
     this.vx += (-dx) * CFG.AMBIENT_CENTER_PULL;
     this.vy += (-dy) * CFG.AMBIENT_CENTER_PULL;
 
-    // Normalize back toward roughly constant speed
+    // Renormalize toward near-constant speed
     const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy) || 1;
     const targetSpeed = Utils.clamp(speed, CFG.AMBIENT_STAR_SPEED_MIN, CFG.AMBIENT_STAR_SPEED_MAX);
 
@@ -406,6 +403,12 @@ class HeroUniverse {
     this.cursorX = -1000;
     this.cursorY = -1000;
 
+    // Moving galactic swirl center for ambient stars
+    this.ambientCenterX = 0;
+    this.ambientCenterY = 0;
+    this.targetAmbientCenterX = 0;
+    this.targetAmbientCenterY = 0;
+
     // RAF
     this._rafId = null;
     this._lastTime = 0;
@@ -430,15 +433,22 @@ class HeroUniverse {
         const r = this.canvas.getBoundingClientRect();
         this.cursorX = e.clientX - r.left;
         this.cursorY = e.clientY - r.top;
+
+        this.targetAmbientCenterX = this.cursorX;
+        this.targetAmbientCenterY = this.cursorY;
+
         this._updateHover();
 
-        // redraw idle state smoothly before first click
         if (this.state === 'idle') this._render();
       });
 
       this.canvas.addEventListener('mouseleave', () => {
         this.cursorX = -1000;
         this.cursorY = -1000;
+
+        this.targetAmbientCenterX = this.width * 0.5;
+        this.targetAmbientCenterY = this.height * 0.5;
+
         this.clusters.forEach(c => c.hovered = false);
         if (this.state === 'idle') this._render();
       });
@@ -451,6 +461,10 @@ class HeroUniverse {
         const t = e.touches[0];
         this.cursorX = t.clientX - r.left;
         this.cursorY = t.clientY - r.top;
+
+        this.targetAmbientCenterX = this.cursorX;
+        this.targetAmbientCenterY = this.cursorY;
+
         this._updateHover();
       }, { passive: false });
     }
@@ -461,13 +475,19 @@ class HeroUniverse {
     this._startLoop();
   }
 
-  _resize() {
+    _resize() {
     this.width = this.canvas.offsetWidth;
     this.height = this.canvas.offsetHeight;
 
-    // reset transform so scaling does not compound
     this.ctx.setTransform(1, 0, 0, 1, 0, 0);
     this.dpr = Utils.setupHiDPI(this.canvas, this.ctx, this.width, this.height);
+
+    if (this.ambientCenterX === 0 && this.ambientCenterY === 0) {
+      this.ambientCenterX = this.width * 0.5;
+      this.ambientCenterY = this.height * 0.5;
+      this.targetAmbientCenterX = this.ambientCenterX;
+      this.targetAmbientCenterY = this.ambientCenterY;
+    }
 
     this.clusters.forEach((c, i) => {
       c.x = CLUSTER_DEFS[i].fx * this.width;
@@ -594,6 +614,8 @@ class HeroUniverse {
   // ── UPDATE ──────────────────────────────────────────────
 
   _update(dt, now) {
+    this._updateAmbientCenter();
+    
     switch (this.state) {
       case 'idle':
         break;
@@ -632,7 +654,9 @@ class HeroUniverse {
       );
     });
 
-    this.ambientStars.forEach(s => s.update(this.width, this.height));
+    this.ambientStars.forEach(s =>
+      s.update(this.width, this.height, this.ambientCenterX, this.ambientCenterY)
+    );
 
     if (progress >= 1) this._enterState('expansion');
   }
@@ -649,8 +673,10 @@ class HeroUniverse {
       );
     });
 
-    this.ambientStars.forEach(s => s.update(this.width, this.height));
-
+    this.ambientStars.forEach(s =>
+      s.update(this.width, this.height, this.ambientCenterX, this.ambientCenterY)
+    );
+    
     if (progress >= 1) this._beginClustering();
   }
 
@@ -670,7 +696,9 @@ class HeroUniverse {
       p.updateClustering(p.clusterTarget.x, p.clusterTarget.y, localT);
     });
 
-    this.ambientStars.forEach(s => s.update(this.width, this.height));
+    this.ambientStars.forEach(s =>
+      s.update(this.width, this.height, this.ambientCenterX, this.ambientCenterY)
+    );
 
     const labelT = Utils.clamp((progress - 0.4) / 0.6, 0, 1);
     this.clusters.forEach(c => {
@@ -708,7 +736,14 @@ class HeroUniverse {
       p.updateNavigation(cluster.x, cluster.y);
     });
 
-    this.ambientStars.forEach(s => s.update(this.width, this.height));
+    this.ambientStars.forEach(s =>
+      s.update(this.width, this.height, this.ambientCenterX, this.ambientCenterY)
+    );
+  }
+
+  _updateAmbientCenter() {
+    this.ambientCenterX = Utils.lerp(this.ambientCenterX, this.targetAmbientCenterX, 0.045);
+    this.ambientCenterY = Utils.lerp(this.ambientCenterY, this.targetAmbientCenterY, 0.045);
   }
 
   // ── RENDER ──────────────────────────────────────────────
