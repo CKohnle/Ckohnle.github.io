@@ -74,16 +74,25 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // Hide prompt on first click (which triggers the bang)
+    const promptMain = prompt ? prompt.querySelector('.prompt-main') : null;
+  const promptSub  = prompt ? prompt.querySelector('.prompt-sub')  : null;
+
   canvas.addEventListener('click', () => {
-    if (prompt && !prompt.classList.contains('hidden')) {
-      prompt.classList.add('hidden');
+    if (promptMain) {
+      promptMain.classList.add('hidden');
+    }
+    if (promptSub) {
+      promptSub.classList.add('awaits-visible');
     }
   }, { once: true });
 
   // ── MOBILE: also support tap to start ────────────────────
-  canvas.addEventListener('touchend', (e) => {
-    if (prompt && !prompt.classList.contains('hidden')) {
-      prompt.classList.add('hidden');
+  canvas.addEventListener('touchend', () => {
+    if (promptMain) {
+      promptMain.classList.add('hidden');
+    }
+    if (promptSub) {
+      promptSub.classList.add('awaits-visible');
     }
   }, { once: true });
 
