@@ -28,12 +28,12 @@ const CFG = {
   AMBIENT_STAR_SPEED_MAX: 0.85,
   AMBIENT_STAR_RADIUS_MIN: 0.25,
   AMBIENT_STAR_RADIUS_MAX: 1.35,
-  AMBIENT_SWIRL_STRENGTH: 0.005,
+  AMBIENT_SWIRL_STRENGTH: 0.0025,
   AMBIENT_CENTER_PULL: 0.00035,
 
   // Temporary dense burst/plasma particles
-  BURST_FIELD_COUNT_DESKTOP: 2600,
-  BURST_FIELD_COUNT_MOBILE: 900,
+  BURST_FIELD_COUNT_DESKTOP: 3400,
+  BURST_FIELD_COUNT_MOBILE: 1200,
   BURST_FIELD_SPEED_MIN: 0.4,
   BURST_FIELD_SPEED_MAX: 7.5,
   BURST_FIELD_RADIUS_MIN: 0.6,
@@ -241,7 +241,7 @@ class Particle {
 // ── TEMPORARY HOT BURST PARTICLE ───────────────────────────────────────────
 class BurstParticle {
   constructor(x, y, angle, speed, colour) {
-    const jitterR = Utils.rand(0, 28);
+    const jitterR = Utils.rand(0, 56);
     const jitterA = Utils.rand(0, Math.PI * 2);
 
     this.x = x + Math.cos(jitterA) * jitterR;
@@ -599,7 +599,7 @@ class HeroUniverse {
     for (let i = 0; i < n; i++) {
       const angle = Utils.rand(0, Math.PI * 2);
       const speed = Utils.rand(CFG.AMBIENT_STAR_SPEED_MIN, CFG.AMBIENT_STAR_SPEED_MAX) + Utils.rand(0.2, 1.8);
-      const spread = Utils.rand(0, 14);
+      const spread = Utils.rand(0, 28);
 
       const x = this.originX + Math.cos(angle) * spread;
       const y = this.originY + Math.sin(angle) * spread;
@@ -819,8 +819,8 @@ class HeroUniverse {
   }
 
   _updateAmbientCenter() {
-    this.ambientCenterX = Utils.lerp(this.ambientCenterX, this.targetAmbientCenterX, 0.045);
-    this.ambientCenterY = Utils.lerp(this.ambientCenterY, this.targetAmbientCenterY, 0.045);
+    this.ambientCenterX = Utils.lerp(this.ambientCenterX, this.targetAmbientCenterX, 0.018);
+    this.ambientCenterY = Utils.lerp(this.ambientCenterY, this.targetAmbientCenterY, 0.018);
   }
 
   // ── RENDER ──────────────────────────────────────────────
