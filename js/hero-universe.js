@@ -654,7 +654,7 @@ class HeroUniverse {
       this.particles.push(p);
     }
 
-    this._buildAmbientStars();
+    //this._buildAmbientStars();
     this._enterState('burst');
   }
 
@@ -738,9 +738,9 @@ class HeroUniverse {
     this.burstParticles.forEach(p => p.update(0.988));
 
     // Free-stream only during early universe phases
-    this.ambientStars.forEach(s =>
-      s.freeUpdate(this.width, this.height, 0.998)
-    );
+    //this.ambientStars.forEach(s =>
+    //  s.freeUpdate(this.width, this.height, 0.998)
+    //);
 
     if (progress >= 1) this._enterState('expansion');
   }
@@ -768,9 +768,9 @@ class HeroUniverse {
     }
     this.burstParticles = this.burstParticles.filter(p => p.alive || p.survives);
 
-    this.ambientStars.forEach(s =>
-      s.freeUpdate(this.width, this.height, 0.999)
-    );
+    //this.ambientStars.forEach(s =>
+    //  s.freeUpdate(this.width, this.height, 0.999)
+    //);
 
     if (progress >= 1) this._beginClustering();
   }
@@ -794,9 +794,9 @@ class HeroUniverse {
     this.burstParticles.forEach(p => p.update(0.996));
     this.burstParticles = this.burstParticles.filter(p => p.alive || p.survives);
 
-    this.ambientStars.forEach(s =>
-      s.freeUpdate(this.width, this.height, 1.0)
-    );
+    //this.ambientStars.forEach(s =>
+    //  s.freeUpdate(this.width, this.height, 1.0)
+    //);
 
     const labelT = Utils.clamp((progress - 0.4) / 0.6, 0, 1);
     this.clusters.forEach(c => {
@@ -835,9 +835,9 @@ class HeroUniverse {
     });
 
     // Only now do ambient stars gently respond to the cursor-centered void.
-    this.ambientStars.forEach(s =>
-      s.update(this.width, this.height, this.ambientCenterX, this.ambientCenterY)
-    );
+    //this.ambientStars.forEach(s =>
+    //  s.update(this.width, this.height, this.ambientCenterX, this.ambientCenterY)
+    //);
   }
 
   _updateAmbientCenter() {
@@ -870,7 +870,7 @@ class HeroUniverse {
       });
     }
 
-    this.ambientStars.forEach(s => s.draw(ctx));
+    //this.ambientStars.forEach(s => s.draw(ctx));
 
     if (this.state === 'burst') {
       const flashT = Utils.clamp(1 - this.stateT / CFG.BURST_DURATION_MS, 0, 1);
