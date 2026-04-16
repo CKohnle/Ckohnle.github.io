@@ -29,13 +29,15 @@ const CFG = {
   PARTICLE_COUNT_DESKTOP: 620,
   PARTICLE_COUNT_MOBILE: 220,
 
-  // Ambient/free stars
-  AMBIENT_STAR_COUNT_DESKTOP: 260,
-  AMBIENT_STAR_COUNT_MOBILE: 100,
-  AMBIENT_STAR_SPEED_MIN: 0.15,
-  AMBIENT_STAR_SPEED_MAX: 1.4,
-  AMBIENT_STAR_RADIUS_MIN: 0.35,
-  AMBIENT_STAR_RADIUS_MAX: 1.6,
+    // Ambient/free stars (global galactic background)
+  AMBIENT_STAR_COUNT_DESKTOP: 1200,
+  AMBIENT_STAR_COUNT_MOBILE: 320,
+  AMBIENT_STAR_SPEED_MIN: 0.18,
+  AMBIENT_STAR_SPEED_MAX: 0.85,
+  AMBIENT_STAR_RADIUS_MIN: 0.25,
+  AMBIENT_STAR_RADIUS_MAX: 1.35,
+  AMBIENT_SWIRL_STRENGTH: 0.005,
+  AMBIENT_CENTER_PULL: 0.00035,
 
   // Burst
   BURST_DURATION_MS: 400,
@@ -247,7 +249,6 @@ class Particle {
   }
 }
 
-// ── AMBIENT STAR ───────────────────────────────────────────────────────────
 class AmbientStar {
   constructor(x, y, vx, vy) {
     this.x = x;
@@ -256,34 +257,56 @@ class AmbientStar {
     this.vy = vy;
 
     this.radius = Utils.rand(CFG.AMBIENT_STAR_RADIUS_MIN, CFG.AMBIENT_STAR_RADIUS_MAX);
-    this.alpha = Utils.rand(0.25, 0.9);
+    this.alpha = Utils.rand(0.18, 0.85);
     this.twinklePhase = Utils.rand(0, Math.PI * 2);
-    this.twinkleSpeed = Utils.rand(0.01, 0.04);
+    this.twinkleSpeed = Utils.rand(0.008, 0.03);
 
+    // Mostly white, with slight cool variation
+    const white = { r: 255, g: 255, b: 255 };
     this.colour = Utils.lerpColour(
       CFG.COLOURS.starBase,
-      { r: 255, g: 255, b: 255 },
-      Utils.rand(0.35, 1.0)
+      white,
+      Utils.rand(0.65, 1.0)
     );
   }
 
-  update(width, height, friction = 0.995) {
-    this.vx *= friction;
-    this.vy *= friction;
+  update(width, height) {
+    const cx = width * 0.5;
+    const cy = height * 0.5;
+
+    const dx = this.x - cx;
+    const dy = this.y - cy;
+    const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+
+    // Tangential swirl around the screen center
+    this.vx += (-dy / dist) * CFG.AMBIENT_SWIRL_STRENGTH * dist;
+    this.vy += ( dx / dist) * CFG.AMBIENT_SWIRL_STRENGTH * dist;
+
+    // Very weak inward pull to keep a broad galactic structure
+    this.vx += (-dx) * CFG.AMBIENT_CENTER_PULL;
+    this.vy += (-dy) * CFG.AMBIENT_CENTER_PULL;
+
+    // Normalize back toward roughly constant speed
+    const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy) || 1;
+    const targetSpeed = Utils.clamp(speed, CFG.AMBIENT_STAR_SPEED_MIN, CFG.AMBIENT_STAR_SPEED_MAX);
+
+    this.vx = (this.vx / speed) * targetSpeed;
+    this.vy = (this.vy / speed) * targetSpeed;
+
     this.x += this.vx;
     this.y += this.vy;
 
     this.twinklePhase += this.twinkleSpeed;
 
-    // soft wrap
-    if (this.x < -10) this.x = width + 10;
-    if (this.x > width + 10) this.x = -10;
-    if (this.y < -10) this.y = height + 10;
-    if (this.y > height + 10) this.y = -10;
+    // Soft wrap
+    if (this.x < -20) this.x = width + 20;
+    if (this.x > width + 20) this.x = -20;
+    if (this.y < -20) this.y = height + 20;
+    if (this.y > height + 20) this.y = -20;
   }
 
   draw(ctx) {
-    const tw = 0.65 + 0.35 * Math.sin(this.twinklePhase);
+    const tw = 0.72 + 0.28 * Math.sin(this.twinklePhase);
     Utils.fillCircle(ctx, this.x, this.y, this.radius, Utils.rgba(this.colour, this.alpha * tw));
   }
 }
@@ -512,15 +535,22 @@ class HeroUniverse {
       ? CFG.AMBIENT_STAR_COUNT_MOBILE
       : CFG.AMBIENT_STAR_COUNT_DESKTOP;
 
-    for (let i = 0; i < n; i++) {
-      const angle = Utils.rand(0, Math.PI * 2);
-      const speed = Utils.rand(CFG.AMBIENT_STAR_SPEED_MIN, CFG.AMBIENT_STAR_SPEED_MAX);
-      const spread = Utils.rand(0, 35);
+    const cx = this.width * 0.5;
+    const cy = this.height * 0.5;
+    const maxR = Math.sqrt(cx * cx + cy * cy);
 
-      const x = this.originX + Math.cos(angle) * spread;
-      const y = this.originY + Math.sin(angle) * spread;
-      const vx = Math.cos(angle) * speed;
-      const vy = Math.sin(angle) * speed;
+    for (let i = 0; i < n; i++) {
+      // Distribute across the whole screen, but biased toward a broad disc
+      const angle = Utils.rand(0, Math.PI * 2);
+      const r = Math.pow(Math.random(), 0.72) * maxR;
+
+      const x = cx + Math.cos(angle) * r + Utils.rand(-40, 40);
+      const y = cy + Math.sin(angle) * r * 0.72 + Utils.rand(-30, 30);
+
+      // Initial velocity tangent to orbit around screen center
+      const speed = Utils.rand(CFG.AMBIENT_STAR_SPEED_MIN, CFG.AMBIENT_STAR_SPEED_MAX);
+      const vx = (-Math.sin(angle)) * speed;
+      const vy = ( Math.cos(angle)) * speed;
 
       this.ambientStars.push(new AmbientStar(x, y, vx, vy));
     }
@@ -601,7 +631,7 @@ class HeroUniverse {
       );
     });
 
-    this.ambientStars.forEach(s => s.update(this.width, this.height, 0.998));
+    this.ambientStars.forEach(s => s.update(this.width, this.height));
 
     if (progress >= 1) this._enterState('expansion');
   }
@@ -618,7 +648,7 @@ class HeroUniverse {
       );
     });
 
-    this.ambientStars.forEach(s => s.update(this.width, this.height, 0.999));
+    this.ambientStars.forEach(s => s.update(this.width, this.height));
 
     if (progress >= 1) this._beginClustering();
   }
@@ -639,7 +669,7 @@ class HeroUniverse {
       p.updateClustering(p.clusterTarget.x, p.clusterTarget.y, localT);
     });
 
-    this.ambientStars.forEach(s => s.update(this.width, this.height, 1.0));
+    this.ambientStars.forEach(s => s.update(this.width, this.height));
 
     const labelT = Utils.clamp((progress - 0.4) / 0.6, 0, 1);
     this.clusters.forEach(c => {
@@ -677,7 +707,7 @@ class HeroUniverse {
       p.updateNavigation(cluster.x, cluster.y);
     });
 
-    this.ambientStars.forEach(s => s.update(this.width, this.height, 1.0));
+    this.ambientStars.forEach(s => s.update(this.width, this.height));
   }
 
   // ── RENDER ──────────────────────────────────────────────
