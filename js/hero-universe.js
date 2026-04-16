@@ -644,7 +644,7 @@ class HeroUniverse {
       : CFG.PARTICLE_COUNT_DESKTOP;
 
     this._buildClusters();
-    //this._buildBurstField();
+    this._buildBurstField();
 
     this.particles = [];
     for (let i = 0; i < n; i++) {
@@ -678,6 +678,23 @@ class HeroUniverse {
 
       this._update(dt, now);
       this._render();
+
+      if (!this._perf) {
+        this._perf = {
+          frames: 0,
+          lastLog: performance.now(),
+          fps: 0
+        };
+      }
+      
+      this._perf.frames++;
+      const elapsed = now - this._perf.lastLog;
+      if (elapsed > 1000) {
+        this._perf.fps = this._perf.frames * 1000 / elapsed;
+        console.log('FPS:', this._perf.fps.toFixed(1), 'state:', this.state);
+        this._perf.frames = 0;
+        this._perf.lastLog = now;
+      }
 
       this._rafId = requestAnimationFrame(tick);
     };
@@ -738,9 +755,9 @@ class HeroUniverse {
     this.burstParticles.forEach(p => p.update(0.988));
 
     // Free-stream only during early universe phases
-    //this.ambientStars.forEach(s =>
-    //  s.freeUpdate(this.width, this.height, 0.998)
-    //);
+    this.ambientStars.forEach(s =>
+      s.freeUpdate(this.width, this.height, 0.998)
+    );
 
     if (progress >= 1) this._enterState('expansion');
   }
@@ -768,9 +785,9 @@ class HeroUniverse {
     }
     this.burstParticles = this.burstParticles.filter(p => p.alive || p.survives);
 
-    //this.ambientStars.forEach(s =>
-    //  s.freeUpdate(this.width, this.height, 0.999)
-    //);
+    this.ambientStars.forEach(s =>
+      s.freeUpdate(this.width, this.height, 0.999)
+    );
 
     if (progress >= 1) this._beginClustering();
   }
@@ -794,9 +811,9 @@ class HeroUniverse {
     this.burstParticles.forEach(p => p.update(0.996));
     this.burstParticles = this.burstParticles.filter(p => p.alive || p.survives);
 
-    //this.ambientStars.forEach(s =>
-    //  s.freeUpdate(this.width, this.height, 1.0)
-    //);
+    this.ambientStars.forEach(s =>
+      s.freeUpdate(this.width, this.height, 1.0)
+    );
 
     const labelT = Utils.clamp((progress - 0.4) / 0.6, 0, 1);
     this.clusters.forEach(c => {
@@ -835,9 +852,9 @@ class HeroUniverse {
     });
 
     // Only now do ambient stars gently respond to the cursor-centered void.
-    //this.ambientStars.forEach(s =>
-    //  s.update(this.width, this.height, this.ambientCenterX, this.ambientCenterY)
-    //);
+    this.ambientStars.forEach(s =>
+      s.update(this.width, this.height, this.ambientCenterX, this.ambientCenterY)
+    );
   }
 
   _updateAmbientCenter() {
@@ -870,7 +887,7 @@ class HeroUniverse {
       });
     }
 
-    //this.ambientStars.forEach(s => s.draw(ctx));
+    this.ambientStars.forEach(s => s.draw(ctx));
 
     if (this.state === 'burst') {
       const flashT = Utils.clamp(1 - this.stateT / CFG.BURST_DURATION_MS, 0, 1);
@@ -894,7 +911,7 @@ class HeroUniverse {
       coolingProgress = 1;
     }
 
-    //this.burstParticles.forEach(p => p.draw(ctx, coolingProgress));
+    this.burstParticles.forEach(p => p.draw(ctx, coolingProgress));
 
     this.particles.forEach(p => {
       let alpha = 1;
