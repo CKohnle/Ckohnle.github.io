@@ -644,7 +644,7 @@ class HeroUniverse {
       : CFG.PARTICLE_COUNT_DESKTOP;
 
     this._buildClusters();
-    this._buildBurstField();
+    //this._buildBurstField();
 
     this.particles = [];
     for (let i = 0; i < n; i++) {
@@ -894,7 +894,7 @@ class HeroUniverse {
       coolingProgress = 1;
     }
 
-    this.burstParticles.forEach(p => p.draw(ctx, coolingProgress));
+    //this.burstParticles.forEach(p => p.draw(ctx, coolingProgress));
 
     this.particles.forEach(p => {
       let alpha = 1;
