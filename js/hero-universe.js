@@ -211,34 +211,41 @@ class Particle {
     const dx = clusterX - this.x;
     const dy = clusterY - this.y;
     const dist = Math.max(Math.sqrt(dx * dx + dy * dy), 12);
-  
+
     const preferredRadius = CFG.CLUSTER_SCATTER_RADIUS * 1.15;
-  
-    // Only weakly correct radius relative to a broad preferred orbit zone
+
     if (dist > preferredRadius) {
       this.vx += dx * 0.0016;
       this.vy += dy * 0.0016;
     } else if (dist < preferredRadius * 0.55) {
-      // push gently outward if star falls too close to the core
       this.vx -= dx * 0.0009;
       this.vy -= dy * 0.0009;
     }
-  
-    // Add bounded tangential motion around the attractor
+
     const orbitStrength = 0.085 / Math.sqrt(dist + 18);
     this.vx += (-dy / dist) * orbitStrength;
     this.vy += ( dx / dist) * orbitStrength;
-  
-    // Light damping
+
     this.vx *= 0.945;
     this.vy *= 0.945;
-  
+
     this.x += this.vx;
     this.y += this.vy;
-  
+
     this.twinklePhase += this.twinkleSpeed;
     const tw = (Math.sin(this.twinklePhase) * 0.5 + 0.5);
     this.radius = Utils.lerp(this.targetRadius * 0.6, this.targetRadius, tw);
+  }
+
+  draw(ctx, alpha = 1) {
+    if (this.radius < 0.1) return;
+    Utils.fillCircle(
+      ctx,
+      this.x,
+      this.y,
+      this.radius,
+      Utils.rgba(this.colour, Utils.clamp(alpha, 0, 1))
+    );
   }
 }
 
@@ -309,7 +316,6 @@ class AmbientStar {
     );
   }
 
-  // Free-stream during burst/expansion/clustering — no cursor gravity yet.
   freeUpdate(width, height, friction = 1.0) {
     this.vx *= friction;
     this.vy *= friction;
@@ -325,7 +331,6 @@ class AmbientStar {
     if (this.y > height + 20) this.y = -20;
   }
 
-  // Gentle cursor-coupled motion only in navigation state.
   update(width, height, cx, cy) {
     const dx = this.x - cx;
     const dy = this.y - cy;
@@ -433,37 +438,30 @@ class HeroUniverse {
     this.dpr = 1;
     this.isMobile = Utils.isMobile();
 
-    // State
     this.state = 'idle';
     this.stateT = 0;
     this.phaseStart = 0;
 
-    // Simulation
     this.particles = [];
     this.ambientStars = [];
     this.burstParticles = [];
     this.clusters = [];
     this.grid = new SpatialGrid(CFG.BLACK_HOLE_RADIUS);
 
-    // Burst origin
     this.originX = 0;
     this.originY = 0;
 
-    // Cursor
     this.cursorX = -1000;
     this.cursorY = -1000;
 
-    // Moving ambient swirl center
     this.ambientCenterX = 0;
     this.ambientCenterY = 0;
     this.targetAmbientCenterX = 0;
     this.targetAmbientCenterY = 0;
 
-    // RAF
     this._rafId = null;
     this._lastTime = 0;
 
-    // Callbacks
     this.onNavigate = null;
     this.onStable = null;
 
@@ -471,8 +469,6 @@ class HeroUniverse {
 
     this._init();
   }
-
-  // ── INIT ────────────────────────────────────────────────
 
   _init() {
     this._resize();
@@ -547,8 +543,6 @@ class HeroUniverse {
     if (this.state === 'idle') this._buildIdleStars();
   }
 
-  // ── IDLE ────────────────────────────────────────────────
-
   _buildIdleStars() {
     this._idleStars = [];
     const n = this.isMobile ? 80 : 180;
@@ -566,8 +560,6 @@ class HeroUniverse {
       });
     }
   }
-
-  // ── BURST BUILDERS ──────────────────────────────────────
 
   _buildClusters() {
     this.clusters = CLUSTER_DEFS.map((def, i) => {
@@ -610,7 +602,6 @@ class HeroUniverse {
     }
   }
 
-  // Ambient stars are born in the burst, then survive into the background.
   _buildAmbientStars() {
     this.ambientStars = [];
     const n = this.isMobile
@@ -630,8 +621,6 @@ class HeroUniverse {
       this.ambientStars.push(new AmbientStar(x, y, vx, vy));
     }
   }
-
-  // ── TRIGGER BIG BANG ────────────────────────────────────
 
   triggerBang(ox, oy) {
     if (this.state !== 'idle') return;
@@ -654,11 +643,9 @@ class HeroUniverse {
       this.particles.push(p);
     }
 
-    //this._buildAmbientStars();
+    this._buildAmbientStars();
     this._enterState('burst');
   }
-
-  // ── STATE MACHINE ───────────────────────────────────────
 
   _enterState(name) {
     this.state = name;
@@ -679,23 +666,6 @@ class HeroUniverse {
       this._update(dt, now);
       this._render();
 
-      if (!this._perf) {
-        this._perf = {
-          frames: 0,
-          lastLog: performance.now(),
-          fps: 0
-        };
-      }
-      
-      this._perf.frames++;
-      const elapsed = now - this._perf.lastLog;
-      if (elapsed > 1000) {
-        this._perf.fps = this._perf.frames * 1000 / elapsed;
-        console.log('FPS:', this._perf.fps.toFixed(1), 'state:', this.state);
-        this._perf.frames = 0;
-        this._perf.lastLog = now;
-      }
-
       this._rafId = requestAnimationFrame(tick);
     };
 
@@ -709,9 +679,7 @@ class HeroUniverse {
     }
   }
 
-  // ── UPDATE ──────────────────────────────────────────────
-
-  _update(dt, now) {
+  _update() {
     this._updateAmbientCenter();
 
     switch (this.state) {
@@ -754,7 +722,6 @@ class HeroUniverse {
 
     this.burstParticles.forEach(p => p.update(0.988));
 
-    // Free-stream only during early universe phases
     this.ambientStars.forEach(s =>
       s.freeUpdate(this.width, this.height, 0.998)
     );
@@ -851,7 +818,6 @@ class HeroUniverse {
       p.updateNavigation(cluster.x, cluster.y);
     });
 
-    // Only now do ambient stars gently respond to the cursor-centered void.
     this.ambientStars.forEach(s =>
       s.update(this.width, this.height, this.ambientCenterX, this.ambientCenterY)
     );
@@ -862,8 +828,6 @@ class HeroUniverse {
     this.ambientCenterY = Utils.lerp(this.ambientCenterY, this.targetAmbientCenterY, 0.012);
   }
 
-  // ── RENDER ──────────────────────────────────────────────
-
   _render() {
     const ctx = this.ctx;
     ctx.clearRect(0, 0, this.width, this.height);
@@ -871,39 +835,6 @@ class HeroUniverse {
     ctx.fillStyle = Utils.rgba(CFG.COLOURS.background, 1);
     ctx.fillRect(0, 0, this.width, this.height);
 
-    console.log('first burst particle:', this.burstParticles[0]);
-    console.log('first main particle:', this.particles[0]);
-    console.log('first ambient star:', this.ambientStars[0]);
-    
-    this.burstParticles.forEach((p, i) => {
-      if (typeof p?.draw !== 'function') {
-        console.error('bad burst particle at index', i, p);
-        return;
-      }
-      p.draw(ctx, coolingProgress);
-    });
-    
-    this.particles.forEach((p, i) => {
-      if (typeof p?.draw !== 'function') {
-        console.error('bad main particle at index', i, p);
-        return;
-      }
-      let alpha = 1;
-      if (this.state === 'burst') {
-        alpha = Utils.clamp(this.stateT / (CFG.BURST_DURATION_MS * 0.5), 0, 1);
-      }
-      p.draw(ctx, alpha);
-    });
-    
-    this.ambientStars.forEach((s, i) => {
-      if (typeof s?.draw !== 'function') {
-        console.error('bad ambient star at index', i, s);
-        return;
-      }
-      s.draw(ctx);
-    });
-
-    // Faint moving void only really matters later, but harmless across states.
     Utils.drawGlow(
       ctx,
       this.ambientCenterX,
@@ -979,8 +910,6 @@ class HeroUniverse {
     Utils.drawGlow(ctx, x, y, 30, CFG.COLOURS.clusters[1], 0.12);
   }
 
-  // ── INTERACTION ─────────────────────────────────────────
-
   _updateHover() {
     if (this.state !== 'navigation') return;
 
@@ -1016,8 +945,6 @@ class HeroUniverse {
       }
     }
   }
-
-  // ── PUBLIC API ──────────────────────────────────────────
 
   getState() {
     return this.state;
