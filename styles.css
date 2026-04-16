@@ -19,6 +19,11 @@
     padding: 0;
 }
 
+/* Critical fix for hidden elements */
+[hidden] {
+    display: none !important;
+}
+
 html {
     scroll-behavior: smooth;
 }
@@ -31,6 +36,7 @@ body {
         linear-gradient(180deg, #06101d 0%, #091524 40%, #07111f 100%);
     color: var(--text);
     line-height: 1.65;
+    overflow-x: hidden;
 }
 
 a {
@@ -38,7 +44,9 @@ a {
     text-decoration: none;
 }
 
-img {
+img,
+svg,
+embed {
     max-width: 100%;
     display: block;
 }
@@ -52,6 +60,10 @@ img {
     width: min(92%, 820px);
     margin: 0 auto;
 }
+
+/* =========================
+   NAV / HEADER
+========================= */
 
 .site-header {
     position: sticky;
@@ -94,6 +106,10 @@ img {
 .site-nav a:hover {
     color: #ffffff;
 }
+
+/* =========================
+   OLD HERO / PAGE SECTIONS
+========================= */
 
 .hero {
     min-height: 92vh;
@@ -411,115 +427,6 @@ img {
     color: var(--text);
 }
 
-.site-footer {
-    padding: 3.5rem 0 2rem;
-    border-top: 1px solid rgba(255,255,255,0.07);
-    background: rgba(0, 0, 0, 0.14);
-}
-
-.footer-container {
-    display: flex;
-    justify-content: space-between;
-    gap: 2rem;
-    align-items: flex-start;
-    flex-wrap: wrap;
-}
-
-.footer-title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 0.35rem;
-}
-
-.footer-subtitle {
-    color: var(--muted);
-}
-
-.footer-links {
-    display: flex;
-    gap: 1.2rem;
-    flex-wrap: wrap;
-}
-
-.footer-links a {
-    color: var(--muted);
-    transition: color 0.2s ease;
-}
-
-.footer-links a:hover {
-    color: #ffffff;
-}
-
-.footer-bottom {
-    padding-top: 1.5rem;
-}
-
-.footer-bottom p {
-    color: var(--muted);
-    font-size: 0.95rem;
-}
-
-@media (max-width: 1100px) {
-    .hero-grid,
-    .featured-layout,
-    .card-grid.four,
-    .card-grid.three {
-        grid-template-columns: 1fr;
-    }
-
-    .hero {
-        min-height: auto;
-        padding-top: 4rem;
-    }
-
-    .hero-visual {
-        min-height: 420px;
-    }
-
-    .visual-shell {
-        min-height: 420px;
-    }
-
-    .hero-text h1 {
-        max-width: 14ch;
-    }
-}
-
-@media (max-width: 720px) {
-    .nav-container {
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 1rem 0;
-    }
-
-    .site-nav {
-        gap: 1rem;
-    }
-
-    .hero-description,
-    .intro-strip p,
-    .section-heading p,
-    .focus-text {
-        font-size: 1rem;
-    }
-
-    .section {
-        padding: 4.5rem 0;
-    }
-
-    .update-item {
-        grid-template-columns: 1fr;
-    }
-
-    .hero-text h1 {
-        font-size: clamp(2.4rem, 12vw, 4rem);
-    }
-
-    .button {
-        width: 100%;
-    }
-}
-
 /* =========================
    RESEARCH PAGE
 ========================= */
@@ -585,16 +492,6 @@ img {
 
 .research-pdf {
     margin-top: 1.5rem;
-}
-
-@media (max-width: 720px) {
-    .research-entry {
-        padding: 1.35rem;
-    }
-
-    .research-details-grid {
-        grid-template-columns: 1fr;
-    }
 }
 
 /* =========================
@@ -705,34 +602,231 @@ img {
     color: var(--muted);
 }
 
-@media (max-width: 1100px) {
-    .about-hero-grid,
-    .about-facts-grid {
-        grid-template-columns: 1fr;
-    }
+/* =========================
+   PAGE HERO / WRITING
+========================= */
+
+.page-hero {
+    padding: 8rem 0 3rem;
 }
 
-@media (max-width: 720px) {
-    .about-prose p {
-        font-size: 1rem;
-    }
+.page-hero h1 {
+    font-size: clamp(2.6rem, 5vw, 4.6rem);
+    line-height: 1.04;
+    letter-spacing: -0.04em;
+    margin-bottom: 1rem;
+}
 
-    .experience-entry,
-    .about-fact-card {
-        padding: 1.2rem;
-    }
+.page-hero-description {
+    font-size: 1.12rem;
+    color: var(--muted);
+    max-width: 760px;
+}
 
-    .about-placeholder-card {
-        min-height: 280px;
-    }
+.writing-hero,
+.research-hero,
+.about-hero {
+    padding-bottom: 2rem;
+}
+
+.categories-section {
+    padding-top: 2rem;
+}
+
+.category-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+}
+
+.category-pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0.55rem 1rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--muted);
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.writing-list {
+    display: grid;
+    gap: 2rem;
+}
+
+.writing-entry {
+    padding: 2rem;
+    border-radius: 26px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+}
+
+.writing-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.post-date {
+    color: var(--muted);
+    font-size: 0.94rem;
+}
+
+.writing-entry h3 {
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    line-height: 1.15;
+    margin-bottom: 0.9rem;
+}
+
+.entry-summary {
+    color: var(--muted);
+    font-size: 1.05rem;
+    margin-bottom: 1.4rem;
+    max-width: 900px;
+}
+
+.entry-content {
+    max-width: 880px;
+}
+
+.entry-content p {
+    margin-bottom: 1.15rem;
+    color: var(--text);
+    font-size: 1.02rem;
+}
+
+.entry-content i {
+    color: #ffffff;
+}
+
+.entry-image-wrap {
+    margin-top: 1.4rem;
+    margin-bottom: 0.6rem;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.03);
+}
+
+.entry-image {
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+    height: auto;
+    display: block;
+}
+
+.image-caption {
+    margin-top: 0.7rem;
+    color: var(--muted);
+    font-size: 0.92rem;
+    text-align: center;
+}
+
+.pdf-embed-wrap {
+    margin-top: 1.2rem;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.03);
+}
+
+.like-button-container {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin-top: 1.5rem;
+}
+
+.like-button {
+    min-height: 42px;
+    padding: 0.65rem 1rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text);
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.like-button:hover {
+    transform: translateY(-2px);
+    border-color: rgba(124, 140, 255, 0.45);
+    background: rgba(255,255,255,0.07);
+}
+
+.like-count {
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.like-checkmark {
+    margin-left: 0.35rem;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+.site-footer {
+    padding: 3.5rem 0 2rem;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    background: rgba(0, 0, 0, 0.14);
+}
+
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.footer-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+}
+
+.footer-subtitle {
+    color: var(--muted);
+}
+
+.footer-links {
+    display: flex;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+}
+
+.footer-links a {
+    color: var(--muted);
+    transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+    color: #ffffff;
+}
+
+.footer-bottom {
+    padding-top: 1.5rem;
+}
+
+.footer-bottom p {
+    color: var(--muted);
+    font-size: 0.95rem;
 }
 
 /* =========================
    INTERACTIVE HOMEPAGE HERO
-   Add this to your existing stylesheet
 ========================= */
 
-/* Hide default cursor only inside the interactive hero on desktop */
 body.home #hero {
     cursor: none;
 }
@@ -760,7 +854,6 @@ body.home .site-footer {
     display: block;
 }
 
-/* Prompt shown before click */
 .hero-prompt {
     position: absolute;
     inset: 0;
@@ -778,6 +871,7 @@ body.home .site-footer {
 .hero-prompt.hidden {
     opacity: 0;
     transition: opacity 0.6s ease;
+    pointer-events: none;
 }
 
 .prompt-main {
@@ -801,7 +895,6 @@ body.home .site-footer {
     50% { opacity: 1; }
 }
 
-/* Hint after galaxy clusters stabilize */
 .hero-hint {
     position: absolute;
     bottom: 2rem;
@@ -823,7 +916,6 @@ body.home .site-footer {
     opacity: 0.7;
 }
 
-/* Reduced motion fallback nav inside hero */
 .reduced-nav {
     position: absolute;
     inset: 0;
@@ -834,6 +926,10 @@ body.home .site-footer {
     flex-wrap: wrap;
     padding: 2rem;
     z-index: 11;
+}
+
+.reduced-nav[hidden] {
+    display: none !important;
 }
 
 .reduced-nav__item {
@@ -855,7 +951,6 @@ body.home .site-footer {
     background: rgba(255,255,255,0.08);
 }
 
-/* Transition overlay used for black-hole page exit */
 .transition-overlay {
     position: fixed;
     inset: 0;
@@ -869,7 +964,6 @@ body.home .site-footer {
     will-change: transform, opacity;
 }
 
-/* Page reveal overlay for destination pages */
 .page-reveal-overlay {
     position: fixed;
     inset: 0;
@@ -878,7 +972,6 @@ body.home .site-footer {
     pointer-events: none;
 }
 
-/* Optional utility */
 .visually-hidden {
     position: absolute;
     width: 1px;
@@ -891,16 +984,84 @@ body.home .site-footer {
     border: 0;
 }
 
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-    .hero-prompt {
-        animation: none;
-        opacity: 1;
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1100px) {
+    .hero-grid,
+    .featured-layout,
+    .card-grid.four,
+    .card-grid.three,
+    .about-hero-grid,
+    .about-facts-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hero {
+        min-height: auto;
+        padding-top: 4rem;
+    }
+
+    .hero-visual {
+        min-height: 420px;
+    }
+
+    .visual-shell {
+        min-height: 420px;
+    }
+
+    .hero-text h1 {
+        max-width: 14ch;
     }
 }
 
-/* Mobile adjustments */
 @media (max-width: 720px) {
+    .nav-container {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1rem 0;
+    }
+
+    .site-nav {
+        gap: 1rem;
+    }
+
+    .hero-description,
+    .intro-strip p,
+    .section-heading p,
+    .focus-text,
+    .about-prose p,
+    .entry-summary,
+    .page-hero-description,
+    .entry-content p {
+        font-size: 1rem;
+    }
+
+    .section {
+        padding: 4.5rem 0;
+    }
+
+    .update-item,
+    .research-details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-text h1 {
+        font-size: clamp(2.4rem, 12vw, 4rem);
+    }
+
+    .button {
+        width: 100%;
+    }
+
+    .writing-entry,
+    .research-entry,
+    .experience-entry,
+    .about-fact-card {
+        padding: 1.2rem;
+    }
+
     body.home #hero {
         cursor: auto;
     }
@@ -922,5 +1083,26 @@ body.home .site-footer {
         width: 100%;
         max-width: 280px;
         text-align: center;
+    }
+
+    .about-placeholder-card {
+        min-height: 280px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-prompt {
+        animation: none;
+        opacity: 1;
+    }
+
+    * {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+
+    html {
+        scroll-behavior: auto;
     }
 }
