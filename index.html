@@ -1,269 +1,136 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Christian Kohnle</title>
-    <meta name="description" content="Research, scientific writing, and public-facing work in physics, cosmology, and computation." />
-
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet" />
-
-    <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#020c16">
+  <meta name="description" content="QuestLedger — turn daily work into quests and rewards.">
+  <title>QuestLedger</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
 </head>
-<body class="home">
-
-    <!-- NAVBAR -->
-    <header class="site-header">
-        <div class="container nav-container">
-            <a href="index.html" class="site-logo">Christian Kohnle</a>
-
-            <nav class="site-nav">
-                <a href="index.html">Home</a>
-                <a href="blog.html">Writing</a>
-                <a href="research.html">Research</a>
-                <a href="personal.html">About</a>
-                <a href="task.html">Projects</a>
-                <!-- If you are still using task.html, replace projects.html everywhere with task.html -->
-            </nav>
-        </div>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#dashboard"><span class="brand-mark">✦</span><span>QuestLedger</span></a>
+      <nav aria-label="Primary navigation">
+        <a class="active" href="#dashboard">Dashboard</a>
+        <a href="#quests">Quests</a>
+        <a href="#calendar">Journal</a>
+        <a href="#shop">Rewards</a>
+      </nav>
+      <button class="primary-action" id="add-quest-button" type="button">＋ Add Quest <span>✦</span></button>
+      <div class="account">
+        <span id="sync-status">Signed out</span>
+        <button id="auth-button" type="button">Sign in</button>
+      </div>
     </header>
 
-    <!-- INTERACTIVE HERO -->
-    <section id="hero" aria-label="Interactive cosmology hero">
-        <canvas id="universe-canvas" aria-hidden="true"></canvas>
-
-        <!-- Prompt overlay shown before first click -->
-        <div id="hero-prompt" class="hero-prompt" role="status" aria-live="polite">
-            <span class="prompt-main">Click anywhere to begin</span>
-            <span class="prompt-sub">An interactive universe awaits</span>
+    <div class="constellation" aria-hidden="true"></div>
+    <section class="content" id="dashboard">
+      <div class="date-heading">
+        <div class="crest">✦</div>
+        <div>
+          <p class="eyebrow" id="day-status">No quests</p>
+          <h1 id="selected-date-heading"></h1>
+          <div class="gold-rule"></div>
         </div>
+      </div>
 
-        <!-- Reduced-motion fallback -->
-        <nav id="reduced-motion-nav" class="reduced-nav" aria-label="Site sections" hidden>
-            <a href="research.html" class="reduced-nav__item">Research</a>
-            <a href="blog.html" class="reduced-nav__item">Writing</a>
-            <a href="personal.html" class="reduced-nav__item">About</a>
-            <a href="projects.html" class="reduced-nav__item">Projects</a>
-        </nav>
+      <div class="quest-strip" id="quests" aria-live="polite"></div>
 
-        <!-- Hint after clusters stabilize -->
-        <p id="hero-hint" class="hero-hint" aria-hidden="true">
-            Move your cursor · Click a cluster to explore
-        </p>
+      <div class="dashboard-grid">
+        <section class="calendar-card" id="calendar">
+          <div class="calendar-head">
+            <button id="previous-month" type="button" aria-label="Previous month">‹</button>
+            <h2 id="month-heading"></h2>
+            <button id="next-month" type="button" aria-label="Next month">›</button>
+          </div>
+          <div class="weekday-row" aria-hidden="true">
+            <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span>
+            <span>Thu</span><span>Fri</span><span>Sat</span>
+          </div>
+          <div class="calendar-grid" id="calendar-grid"></div>
+          <div class="legend">
+            <span><i class="blue-dot"></i>Unfinished quests</span>
+            <span><i class="gold-dot"></i>Completed only</span>
+            <span><i class="selected-box"></i>Selected day</span>
+          </div>
+        </section>
+
+        <aside class="side-column">
+          <section class="detail-card" id="quest-detail">
+            <div class="detail-empty"><span>✦</span><h2>Select a quest</h2><p>Choose a quest bubble to inspect its full ledger entry.</p></div>
+          </section>
+          <section class="gold-card" aria-label="Current gold balance">
+            <span class="coin">✦</span>
+            <div><strong id="gold-balance">0</strong><span>Gold</span></div>
+          </section>
+        </aside>
+      </div>
+
+      <section class="shop-card" id="shop">
+        <div class="shop-intro">
+          <p class="eyebrow">Your spoils</p>
+          <h2>Reward Shop</h2>
+          <p>Redeem hard-earned gold for rewards worth working toward.</p>
+          <button class="secondary-action" id="add-reward-button" type="button">＋ Add Reward</button>
+        </div>
+        <div class="reward-list" id="reward-list"></div>
+      </section>
+      <footer><span></span>✦ Stay focused. Complete quests. Earn gold. Build your legend. ✦<span></span></footer>
     </section>
+  </main>
 
-    <!-- REST OF YOUR ORIGINAL HOMEPAGE -->
-    <main id="main-content">
+  <div class="auth-gate" id="auth-gate">
+    <div class="gate-card">
+      <span class="gate-mark">✦</span>
+      <p class="eyebrow">Cloud ledger</p>
+      <h2>Enter QuestLedger</h2>
+      <p>Sign in with Google to load the same quests, gold, and rewards on every device.</p>
+      <button class="complete-button" id="gate-sign-in" type="button">Continue with Google</button>
+    </div>
+  </div>
 
-        <!-- SITE PURPOSE -->
-        <section class="section intro-strip">
-            <div class="container narrow">
-                <p>
-                    This website is a central hub for my public-facing research and intellectual output. It is designed for both academic readers and the broader public: a place to explore what I work on, what I explain online, and where to go deeper through writing, projects, and research.
-                </p>
-            </div>
-        </section>
+  <dialog id="quest-dialog">
+    <form class="modal" id="quest-form">
+      <button type="button" class="modal-close" data-close-dialog="quest-dialog" aria-label="Close">×</button>
+      <p class="eyebrow">Ledger entry</p>
+      <h2 id="quest-form-title">Add a Quest</h2>
+      <input type="hidden" name="id">
+      <label>Quest name<input name="title" required maxlength="100" placeholder="e.g. Finish section draft"></label>
+      <label>Long description<textarea name="description" required maxlength="1000" placeholder="What does completion require?"></textarea></label>
+      <div class="form-row">
+        <label>Start date<input name="date" type="date" required></label>
+        <label>Gold reward<input name="reward" type="number" min="1" max="100000" value="50" required></label>
+      </div>
+      <div class="form-row">
+        <label>Importance<select name="importance"><option>Low</option><option selected>Medium</option><option>High</option><option>Critical</option></select></label>
+        <label>Category<input name="category" list="category-list" value="General" required maxlength="50"></label>
+      </div>
+      <label>Repeat<select name="recurrence"><option value="none">One time</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></label>
+      <button class="complete-button" type="submit">Save quest</button>
+    </form>
+  </dialog>
 
-        <!-- START HERE -->
-        <section class="section" id="start-here">
-            <div class="container">
-                <div class="section-heading">
-                    <p class="section-label">Start Here</p>
-                    <h2>Best entry points for new visitors</h2>
-                    <p>
-                        This section is for people arriving from short-form content, YouTube, or general interest. Start here for the clearest introductions to the ideas I talk about most.
-                    </p>
-                </div>
-        
-                <div class="card-grid three">
-                    <a href="blog.html" class="content-card">
-                        <span class="card-tag">Future Physics</span>
-                        <h3>Final DESInation</h3>
-                        <p>
-                            The Dark Energy Spectroscopic Instrument, the science of the power spectrum, and the future of cosmology.
-                        </p>
-                    </a>
-        
-                    <a href="blog.html" class="content-card">
-                        <span class="card-tag">SciPhi</span>
-                        <h3>The Philosophy of Many Worlds</h3>
-                        <p>
-                            A discussion of the Many Worlds Interpretation of Quantum Mechanics, with a focus on new understanding of quantum decoherence.
-                        </p>
-                    </a>
-        
-                    <a href="blog.html" class="content-card">
-                        <span class="card-tag">Physics News</span>
-                        <h3>What Does it Matter?</h3>
-                        <p>
-                            How (and why) CERN has built the first method of transporting antimatter and its consequences.
-                        </p>
-                    </a>
-                </div>
-            </div>
-        </section>
+  <dialog id="reward-dialog">
+    <form class="modal compact" id="reward-form">
+      <button type="button" class="modal-close" data-close-dialog="reward-dialog" aria-label="Close">×</button>
+      <p class="eyebrow">New incentive</p>
+      <h2 id="reward-form-title">Add a Reward</h2>
+      <input type="hidden" name="id">
+      <label>Reward name<input name="name" required maxlength="100" placeholder="e.g. Dinner out"></label>
+      <label>Description<textarea name="description" maxlength="500" placeholder="What are you redeeming?"></textarea></label>
+      <div class="form-row">
+        <label>Icon<input name="icon" maxlength="8" value="✦"></label>
+        <label>Gold cost<input name="cost" type="number" min="1" max="1000000" value="100" required></label>
+      </div>
+      <button class="complete-button" type="submit">Save reward</button>
+    </form>
+  </dialog>
 
-        <!-- FEATURED -->
-        <section class="section">
-            <div class="container">
-                <div class="section-heading">
-                    <p class="section-label">Featured</p>
-                    <h2>Selected work across research and communication</h2>
-                    <p>
-                        A few highlighted pieces that reflect both the technical and explanatory sides of what I do.
-                    </p>
-                </div>
-
-                <div class="featured-layout">
-                    <a href="research.html" class="feature-large">
-                        <span class="card-tag">Research Highlight</span>
-                        <h3>Fast Two-Loop EFTofLSS Evaluation</h3>
-                        <p>
-                            Developing efficient computational methods for evaluating precision large-scale structure predictions, with the goal of making high-accuracy inference substantially faster and more scalable.
-                        </p>
-                        <span class="feature-link">Explore research →</span>
-                    </a>
-
-                    <div class="feature-stack">
-                        <a href="research.html" class="content-card">
-                            <span class="card-tag">Research</span>
-                            <h3>IR Resummation and BAO Precision</h3>
-                            <p>
-                                Improving theoretical control near the BAO scale for modern cosmological surveys.
-                            </p>
-                        </a>
-
-                        <a href="blog.html" class="content-card">
-                            <span class="card-tag">Writing</span>
-                            <h3>Long-Form Science Writing</h3>
-                            <p>
-                                Essays and explanatory pieces that expand on the topics I discuss in shorter public formats.
-                            </p>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- MAIN PILLARS -->
-        <section class="section">
-            <div class="container">
-                <div class="section-heading">
-                    <p class="section-label">Explore</p>
-                    <h2>Main sections of the site</h2>
-                    <p>
-                        The homepage is only the front door. These sections contain the real substance.
-                    </p>
-                </div>
-
-                <div class="card-grid four">
-                    <a href="blog.html" class="content-card">
-                        <h3>Writing</h3>
-                        <p>
-                            Blog posts, science communication, and longer written explanations of ideas in physics, mathematics, and computation.
-                        </p>
-                    </a>
-
-                    <a href="research.html" class="content-card">
-                        <h3>Research</h3>
-                        <p>
-                            Current and past research in theoretical cosmology, large-scale structure, computation, and related technical work.
-                        </p>
-                    </a>
-
-                    <a href="personal.html" class="content-card">
-                        <h3>About</h3>
-                        <p>
-                            Background, academic direction, experience, and a clearer picture of who I am and what I work on.
-                        </p>
-                    </a>
-
-                    <a href="projects.html" class="content-card">
-                        <h3>Projects</h3>
-                        <p>
-                            Technical systems, experiments, tools, workflows, and other project-based work that supports ongoing development.
-                        </p>
-                    </a>
-                </div>
-            </div>
-        </section>
-
-        <!-- CURRENT FOCUS -->
-        <section class="section focus-section">
-            <div class="container narrow">
-                <div class="section-heading center">
-                    <p class="section-label">Current Focus</p>
-                    <h2>What I am working on now</h2>
-                </div>
-
-                <p class="focus-text">
-                    My current work centers on theoretical cosmology and scientific computation, especially efficient large-scale structure methods, inference frameworks, and the development of tools that make difficult technical ideas clearer and more accessible.
-                </p>
-            </div>
-        </section>
-
-        <!-- UPDATES
-        <section class="section">
-            <div class="container">
-                <div class="section-heading">
-                    <p class="section-label">Updates</p>
-                    <h2>Recent activity</h2>
-                    <p>
-                        A curated bridge between ongoing research, written work, and public-facing content.
-                    </p>
-                </div>
-
-                <div class="updates-list">
-                    <a href="research.html" class="update-item">
-                        <span class="update-type">Research</span>
-                        <span class="update-text">Working on IR resummation integration for fast EFTofLSS pipelines.</span>
-                    </a>
-
-                    <a href="blog.html" class="update-item">
-                        <span class="update-type">Writing</span>
-                        <span class="update-text">Expanding long-form posts on cosmology, quantum theory, and explanation-driven physics writing.</span>
-                    </a>
-
-                    <a href="personal.html" class="update-item">
-                        <span class="update-type">Site</span>
-                        <span class="update-text">Building out a fuller public-facing hub for research, science communication, and technical projects.</span>
-                    </a>
-                </div>
-            </div>
-        </section>
-        UPDATES -->
-
-    </main>
-
-    <footer class="site-footer">
-        <div class="container footer-container">
-            <div>
-                <p class="footer-title">Christian Kohnle</p>
-                <p class="footer-subtitle">Research, writing, and public-facing work in physics and computation.</p>
-            </div>
-
-            <div class="footer-links">
-                <a href="https://github.com/CKohnle" target="_blank" rel="noopener noreferrer">GitHub</a>
-                <a href="https://www.linkedin.com/in/christian-kohnle-phys/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-                <a href="blog.html">Writing</a>
-                <a href="research.html">Research</a>
-            </div>
-        </div>
-
-        <div class="container footer-bottom">
-            <p>&copy; 2026 Christian Kohnle. All rights reserved.</p>
-        </div>
-    </footer>
-
-    <!-- TRANSITION OVERLAY -->
-    <div id="transition-overlay" class="transition-overlay" aria-hidden="true"></div>
-
-    <!-- SCRIPTS -->
-    <script src="js/utils.js"></script>
-    <script src="js/hero-universe.js"></script>
-    <script src="js/transitions.js"></script>
-    <script src="js/main.js"></script>
+  <datalist id="category-list"></datalist>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="./app.js"></script>
 </body>
 </html>
