@@ -1,0 +1,185 @@
+/* ---------- BASIC LAYOUT ---------- */
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  background: #f0f0f0;
+  color: #222;
+}
+
+header,
+main,
+footer {
+  max-width: 1100px;
+  margin: auto;
+  padding: 10px;
+}
+
+h1,
+h2,
+h3 {
+  margin: 4px 0;
+}
+
+nav a {
+  margin-right: 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+th,
+td {
+  border: 1px solid #ccc;
+  padding: 6px;
+  text-align: center;
+}
+
+td.task-completed {
+  text-decoration: line-through;
+  color: #888;
+}
+
+input[type="text"],
+select {
+  padding: 4px;
+}
+
+button {
+  padding: 5px 8px;
+  margin: 2px;
+  cursor: pointer;
+}
+
+.hidden {
+  display: none;
+}
+
+/* ---------- LAYOUT SPLIT (75/25) ---------- */
+
+#task-sections {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+#daily-section {
+  flex: 3;
+}
+
+#weekly-section {
+  flex: 1;
+  background: #fff;
+  border: 1px solid #bbb;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+/* ---------- WEEKLY TOKEN BAR ---------- */
+
+#token-week-wrapper {
+  display: flex;
+  align-items: center;
+  margin-top: 14px;
+}
+
+#token-week-text {
+  min-width: 160px;
+  font-weight: bold;
+}
+
+.token-week-bar {
+  flex: 1;
+  height: 24px;
+  background: #ddd;
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+}
+
+.token-week-fill {
+  height: 100%;
+  background: #76c7c0;
+  width: 0%;
+  transition: width 0.3s;
+}
+
+.token-week-fill.over {
+  background: #d9534f;
+}
+
+.token-week-label {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  line-height: 24px;
+  font-weight: bold;
+  color: #fff;
+}
+
+/* ---------- PROGRESS BARS ---------- */
+
+.progress-wrapper {
+  display: flex;
+  align-items: center;
+  margin: 8px 0;
+}
+
+.progress-label {
+  min-width: 90px;
+  text-align: right;
+  padding-right: 6px;
+  font-weight: bold;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 20px;
+  background: #e0e0e0;
+  border-radius: 5px;
+  position: relative;
+}
+
+.progress-fill {
+  background: #4287f5;
+  height: 100%;
+  width: 0%;
+  transition: width 0.3s;
+}
+
+.progress-text {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  line-height: 20px;
+  color: #fff;
+  font-weight: bold;
+}
+
+/* ---------- FORMS ---------- */
+
+.form-block {
+  margin-top: 20px;
+  border: 1px solid #bbb;
+  background: #fff;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.form-block h3 {
+  margin-top: 0;
+}
+
+/* ---------- UTILITY ---------- */
+
+.flex {
+  display: flex;
+  align-items: center;
+}
+
+.mt10 {
+  margin-top: 10px;
+}
