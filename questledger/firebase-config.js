@@ -1,15 +1,21 @@
-/*
- * Paste the firebaseConfig object from:
- * Firebase Console → Project settings → Your apps → Web app.
- *
- * This client configuration is not a secret. Security comes from
- * Authentication plus the Firestore rules supplied with this project.
- */
-export const firebaseConfig = {
-  apiKey: "PASTE_YOUR_API_KEY",
-  authDomain: "PASTE_YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "PASTE_YOUR_PROJECT_ID",
-  storageBucket: "PASTE_YOUR_PROJECT_ID.firebasestorage.app",
-  messagingSenderId: "PASTE_YOUR_MESSAGING_SENDER_ID",
-  appId: "PASTE_YOUR_APP_ID"
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyBzCogyORUtEw8efrl8KoeAPPuK0mFQzy8",
+  authDomain: "task-tracker-83250.firebaseapp.com",
+  projectId: "task-tracker-83250",
+  storageBucket: "task-tracker-83250.firebasestorage.app",
+  messagingSenderId: "657729804454",
+  appId: "1:657729804454:web:a980f2b9e7ca6108e8fc67",
+  measurementId: "G-XLS1KS71VZ"
 };
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
